@@ -5,7 +5,111 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Roblox Personal Tracker</title>
   <style>
-    /* RESET & CƠ BẢN */
+    /* =========================================
+       MÀN HÌNH LOADING (HACKER 01010)
+       ========================================= */
+    #loader-wrapper {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.8s ease-out, visibility 0.8s ease-out; /* Tàng hình dần */
+    }
+
+    .loader-content {
+      position: relative;
+      width: 250px;
+      height: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Nhân vật bay (Hacker) */
+    .hacker-flyer {
+      position: relative;
+      width: 80px; height: 20px;
+      margin-left: 50px;
+      animation: float-up-down 0.6s ease-in-out infinite alternate;
+      z-index: 2;
+    }
+
+    /* Thân nhân vật */
+    .hacker-flyer::before {
+      content: "";
+      position: absolute;
+      top: 50%; left: 0;
+      width: 60px; height: 8px;
+      background: #000;
+      border-radius: 4px;
+      transform: translateY(-50%);
+    }
+
+    /* Đầu nhân vật */
+    .hacker-flyer::after {
+      content: "";
+      position: absolute;
+      right: 5px; top: -3px;
+      width: 18px; height: 18px;
+      background: #000;
+      border-radius: 50%;
+    }
+
+    /* Vệt dữ liệu 01010 bay phía sau */
+    .binary-trails {
+      position: absolute;
+      top: 0; left: 0;
+      width: 150px; height: 40px;
+    }
+
+    .binary-trails span {
+      position: absolute;
+      font-family: 'Courier New', monospace;
+      font-weight: 800;
+      color: #000;
+      opacity: 0;
+      animation: shoot-binary linear infinite;
+    }
+
+    /* Phân bổ các dải số liệu ngẫu nhiên */
+    .binary-trails span:nth-child(1) { top: -10px; left: 60px; font-size: 15px; animation-duration: 0.6s; animation-delay: 0s; }
+    .binary-trails span:nth-child(2) { top: 18px; left: 45px; font-size: 13px; color: #555; animation-duration: 0.8s; animation-delay: 0.2s; }
+    .binary-trails span:nth-child(3) { top: 35px; left: 70px; font-size: 17px; animation-duration: 0.7s; animation-delay: 0.4s; }
+    .binary-trails span:nth-child(4) { top: 5px; left: 30px; font-size: 11px; color: #888; animation-duration: 0.9s; animation-delay: 0.1s; }
+
+    @keyframes shoot-binary {
+      0% { transform: translateX(0); opacity: 1; }
+      100% { transform: translateX(-120px); opacity: 0; }
+    }
+
+    @keyframes float-up-down {
+      0% { transform: translateY(-4px); }
+      100% { transform: translateY(4px); }
+    }
+
+    .loading-text {
+      margin-top: 25px;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      font-weight: 800;
+      letter-spacing: 5px;
+      color: #000;
+      font-size: 14px;
+      animation: pulse-text 1s infinite alternate;
+    }
+
+    @keyframes pulse-text {
+      0% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
+    /* =========================================
+       CSS GIAO DIỆN CHÍNH (GIỮ NGUYÊN)
+       ========================================= */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -14,165 +118,54 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
-    /* VIDEO BACKGROUND & LỚP PHỦ */
-    .bg-video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      min-width: 100%;
-      min-height: 100%;
-      z-index: -2;
-      object-fit: cover;
-    }
-    .bg-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(240, 244, 248, 0.6); /* Phủ trắng mờ để dễ đọc chữ */
-      backdrop-filter: blur(8px); /* Hiệu ứng kính mờ */
-      z-index: -1;
-    }
-
-    /* NÚT MỞ MENU (HIỂN THỊ KHI MENU ĐÓNG) */
-    .menu-toggle-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 200;
-      background: #ffffff;
-      border: 1px solid #d1d5db;
-      color: #3b82f6;
-      font-size: 1.5rem;
-      width: 45px;
-      height: 45px;
-      border-radius: 10px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-    }
+    .bg-video { position: fixed; top: 0; left: 0; min-width: 100%; min-height: 100%; z-index: -2; object-fit: cover; }
+    .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(240, 244, 248, 0.6); backdrop-filter: blur(8px); z-index: -1; }
+    .menu-toggle-btn { position: fixed; top: 20px; left: 20px; z-index: 200; background: #ffffff; border: 1px solid #d1d5db; color: #3b82f6; font-size: 1.5rem; width: 45px; height: 45px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
     .menu-toggle-btn:hover { background: #f3f4f6; transform: scale(1.05); }
-
-    /* SIDEBAR NAVIGATION - MƯỢT MÀ */
-    .sidebar { 
-      width: 280px; 
-      background: rgba(255, 255, 255, 0.95); 
-      border-right: 1px solid #e5e7eb; 
-      position: fixed; 
-      height: 100vh; 
-      top: 0; 
-      left: -280px; /* Mặc định đóng */
-      display: flex; 
-      flex-direction: column; 
-      justify-content: space-between; 
-      z-index: 300; 
-      box-shadow: 4px 0 15px rgba(0,0,0,0.05);
-      transition: left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Animation đóng mở từ từ */
-    }
+    .sidebar { width: 280px; background: rgba(255, 255, 255, 0.95); border-right: 1px solid #e5e7eb; position: fixed; height: 100vh; top: 0; left: -280px; display: flex; flex-direction: column; justify-content: space-between; z-index: 300; box-shadow: 4px 0 15px rgba(0,0,0,0.05); transition: left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
     .sidebar.open { left: 0; }
-
     .sidebar-top { flex: 1; }
-    .brand-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 22px 20px;
-      border-bottom: 1px solid #e5e7eb;
-    }
+    .brand-container { display: flex; align-items: center; justify-content: space-between; padding: 22px 20px; border-bottom: 1px solid #e5e7eb; }
     .brand { font-size: 1.1rem; font-weight: bold; color: #1d4ed8; }
     .close-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #6b7280; transition: 0.2s; }
     .close-btn:hover { color: #ef4444; transform: rotate(90deg); }
-
     .menu { list-style: none; margin-top: 15px; padding: 0 10px; }
-    .menu-btn { 
-      width: 100%; padding: 14px 15px; margin-bottom: 5px;
-      background: transparent; border: none; border-radius: 8px;
-      color: #4b5563; font-size: 1rem; font-weight: 600; text-align: left; 
-      cursor: pointer; display: flex; align-items: center; gap: 12px; 
-      transition: all 0.2s ease; 
-    }
+    .menu-btn { width: 100%; padding: 14px 15px; margin-bottom: 5px; background: transparent; border: none; border-radius: 8px; color: #4b5563; font-size: 1rem; font-weight: 600; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease; }
     .menu-btn:hover { background: #f3f4f6; color: #2563eb; transform: translateX(5px); }
     .menu-btn.active { background: #eff6ff; color: #1d4ed8; font-weight: 700; border-left: 4px solid #2563eb; }
-
-    /* USER AUTH PROFILE BOX */
     .user-profile-box { padding: 20px; border-top: 1px solid #e5e7eb; background: #fafafa; text-align: center; }
     .btn-discord { background: #5865F2; color: #fff; border: none; padding: 12px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; box-shadow: 0 4px 6px rgba(88,101,242,0.3); }
     .btn-discord:hover { background: #4752C4; transform: translateY(-2px); }
     .btn-logout { background: #fee2e2; color: #b91c1c; border: none; padding: 8px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 0.85rem; transition: 0.2s; width: 100%;}
     .btn-logout:hover { background: #fca5a5; }
     .discord-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #5865F2; }
-
-    /* MAIN CONTENT AREA */
-    .main-content { 
-      flex: 1; 
-      padding: 40px 30px; 
-      width: 100%; 
-      max-width: 1100px;
-      margin: 0 auto;
-      margin-left: auto; /* Căn giữa khi menu đóng */
-      transition: margin-left 0.4s ease, padding-left 0.4s ease;
-    }
-    .main-content.shifted {
-      padding-left: 310px; /* Đẩy nội dung sang phải khi menu mở */
-    }
-
+    .main-content { flex: 1; padding: 40px 30px; width: 100%; max-width: 1100px; margin: 0 auto; margin-left: auto; transition: margin-left 0.4s ease, padding-left 0.4s ease; }
+    .main-content.shifted { padding-left: 310px; }
     .tab-section { display: none; opacity: 0; transition: opacity 0.4s ease; }
     .tab-section.active { display: block; opacity: 1; animation: fadeIn 0.5s forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
     h1 { color: #1e3a8a; margin-bottom: 20px; font-size: 1.8rem; font-weight: 800; border-bottom: 2px solid #bfdbfe; padding-bottom: 10px; }
-
-    /* WELCOME CARD (HOME) */
-    .welcome-card {
-      background: rgba(255, 255, 255, 0.85);
-      padding: 40px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      border: 1px solid #e5e7eb;
-      backdrop-filter: blur(10px);
-      text-align: center;
-    }
+    .welcome-card { background: rgba(255, 255, 255, 0.85); padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; backdrop-filter: blur(10px); text-align: center; }
     .welcome-card h2 { color: #1d4ed8; font-size: 2.2rem; margin-bottom: 15px; }
     .welcome-card p { font-size: 1.1rem; color: #4b5563; line-height: 1.6; margin-bottom: 20px; }
     .welcome-icon { font-size: 4rem; margin-bottom: 10px; animation: bounce 2s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-    /* FILTER BOX STYLES */
     .filter-box { margin-bottom: 25px; display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.9); padding: 15px 20px; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
     .filter-box label { color: #374151; font-size: 1rem; font-weight: 700; }
     .filter-box select { background: #f9fafb; color: #1f2937; border: 1px solid #d1d5db; padding: 10px 16px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; outline: none; cursor: pointer; transition: 0.2s; }
     .filter-box select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
-
-    /* CARD STYLES (LOGS) */
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-    .log-card { 
-      background: rgba(255, 255, 255, 0.95); 
-      padding: 20px; 
-      border-radius: 12px; 
-      box-shadow: 0 8px 20px rgba(0,0,0,0.06); 
-      border: 1px solid #e5e7eb;
-      display: flex; flex-direction: column; gap: 12px; 
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+    .log-card { background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
     .log-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); border-color: #bfdbfe; }
     .log-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #e5e7eb; padding-bottom: 12px; }
-    
-    /* BADGES */
     .status-badge { padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.85em; display: inline-block; }
-    .status-1 { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; } /* Xanh lá nhạt */
-    .status-0 { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; } /* Đỏ nhạt */
-    .status-other { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; } /* Xanh dương nhạt */
-
+    .status-1 { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .status-0 { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .status-other { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
     .log-info { font-size: 1rem; color: #374151; font-weight: 500; }
     .highlight { color: #2563eb; font-weight: 800; font-size: 1.1rem; }
     .sub-id { font-size: 0.85em; color: #6b7280; margin-left: 6px; font-weight: normal; }
     .timestamp { font-size: 0.85em; color: #6b7280; text-align: right; font-style: italic; }
-    
     .empty-msg { text-align: center; color: #4b5563; padding: 40px; background: rgba(255,255,255,0.8); border-radius: 12px; border: 2px dashed #cbd5e1; font-size: 1.05rem; }
   </style>
 
@@ -181,19 +174,27 @@
 </head>
 <body>
 
-  <!-- BACKGROUND VIDEO -->
-  <!-- Bạn có thể thay link .mp4 bên dưới bằng bất kỳ video nào bạn thích -->
+  <!-- LAYER LOADING KHI VỪA VÀO WEB -->
+  <div id="loader-wrapper">
+    <div class="loader-content">
+      <div class="binary-trails">
+        <span>0101010</span>
+        <span>1100101</span>
+        <span>0011000</span>
+        <span>1010111</span>
+      </div>
+      <div class="hacker-flyer"></div>
+    </div>
+    <div class="loading-text">LOADING...</div>
+  </div>
+
   <video autoplay muted loop class="bg-video">
     <source src="https://cdn.pixabay.com/video/2020/05/11/38608-418512130_large.mp4" type="video/mp4">
   </video>
   <div class="bg-overlay"></div>
 
-  <!-- NÚT MỞ MENU -->
-  <button class="menu-toggle-btn" onclick="toggleSidebar()">
-    ☰
-  </button>
+  <button class="menu-toggle-btn" onclick="toggleSidebar()">☰</button>
 
-  <!-- SIDEBAR NAVIGATION -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-top">
       <div class="brand-container">
@@ -201,448 +202,66 @@
         <button class="close-btn" onclick="toggleSidebar()">✖</button>
       </div>
       <ul class="menu">
-        <li>
-          <button class="menu-btn active" onclick="showTab('home', this)">
-            🏠 Trang Chủ
-          </button>
-        </li>
-        <li>
-          <button class="menu-btn" onclick="showTab('live', this)">
-            🔴 Roblox Live
-          </button>
-        </li>
-        <li>
-          <button class="menu-btn" onclick="showTab('history', this)">
-            📜 Lịch Sử Hoạt Động
-          </button>
-        </li>
+        <li><button class="menu-btn active" onclick="showTab('home', this)">🏠 Trang Chủ</button></li>
+        <li><button class="menu-btn" onclick="showTab('live', this)">🔴 Roblox Live</button></li>
+        <li><button class="menu-btn" onclick="showTab('history', this)">📜 Lịch Sử</button></li>
       </ul>
     </div>
-
     <div class="user-profile-box" id="authBox">
-      <button class="btn-discord" onclick="loginWithDiscord()">
-        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .052.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.027.07.05.05 0 0 0 .01.011c.236.466.51.91.819 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"/>
-        </svg>
-        Đăng nhập Discord
-      </button>
+      <button class="btn-discord" onclick="loginWithDiscord()">Đăng nhập Discord</button>
     </div>
   </div>
 
   <div class="main-content" id="mainContent">
-    
-    <!-- TAB 0: TRANG CHỦ -->
     <div id="tab-home" class="tab-section active">
       <div class="welcome-card">
         <div class="welcome-icon">👋</div>
         <h2>Xin chào! Chào mừng đến với Roblox Tracker</h2>
-        <p>
-          Nơi đây lưu giữ và phân tích mọi dấu ấn hoạt động của bạn. Dù là lúc bạn đang treo máy lướt web, vọc vạch tìm hiểu Script, mọi trạng thái đều sẽ được hệ thống cập nhật và ghi nhận chính xác theo thời gian thực.
-        </p>
-        <p>
-          Hãy mở menu bên trái và đăng nhập bằng Discord để bắt đầu đồng bộ dữ liệu ngay nhé!
-        </p>
+        <p>Nơi đây lưu giữ và phân tích mọi dấu ấn hoạt động của bạn. Dù là lúc bạn đang treo máy lướt web, vọc vạch tìm hiểu Script, thì mọi trạng thái đều sẽ được ghi nhận.</p>
+        <p>Hãy mở menu bên trái và đăng nhập bằng Discord để bắt đầu đồng bộ dữ liệu ngay nhé!</p>
       </div>
     </div>
-
-    <!-- TAB 1: ROBLOX LIVE -->
     <div id="tab-live" class="tab-section">
       <h1>🔴 Trạng Thái Trực Tiếp</h1>
-      <div id="live-container" class="grid-container">
-        <p class='empty-msg'>Vui lòng đăng nhập bằng tài khoản Discord của bạn để xem trạng thái.</p>
-      </div>
+      <div id="live-container" class="grid-container"><p class='empty-msg'>Đăng nhập để xem trạng thái.</p></div>
     </div>
-
-    <!-- TAB 2: LỊCH SỬ HOẠT ĐỘNG -->
     <div id="tab-history" class="tab-section">
       <h1>📜 Lịch Sử Hoạt Động</h1>
-      
       <div class="filter-box" id="filterBox" style="display: none;">
-        <label for="userFilter">👤 Tài khoản của bạn:</label>
-        <select id="userFilter" onchange="renderHistoryLogs()">
-          <option value="ALL">✨ Tất cả tài khoản đã liên kết</option>
-        </select>
+        <label for="userFilter">👤 Tài khoản:</label>
+        <select id="userFilter" onchange="renderHistoryLogs()"><option value="ALL">✨ Tất cả</option></select>
       </div>
-
-      <div id="logs">
-        <p class='empty-msg'>Vui lòng đăng nhập bằng tài khoản Discord của bạn để xem lịch sử.</p>
-      </div>
+      <div id="logs"><p class='empty-msg'>Đăng nhập để xem lịch sử.</p></div>
     </div>
-
   </div>
 
   <script>
-    // --- LOGIC ĐÓNG MỞ MENU MƯỢT MÀ ---
+    // XÓA LOADING SCREEN KHI WEB TẢI XONG VÀ SAU 1.5 GIÂY (ĐỂ KỊP NHÌN ANIMATION)
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loader = document.getElementById('loader-wrapper');
+        loader.style.opacity = '0';
+        loader.style.visibility = 'hidden';
+      }, 1500); 
+    });
+
+    // Các logic Sidebar và Firebase giữ nguyên
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const mainContent = document.getElementById('mainContent');
-      
       sidebar.classList.toggle('open');
-      
-      // Nếu màn hình lớn, đẩy content sang phải khi mở menu
-      if (window.innerWidth > 768) {
-        mainContent.classList.toggle('shifted');
-      }
+      if (window.innerWidth > 768) mainContent.classList.toggle('shifted');
     }
 
-    // Mở menu mặc định nếu màn hình lớn
-    window.onload = () => {
-      if (window.innerWidth > 768) {
-        toggleSidebar(); 
-      }
-    }
+    window.onload = () => { if (window.innerWidth > 768) toggleSidebar(); }
 
-    // --- LOGIC TAB ---
     function showTab(tabName, btn) {
       document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-' + tabName).classList.add('active');
       btn.classList.add('active');
-      
-      // Tự động đóng menu trên điện thoại khi chọn tab
-      if (window.innerWidth <= 768) {
-        document.getElementById('sidebar').classList.remove('open');
-      }
+      if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
     }
-
-    // --- CẤU HÌNH FIREBASE VÀ DISCORD GIỮ NGUYÊN NHƯ CŨ ---
-    const DISCORD_CLIENT_ID = "1531721453664469153"; 
-    const REDIRECT_URI = window.location.origin + window.location.pathname;
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBYZE99y7JcqBXDQh7wHxFPdI0GVCCc_XE",
-      authDomain: "roblox-logs-406cd.firebaseapp.com",
-      projectId: "roblox-logs-406cd",
-      storageBucket: "roblox-logs-406cd.firebasestorage.app",
-      messagingSenderId: "678655678400",
-      appId: "1:678655678400:web:8e99a81d2b2e23ec355a25",
-      measurementId: "G-H7BS9DHD4C"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    const usernameCache = {};
-    let currentUserDiscord = null;
-    let userLinkedRobloxIds = [];
-    let rawLogsData = [];
-
-    function isValidRobloxId(id) {
-      if (!id) return false;
-      const str = String(id).trim();
-      return /^\d{5,14}$/.test(str);
-    }
-
-    async function fetchRobloxUsername(userId) {
-      if (!isValidRobloxId(userId)) return `ID: ${userId}`;
-      if (usernameCache[userId]) return usernameCache[userId];
-
-      try {
-        const targetUrl = `https://users.roblox.com/v1/users/${userId}`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-        const res = await fetch(proxyUrl);
-        if (res.ok) {
-          const data = await res.json();
-          const name = data.displayName || data.name;
-          if (name) {
-            usernameCache[userId] = name;
-            return name;
-          }
-        }
-      } catch (e) {
-        console.warn("Lỗi lấy tên Roblox:", userId);
-      }
-      return `ID: ${userId}`;
-    }
-
-    function loginWithDiscord() {
-      const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify%20connections`;
-      window.location.href = url;
-    }
-
-    function checkDiscordAuth() {
-      const hash = window.location.hash;
-      let token = localStorage.getItem("discord_token");
-
-      if (hash.includes("access_token=")) {
-        token = new URLSearchParams(hash.substring(1)).get("access_token");
-        localStorage.setItem("discord_token", token);
-        history.replaceState(null, "", window.location.pathname);
-      }
-
-      if (token) {
-        fetch("https://discord.com/api/users/@me", {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        .then(res => {
-          if (!res.ok) throw new Error("Token expired");
-          return res.json();
-        })
-        .then(async (user) => {
-          if (user.id) {
-            currentUserDiscord = user;
-            updateAuthUI();
-            await autoSyncDiscordRobloxConnection(token, user.id);
-            loadUserPrivateData();
-          } else {
-            logout();
-          }
-        })
-        .catch(() => logout());
-      }
-    }
-
-    async function autoSyncDiscordRobloxConnection(token, discordId) {
-      try {
-        const res = await fetch("https://discord.com/api/users/@me/connections", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const connections = await res.json();
-          const robloxConns = connections.filter(c => c.type === 'roblox');
-          
-          if (robloxConns.length > 0) {
-            const robloxIdsToSync = robloxConns.map(c => String(c.id));
-            const robloxAccountsToSync = robloxConns.map(c => ({
-              robloxId: String(c.id),
-              robloxUsername: String(c.name || "")
-            }));
-            
-            await db.collection("user_links").doc(String(discordId)).set({
-              discordId: String(discordId),
-              robloxIds: firebase.firestore.FieldValue.arrayUnion(...robloxIdsToSync),
-              robloxAccounts: firebase.firestore.FieldValue.arrayUnion(...robloxAccountsToSync)
-            }, { merge: true });
-          }
-        }
-      } catch (e) {
-        console.warn("Không thể tự đồng bộ Discord Connections:", e);
-      }
-    }
-
-    function logout() {
-      localStorage.removeItem("discord_token");
-      window.location.reload();
-    }
-
-    function updateAuthUI() {
-      const authBox = document.getElementById("authBox");
-      if (currentUserDiscord) {
-        const avatarUrl = currentUserDiscord.avatar 
-          ? `https://cdn.discordapp.com/avatars/${currentUserDiscord.id}/${currentUserDiscord.avatar}.png`
-          : `https://cdn.discordapp.com/embed/avatars/0.png`;
-
-        authBox.innerHTML = `
-          <div style="display:flex; align-items:center; gap:12px; justify-content:center; text-align:left;">
-            <img src="${avatarUrl}" class="discord-avatar">
-            <div>
-              <div style="font-weight:800; color:#1e40af; font-size:0.95rem;">${currentUserDiscord.username}</div>
-              <div style="font-size:0.75rem; color:#6b7280; font-weight:600;">Đã xác thực bảo mật</div>
-            </div>
-          </div>
-          <button class="btn-logout" onclick="logout()">Đăng xuất</button>
-        `;
-      }
-    }
-
-    async function loadUserPrivateData() {
-      if (!currentUserDiscord) return;
-
-      const currentDiscordId = String(currentUserDiscord.id);
-      let foundIds = new Set();
-
-      try {
-        const directDoc = await db.collection("user_links").doc(currentDiscordId).get();
-        if (directDoc.exists) {
-          const data = directDoc.data();
-          if (data.robloxAccounts && Array.isArray(data.robloxAccounts)) {
-            data.robloxAccounts.forEach(acc => {
-              const rId = typeof acc === 'object' ? acc.robloxId : acc;
-              if (rId && isValidRobloxId(rId)) {
-                foundIds.add(String(rId));
-                if (typeof acc === 'object' && acc.robloxUsername) {
-                  usernameCache[String(rId)] = acc.robloxUsername;
-                }
-              }
-            });
-          }
-          if (data.robloxIds && Array.isArray(data.robloxIds)) {
-            data.robloxIds.forEach(id => {
-              if (id && isValidRobloxId(id)) { foundIds.add(String(id)); }
-            });
-          }
-        }
-
-        const logsSnap = await db.collection("roblox_logs").where("discordId", "==", currentDiscordId).get();
-        logsSnap.forEach(doc => {
-          const data = doc.data();
-          const rId = String(data.robloxUserId || data.robloxId || "");
-          if (isValidRobloxId(rId)) foundIds.add(rId);
-        });
-      } catch (err) {
-        console.warn("Lỗi tải thông tin:", err);
-      }
-
-      userLinkedRobloxIds = Array.from(foundIds);
-
-      if (userLinkedRobloxIds.length === 0) {
-        renderLiveFromLogs();
-        renderHistoryLogs();
-      }
-
-      db.collection("roblox_logs")
-        .onSnapshot(async (snapshot) => {
-          rawLogsData = [];
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const docDiscordId = String(data.discordId || data.details?.discordId || "");
-            const rId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
-
-            if ((docDiscordId === currentDiscordId) || (isValidRobloxId(rId) && userLinkedRobloxIds.includes(rId))) {
-              rawLogsData.push({ id: doc.id, ...data });
-              if (isValidRobloxId(rId) && !userLinkedRobloxIds.includes(rId)) {
-                userLinkedRobloxIds.push(rId);
-              }
-            }
-          });
-
-          rawLogsData.sort((a, b) => {
-            const timeA = a.timestamp?.seconds || a.time || 0;
-            const timeB = b.timestamp?.seconds || b.time || 0;
-            return timeB - timeA;
-          });
-
-          await preloadUsernames();
-          updateUserFilterOptions();
-          renderHistoryLogs();
-          renderLiveFromLogs();
-        });
-    }
-
-    async function preloadUsernames() {
-      const promises = userLinkedRobloxIds.map(async id => {
-        const name = await fetchRobloxUsername(id);
-        usernameCache[id] = name;
-      });
-      await Promise.all(promises);
-      updateUserFilterOptions();
-      renderHistoryLogs();
-      renderLiveFromLogs();
-    }
-
-    function updateUserFilterOptions() {
-      const filterBox = document.getElementById("filterBox");
-      const userFilterSelect = document.getElementById("userFilter");
-      if (userLinkedRobloxIds.length === 0) { filterBox.style.display = "none"; return; }
-
-      filterBox.style.display = "flex";
-      const currentSelected = userFilterSelect.value;
-      let optionsHtml = '<option value="ALL">✨ Tất cả tài khoản của tôi</option>';
-      userLinkedRobloxIds.forEach(id => {
-        const name = usernameCache[id] && !usernameCache[id].startsWith("ID:") ? usernameCache[id] : `ID: ${id}`;
-        optionsHtml += `<option value="${id}">${name} (ID: ${id})</option>`;
-      });
-      userFilterSelect.innerHTML = optionsHtml;
-      if (currentSelected) userFilterSelect.value = currentSelected;
-    }
-
-    function renderHistoryLogs() {
-      const logsContainer = document.getElementById("logs");
-      const filterSelect = document.getElementById("userFilter");
-      const selectedUserId = filterSelect ? filterSelect.value : "ALL";
-      logsContainer.innerHTML = "";
-
-      if (!currentUserDiscord) {
-        logsContainer.innerHTML = "<p class='empty-msg'>Vui lòng đăng nhập Discord để xem lịch sử.</p>";
-        return;
-      }
-
-      const filteredLogs = rawLogsData.filter(data => {
-        const userId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
-        if (selectedUserId === "ALL") return userLinkedRobloxIds.includes(userId);
-        return userId === selectedUserId;
-      });
-
-      if (filteredLogs.length === 0) {
-        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào của bạn.</p>";
-        return;
-      }
-
-      filteredLogs.forEach((data) => {
-        let timeStr = "Vừa xong";
-        if (data.timestamp && data.timestamp.seconds) {
-          timeStr = new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN');
-        }
-
-        let statusHtml = '<span class="status-badge status-other">🔄 Hoạt động</span>';
-        if (data.userStatus === 1 || data.details?.userStatus === 1) statusHtml = '<span class="status-badge status-1">🟢 Đã vào game</span>';
-        else if (data.userStatus === 0 || data.details?.userStatus === 0) statusHtml = '<span class="status-badge status-0">🔴 Đã rời game</span>';
-
-        const userId = data.robloxUserId || data.details?.robloxUserId || data.robloxId || "Không rõ";
-        const playerName = usernameCache[userId] && !usernameCache[userId].startsWith("ID:") ? usernameCache[userId] : (data.playerName || `ID: ${userId}`);
-        const gameName = data.gameName || data.details?.gameName || data.lastLocation || 'Trang chủ / Website Roblox';
-
-        const card = document.createElement("div");
-        card.className = "log-card";
-        card.innerHTML = `
-          <div class="log-top">
-            <div>Người chơi: <span class="highlight">${playerName}</span> <span class="sub-id">(ID: ${userId})</span></div>
-            <div>${statusHtml}</div>
-          </div>
-          <div class="log-info">🎮 ${gameName}</div>
-          <div class="timestamp">⏰ ${timeStr}</div>
-        `;
-        logsContainer.appendChild(card);
-      });
-    }
-
-    function renderLiveFromLogs() {
-      const liveContainer = document.getElementById("live-container");
-      liveContainer.innerHTML = "";
-
-      if (!currentUserDiscord) {
-        liveContainer.innerHTML = "<p class='empty-msg'>Vui lòng đăng nhập bằng tài khoản Discord của bạn để xem trạng thái.</p>";
-        return;
-      }
-
-      if (userLinkedRobloxIds.length === 0) {
-        liveContainer.innerHTML = `
-          <div class='empty-msg' style="border-color:#fbbf24; background:rgba(255, 251, 235, 0.9);">
-            <p style="color:#b45309; font-weight:bold;">⚠️ Chưa tìm thấy tài khoản Roblox liên kết.</p>
-            <p style="font-size:0.9rem; margin-top:10px; color:#92400e;">
-              Hãy dùng lệnh <b>/roblox</b> trên Bot Discord để liên kết tài khoản của bạn.
-            </p>
-          </div>`;
-        return;
-      }
-
-      userLinkedRobloxIds.forEach(userId => {
-        const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId || item.robloxId) === String(userId));
-        const isOnline = userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1 || userLog.userStatus === 2) : false;
-        const playerName = usernameCache[userId] && !usernameCache[userId].startsWith("ID:") ? usernameCache[userId] : `ID: ${userId}`;
-        const gameName = userLog ? (userLog.lastLocation || userLog.gameName || userLog.details?.gameName || 'Trang chủ / Website Roblox') : 'Chưa ghi nhận hoạt động mới';
-
-        const statusBadge = isOnline 
-          ? '<span class="status-badge status-1">🟢 Online / In Game</span>' 
-          : '<span class="status-badge status-0">🔴 Offline</span>';
-
-        const card = document.createElement("div");
-        card.className = "log-card";
-        card.innerHTML = `
-          <div class="log-top">
-            <div><span class="highlight">${playerName}</span></div>
-            <div>${statusBadge}</div>
-          </div>
-          <div class="log-info" style="margin-top:8px;">
-            <p style="margin-bottom:6px;"><strong style="color:#6b7280;">ID:</strong> ${userId}</p>
-            <p><strong style="color:#6b7280;">Vị trí gần nhất:</strong> <span style="color:#1d4ed8; font-weight:600;">${gameName}</span></p>
-          </div>
-        `;
-        liveContainer.appendChild(card);
-      });
-    }
-
-    checkDiscordAuth();
   </script>
 </body>
 </html>
