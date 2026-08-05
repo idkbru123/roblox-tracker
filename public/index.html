@@ -219,15 +219,10 @@
           
           if (robloxConns.length > 0) {
             const robloxIdsToSync = robloxConns.map(c => String(c.id));
-            const robloxAccountsToSync = robloxConns.map(c => ({
-              robloxId: String(c.id),
-              robloxUsername: String(c.name || "")
-            }));
             
             await db.collection("user_links").doc(String(discordId)).set({
               discordId: String(discordId),
-              robloxIds: firebase.firestore.FieldValue.arrayUnion(...robloxIdsToSync),
-              robloxAccounts: firebase.firestore.FieldValue.arrayUnion(...robloxAccountsToSync)
+              robloxIds: firebase.firestore.FieldValue.arrayUnion(...robloxIdsToSync)
             }, { merge: true });
           }
         }
@@ -268,36 +263,32 @@
       let foundIds = new Set();
 
       try {
+        // Đọc trực tiếp từ collection user_links theo Document ID là Discord ID
         const directDoc = await db.collection("user_links").doc(currentDiscordId).get();
         if (directDoc.exists) {
           const data = directDoc.data();
-
+          // Kiểm tra và lấy dữ liệu từ mảng robloxAccounts chuẩn theo Firestore của bạn
           if (data.robloxAccounts && Array.isArray(data.robloxAccounts)) {
             data.robloxAccounts.forEach(acc => {
-              const rId = typeof acc === 'object' ? acc.robloxId : acc;
-              if (rId && isValidRobloxId(rId)) {
-                foundIds.add(String(rId));
-                if (typeof acc === 'object' && acc.robloxUsername) {
-                  usernameCache[String(rId)] = acc.robloxUsername;
+              if (acc.robloxId && isValidRobloxId(acc.robloxId)) {
+                foundIds.add(String(acc.robloxId));
+                // Lưu luôn tên hiển thị nếu đã có sẵn trong database để khỏi gọi API rườm rà
+                if (acc.robloxUsername) {
+                  usernameCache[String(acc.robloxId)] = acc.robloxUsername;
                 }
-              }
-            });
-          }
-
-          if (data.robloxIds && Array.isArray(data.robloxIds)) {
-            data.robloxIds.forEach(id => {
-              if (id && isValidRobloxId(id)) {
-                foundIds.add(String(id));
               }
             });
           }
         }
 
-        const logsSnap = await db.collection("roblox_logs").where("discordId", "==", currentDiscordId).get();
+        // Quét thêm từ roblox_logs dự phòng nếu có
+        const logsSnap = await db.collection("roblox_logs").get();
         logsSnap.forEach(doc => {
           const data = doc.data();
-          const rId = String(data.robloxUserId || data.robloxId || "");
-          if (isValidRobloxId(rId)) {
+          const docDiscordId = String(data.discordId || data.details?.discordId || "");
+          const rId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
+
+          if (docDiscordId === currentDiscordId && isValidRobloxId(rId)) {
             foundIds.add(rId);
           }
         });
@@ -308,6 +299,7 @@
 
       userLinkedRobloxIds = Array.from(foundIds);
 
+      // Lắng nghe dữ liệu real-time từ Firestore logs
       db.collection("roblox_logs")
         .onSnapshot(async (snapshot) => {
           rawLogsData = [];
