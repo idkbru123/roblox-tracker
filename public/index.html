@@ -113,7 +113,6 @@
 
   <script>
     // ===== CẤU HÌNH DISCORD OAUTH2 =====
-    // Thay ID Application Discord của bạn vào đây:
     const DISCORD_CLIENT_ID = "1531721453664469153"; 
     const REDIRECT_URI = window.location.origin + window.location.pathname;
 
@@ -133,7 +132,7 @@
 
     const usernameCache = {};
     let currentUserDiscord = null;
-    let userLinkedRobloxIds = []; // Các Roblox ID mà user Discord này sở hữu
+    let userLinkedRobloxIds = [];
     let rawLogsData = [];
 
     function showTab(tabName, btn) {
@@ -143,7 +142,6 @@
       btn.classList.add('active');
     }
 
-    // 1. SỬA LỖI TÊN: Dùng CORS Proxy để không bị kẹt "Đang tải tên..."
     async function fetchRobloxUsername(userId) {
       if (!userId || userId === "Không rõ") return "Unknown";
       if (usernameCache[userId]) return usernameCache[userId];
@@ -164,7 +162,7 @@
       return `ID: ${userId}`;
     }
 
-    // 2. DISCORD AUTH LOGIC
+    // DISCORD AUTH LOGIC
     function loginWithDiscord() {
       if (DISCORD_CLIENT_ID === "YOUR_DISCORD_CLIENT_ID") {
         alert("Bạn chưa cấu hình DISCORD_CLIENT_ID trong code!");
@@ -193,7 +191,7 @@
           if (user.id) {
             currentUserDiscord = user;
             updateAuthUI();
-            loadUserDataAndInit();
+            loadUserData(user.id);
           } else {
             logout();
           }
@@ -227,40 +225,68 @@
       }
     }
 
-    // 3. TẢI DỮ LIỆU & GIỚI HẠN CHỈ XEM TÀI KHOẢN CỦA MÌNH
-    async function loadUserDataAndInit() {
-      if (!currentUserDiscord) return;
+    // ===== HÀM LẤY DỮ LIỆU ĐÃ CẬP NHẬT THEO 2 BƯỚC =====
+    async function loadUserData(discordUserId) {
+      try {
+        // 1. Tìm Roblox ID tương ứng với Discord ID từ collection user_links
+        const userLinkDoc = await db.collection("user_links").doc(discordUserId).get();
 
-      // Tìm Roblox ID liên kết từ collection roblox_users hoặc user_links
-      const linkedSnap = await db.collection("roblox_users").where("discordId", "==", currentUserDiscord.id).get();
-      
-      userLinkedRobloxIds = [];
-      linkedSnap.forEach(doc => {
-        const data = doc.data();
-        const rId = data.robloxUserId || doc.id;
-        if (rId) userLinkedRobloxIds.push(String(rId));
-      });
+        if (!userLinkDoc.exists) {
+          const notLinkedMsg = "<p class='empty-msg'>Tài khoản Discord của bạn chưa liên kết với Roblox ID nào trong Bot.</p>";
+          document.getElementById("live-container").innerHTML = notLinkedMsg;
+          document.getElementById("logs").innerHTML = notLinkedMsg;
+          document.getElementById("filterBox").style.display = "none";
+          return;
+        }
 
-      // Lắng nghe Lịch sử từ Firebase
-      db.collection("roblox_logs").orderBy("timestamp", "desc").limit(100)
-        .onSnapshot(async (snapshot) => {
-          rawLogsData = [];
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const rId = String(data.robloxUserId || data.details?.robloxUserId);
-            
-            // Nếu log có ghi nhận discordId HOẶC nằm trong danh sách đã liên kết của user
-            if ((data.discordId && data.discordId === currentUserDiscord.id) || userLinkedRobloxIds.includes(rId)) {
-              rawLogsData.push({ id: doc.id, ...data });
-              if (!userLinkedRobloxIds.includes(rId)) userLinkedRobloxIds.push(rId);
-            }
+        const data = userLinkDoc.data();
+        const linkedRobloxId = String(data.robloxId || data.roblox_id || "");
+
+        if (!linkedRobloxId) {
+          const errorMsg = "<p class='empty-msg'>Không tìm thấy Roblox ID hợp lệ trong dữ liệu liên kết.</p>";
+          document.getElementById("live-container").innerHTML = errorMsg;
+          document.getElementById("logs").innerHTML = errorMsg;
+          return;
+        }
+
+        userLinkedRobloxIds = [linkedRobloxId];
+
+        // 2. Lấy danh sách log từ roblox_logs dựa theo robloxId vừa tìm được (sử dụng Realtime Listener)
+        db.collection("roblox_logs")
+          .where("robloxId", "==", linkedRobloxId)
+          .orderBy("timestamp", "desc")
+          .limit(10)
+          .onSnapshot(async (logsSnapshot) => {
+            rawLogsData = [];
+            logsSnapshot.forEach(doc => {
+              rawLogsData.push({ id: doc.id, ...doc.data() });
+            });
+
+            await preloadUsernames();
+            updateUserFilterOptions();
+            renderHistoryLogs();
+            renderLiveFromLogs();
+          }, (err) => {
+            console.warn("Thử lại truy vấn không có orderBy nếu chưa tạo Index:", err);
+            db.collection("roblox_logs")
+              .where("robloxId", "==", linkedRobloxId)
+              .onSnapshot(async (logsSnapshot) => {
+                rawLogsData = [];
+                logsSnapshot.forEach(doc => {
+                  rawLogsData.push({ id: doc.id, ...doc.data() });
+                });
+                rawLogsData.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                
+                await preloadUsernames();
+                updateUserFilterOptions();
+                renderHistoryLogs();
+                renderLiveFromLogs();
+              });
           });
 
-          await preloadUsernames();
-          updateUserFilterOptions();
-          renderHistoryLogs();
-          renderLiveFromLogs();
-        });
+      } catch (error) {
+        console.error("Lỗi tải dữ liệu:", error);
+      }
     }
 
     async function preloadUsernames() {
@@ -297,7 +323,7 @@
       }
 
       const filteredLogs = rawLogsData.filter(data => {
-        const userId = String(data.robloxUserId || data.details?.robloxUserId);
+        const userId = String(data.robloxId || data.robloxUserId || data.details?.robloxUserId);
         if (selectedUserId === "ALL") return userLinkedRobloxIds.includes(userId);
         return userId === selectedUserId;
       });
@@ -320,7 +346,7 @@
           statusHtml = '<span class="status-badge status-0">🔴 Đã rời game</span>';
         }
 
-        const userId = data.robloxUserId || data.details?.robloxUserId || "Không rõ";
+        const userId = data.robloxId || data.robloxUserId || data.details?.robloxUserId || "Không rõ";
         const playerName = usernameCache[userId] || data.playerName || `ID: ${userId}`;
         const gameName = data.gameName || data.details?.gameName || data.lastLocation || 'Trang chủ / Website Roblox';
 
@@ -353,7 +379,7 @@
       }
 
       userLinkedRobloxIds.forEach(userId => {
-        const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId) === String(userId));
+        const userLog = rawLogsData.find(item => String(item.robloxId || item.robloxUserId || item.details?.robloxUserId) === String(userId));
         const isOnline = userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1) : false;
         const playerName = usernameCache[userId] || `ID: ${userId}`;
         const gameName = userLog ? (userLog.gameName || userLog.details?.gameName || userLog.lastLocation || 'Trang chủ / Website Roblox') : 'Chưa ghi nhận';
