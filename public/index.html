@@ -6,7 +6,7 @@
   <title>Roblox Personal Tracker</title>
   <style>
     /* =========================================
-       MÀN HÌNH LOADING (HACKER BAY & DỪNG TỪ TỪ)
+       MÀN HÌNH LOADING (NHÂN VẬT BAY & MÃ NHỊ PHÂN)
        ========================================= */
     #loader-wrapper {
       position: fixed;
@@ -18,83 +18,88 @@
       justify-content: center;
       align-items: center;
       z-index: 9999;
-      transition: opacity 0.8s ease-out, visibility 0.8s ease-out; /* Tàng hình dần màn hình */
+      transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
     }
 
     .loader-content {
       position: relative;
-      width: 280px;
-      height: 90px;
+      width: 300px;
+      height: 100px;
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
-    /* Nhân vật bay */
-    .hacker-flyer {
+    /* Thiết kế nhân vật bay chuẩn mẫu Meowish */
+    .flyer-body {
       position: absolute;
-      width: 75px; height: 22px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px; height: 12px;
       background: #000000;
-      border-radius: 50% 25% 25% 50%;
-      transform: rotate(-12deg);
-      animation: flyer-move 0.4s ease-in-out infinite alternate;
+      border-radius: 50px;
+      animation: flyer-bounce 0.4s linear infinite;
       z-index: 2;
     }
-    .hacker-flyer::after {
-      content: "";
+
+    .flyer-head {
       position: absolute;
-      right: -4px; top: 2px;
-      width: 15px; height: 15px;
+      content: "";
+      height: 14px; width: 18px;
       background: #000000;
-      border-radius: 50%;
+      border-radius: 50% 50% 20% 20%;
+      transform: rotate(-35deg);
+      right: -8px; top: -6px;
     }
 
-    /* Vệt số nhị phân phía sau */
+    /* Vệt số nhị phân kiểu hacker phía sau */
     .binary-trails {
       position: absolute;
       width: 100%; height: 100%;
+      top: 0; left: 0;
     }
 
     .binary-trails span {
       position: absolute;
       font-family: 'Courier New', Courier, monospace;
-      font-weight: 800;
+      font-weight: bold;
       color: #111111;
       opacity: 0.85;
-      animation: binary-fly 0.4s linear infinite;
+      animation: binary-move 0.4s linear infinite;
     }
 
-    .binary-trails span:nth-child(1) { top: 12px; left: 50px; font-size: 14px; animation-delay: 0s; }
-    .binary-trails span:nth-child(2) { top: 45px; left: 80px; font-size: 12px; animation-delay: 0.1s; }
-    .binary-trails span:nth-child(3) { top: 22px; left: 110px; font-size: 16px; animation-delay: 0.2s; }
-    .binary-trails span:nth-child(4) { top: 55px; left: 35px; font-size: 11px; animation-delay: 0.15s; }
-    .binary-trails span:nth-child(5) { top: 2px; left: 140px; font-size: 13px; animation-delay: 0.25s; }
+    .binary-trails span:nth-child(1) { top: 15px; left: 90px; font-size: 13px; animation-delay: 0s; }
+    .binary-trails span:nth-child(2) { top: 60px; left: 130px; font-size: 11px; animation-delay: 0.1s; }
+    .binary-trails span:nth-child(3) { top: 30px; left: 160px; font-size: 14px; animation-delay: 0.2s; }
+    .binary-trails span:nth-child(4) { top: 70px; left: 70px; font-size: 10px; animation-delay: 0.15s; }
+    .binary-trails span:nth-child(5) { top: 5px; left: 190px; font-size: 12px; animation-delay: 0.25s; }
 
-    @keyframes flyer-move {
-      0% { transform: translateY(-3px) rotate(-12deg); }
-      100% { transform: translateY(3px) rotate(-8deg); }
+    @keyframes flyer-bounce {
+      0% { transform: translate(-50%, -53%) rotate(-3deg); }
+      50% { transform: translate(-50%, -47%) rotate(3deg); }
+      100% { transform: translate(-50%, -53%) rotate(-3deg); }
     }
 
-    @keyframes binary-fly {
-      0% { transform: translateX(0); opacity: 1; }
-      100% { transform: translateX(-90px); opacity: 0; }
+    @keyframes binary-move {
+      0% { transform: translateX(0); opacity: 0.9; }
+      100% { transform: translateX(-110px); opacity: 0; }
     }
 
-    /* TRẠNG THÁI DỪNG BAY TỪ TỪ (SLOWING DOWN) */
-    .loader-content.slowing .hacker-flyer {
-      animation: flyer-move-slow 2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards !important;
+    /* TRẠNG THÁI DỪNG BAY TỪ TỪ VÀ TÀNG HÌNH */
+    .loader-content.slowing .flyer-body {
+      animation: flyer-stop 1.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards !important;
     }
     .loader-content.slowing .binary-trails span {
-      animation: binary-fly-slow 2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards !important;
+      animation: binary-stop 1.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards !important;
     }
 
-    @keyframes flyer-move-slow {
-      0% { transform: translateY(0) rotate(-10deg); }
-      100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+    @keyframes flyer-stop {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-30px, -50%) rotate(0deg); opacity: 0.2; }
     }
 
-    @keyframes binary-fly-slow {
-      0% { transform: translateX(-20px); opacity: 0.6; }
+    @keyframes binary-stop {
+      0% { transform: translateX(-20px); opacity: 0.5; }
       100% { transform: translateX(-40px); opacity: 0; }
     }
 
@@ -102,10 +107,10 @@
       margin-top: 25px;
       font-family: 'Segoe UI', Tahoma, sans-serif;
       font-weight: 800;
-      letter-spacing: 5px;
+      letter-spacing: 6px;
       color: #000000;
       font-size: 13px;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.4s ease;
     }
     .loader-content.slowing + .loading-text {
       opacity: 0;
@@ -261,7 +266,7 @@
 </head>
 <body>
 
-  <!-- MÀN HÌNH LOADING HACKER BAY & DỪNG TỪ TỪ -->
+  <!-- MÀN HÌNH LOADING CHUẨN MẪU MEOWISH (NỀN TRẮNG, HACKER BAY & DỪNG TỪ TỪ) -->
   <div id="loader-wrapper">
     <div class="loader-content" id="loaderContent">
       <div class="binary-trails">
@@ -271,7 +276,9 @@
         <span>1010111</span>
         <span>0110100</span>
       </div>
-      <div class="hacker-flyer"></div>
+      <div class="flyer-body">
+        <div class="flyer-head"></div>
+      </div>
     </div>
     <div class="loading-text">LOADING...</div>
   </div>
@@ -335,12 +342,10 @@
   <script>
     // XỬ LÝ HIỆU ỨNG LOADING: DỪNG TỪ TỪ RỒI TÀNG HÌNH DẦN
     window.addEventListener('load', () => {
-      // Sau 1.2 giây, bắt đầu kích hoạt hiệu ứng dừng bay từ từ
       setTimeout(() => {
         const loaderContent = document.getElementById('loaderContent');
         loaderContent.classList.add('slowing');
 
-        // Sau khi hiệu ứng dừng chạy xong (1.2 giây tiếp theo), tàng hình toàn bộ màn hình loading
         setTimeout(() => {
           const loader = document.getElementById('loader-wrapper');
           loader.style.opacity = '0';
