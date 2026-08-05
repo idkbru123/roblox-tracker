@@ -64,7 +64,6 @@
             statusHtml = '<span class="status-badge status-0">🔴 Đã rời game</span>';
           }
 
-          // Lấy tên người chơi, nếu không có thì fallback về ID
           const playerName = data.playerName || data.details?.playerName;
           const userId = data.robloxUserId || data.details?.robloxUserId || "Không rõ";
           
@@ -75,7 +74,18 @@
             playerDisplay = `<span class="highlight">ID: ${userId}</span>`;
           }
 
-          const location = data.lastLocation || data.details?.lastLocation || "Khu vực chính";
+          // Xử lý tên trò chơi / map thông minh hơn
+          const gameName = data.gameName || data.details?.gameName || data.lastLocation || data.details?.lastLocation || data.placeName || data.details?.placeName;
+          const placeId = data.placeId || data.details?.placeId;
+          
+          let gameDisplay = 'Chưa xác định';
+          if (gameName && gameName !== "Website") {
+            gameDisplay = `<span style="color: #a6e3a1; font-weight: bold;">🎮 ${gameName}</span>`;
+          } else if (placeId) {
+            gameDisplay = `<span style="color: #a6e3a1;">🗺️ Place ID: ${placeId}</span>`;
+          } else {
+            gameDisplay = `<span style="color: #f9e2af;">🌐 Trang chủ / Website Roblox</span>`;
+          }
 
           const card = document.createElement("div");
           card.className = "log-card";
@@ -85,7 +95,7 @@
               <div>${statusHtml}</div>
             </div>
             <div class="log-info">
-              📍 Vị trí/Map: <span style="color: #a6e3a1;">${location}</span>
+              ${gameDisplay}
             </div>
             <div class="timestamp">⏰ Thời gian: ${timeStr}</div>
           `;
