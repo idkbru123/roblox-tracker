@@ -6,13 +6,13 @@
   <title>Roblox Personal Tracker</title>
   <style>
     /* =========================================
-       MÀN HÌNH LOADING & INTRO HACKER MASK
+       MÀN HÌNH LOADING & INTRO HACKER MASK (DARK THEME)
        ========================================= */
     #loader-wrapper {
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background: #8b0000;
+      background: #121212;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -22,25 +22,24 @@
     }
 
     .mask-container {
-      display: table;
-      width: 319px;
+      display: grid;
+      grid-template-columns: repeat(13, 14px);
+      gap: 2px;
       margin: 0 auto;
       position: relative;
+      justify-content: center;
     }
 
     .particle {
-      width: 25px;
-      height: 25px;
-      float: left;
-      background: white;
-      margin: 2px;
-      opacity: 0.15;
+      width: 14px;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 2px;
       transform: translate(0, 0);
     }
 
     .particle.white {
-      opacity: 1;
+      background: #ffffff;
       animation: particle-glow 2s ease-in-out infinite alternate;
     }
 
@@ -51,23 +50,23 @@
 
     @keyframes particle-glow {
       0% { opacity: 0.85; transform: scale(0.96); }
-      100% { opacity: 1; transform: scale(1.04); filter: drop-shadow(0 0 8px rgba(255,255,255,0.9)); }
+      100% { opacity: 1; transform: scale(1.04); filter: drop-shadow(0 0 6px rgba(255,255,255,0.7)); }
     }
 
     @keyframes particle-float {
-      0% { transform: translate(0, 0) rotate(0deg); opacity: 0.1; }
-      50% { transform: translate(35px, -45px) rotate(180deg); opacity: 0.5; }
-      100% { transform: translate(0, 0) rotate(360deg); opacity: 0.1; }
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 0.05; }
+      50% { transform: translate(25px, -35px) rotate(180deg); opacity: 0.3; }
+      100% { transform: translate(0, 0) rotate(360deg); opacity: 0.05; }
     }
 
     .loading-text {
       margin-top: 35px;
       font-family: 'Courier New', Courier, monospace;
       font-weight: 700;
-      letter-spacing: 8px;
-      color: #ffffff;
+      letter-spacing: 6px;
+      color: #e5e7eb;
       font-size: 13px;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      text-shadow: 0 2px 6px rgba(0,0,0,0.8);
       transition: opacity 0.4s ease;
     }
 
@@ -85,16 +84,16 @@
     }
 
     /* =========================================
-       CSS GIAO DIỆN CHÍNH & HIỆU ỨNG APPARITION
+       CSS GIAO DIỆN CHÍNH (MEDIUM BLACK & DỄ ĐỌC)
        ========================================= */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      color: #333; 
+      color: #e5e7eb; 
       display: flex; 
       min-height: 100vh;
       overflow-x: hidden;
-      background-color: #f0f4f8;
+      background-color: #161616;
     }
 
     .bg-video {
@@ -103,13 +102,14 @@
       min-width: 100%; min-height: 100%;
       z-index: -2;
       object-fit: cover;
+      filter: brightness(0.4);
     }
     .bg-overlay {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(240, 244, 248, 0.65);
-      backdrop-filter: blur(10px);
+      background: rgba(22, 22, 22, 0.85);
+      backdrop-filter: blur(12px);
       z-index: -1;
     }
 
@@ -117,29 +117,29 @@
       position: fixed;
       top: 20px; left: 20px;
       z-index: 200;
-      background: #ffffff;
-      border: 1px solid #d1d5db;
-      color: #3b82f6;
+      background: #222225;
+      border: 1px solid #333338;
+      color: #60a5fa;
       font-size: 1.5rem;
       width: 45px; height: 45px;
       border-radius: 12px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       display: flex; align-items: center; justify-content: center;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .menu-toggle-btn:hover { background: #f3f4f6; transform: scale(1.05); }
+    .menu-toggle-btn:hover { background: #2a2a2e; transform: scale(1.05); }
 
     .sidebar { 
       width: 280px; 
-      background: rgba(255, 255, 255, 0.95); 
-      border-right: 1px solid #e5e7eb; 
+      background: rgba(24, 24, 27, 0.95); 
+      border-right: 1px solid #27272a; 
       position: fixed; 
       height: 100vh; 
       top: 0; left: -280px; 
       display: flex; flex-direction: column; justify-content: space-between; 
       z-index: 300; 
-      box-shadow: 4px 0 20px rgba(0,0,0,0.05);
+      box-shadow: 4px 0 25px rgba(0,0,0,0.5);
       transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .sidebar.open { left: 0; }
@@ -148,28 +148,28 @@
     .brand-container {
       display: flex; align-items: center; justify-content: space-between;
       padding: 22px 20px;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #27272a;
     }
-    .brand { font-size: 1.1rem; font-weight: bold; color: #1d4ed8; }
-    .close-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #6b7280; transition: 0.2s; }
-    .close-btn:hover { color: #ef4444; transform: rotate(90deg); }
+    .brand { font-size: 1.1rem; font-weight: bold; color: #60a5fa; }
+    .close-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #9ca3af; transition: 0.2s; }
+    .close-btn:hover { color: #f87171; transform: rotate(90deg); }
 
     .menu { list-style: none; margin-top: 15px; padding: 0 10px; }
     .menu-btn { 
       width: 100%; padding: 14px 15px; margin-bottom: 5px;
       background: transparent; border: none; border-radius: 10px;
-      color: #4b5563; font-size: 1rem; font-weight: 600; text-align: left; 
+      color: #9ca3af; font-size: 1rem; font-weight: 600; text-align: left; 
       cursor: pointer; display: flex; align-items: center; gap: 12px; 
       transition: all 0.2s ease; 
     }
-    .menu-btn:hover { background: #f3f4f6; color: #2563eb; transform: translateX(5px); }
-    .menu-btn.active { background: #eff6ff; color: #1d4ed8; font-weight: 700; border-left: 4px solid #2563eb; }
+    .menu-btn:hover { background: rgba(255,255,255,0.05); color: #f3f4f6; transform: translateX(5px); }
+    .menu-btn.active { background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-weight: 700; border-left: 4px solid #3b82f6; }
 
-    .user-profile-box { padding: 20px; border-top: 1px solid #e5e7eb; background: #fafafa; text-align: center; }
+    .user-profile-box { padding: 20px; border-top: 1px solid #27272a; background: #18181b; text-align: center; }
     .btn-discord { background: #5865F2; color: #fff; border: none; padding: 12px 14px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; box-shadow: 0 4px 12px rgba(88,101,242,0.25); }
     .btn-discord:hover { background: #4752C4; transform: translateY(-2px); }
-    .btn-logout { background: #fee2e2; color: #b91c1c; border: none; padding: 8px 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 0.85rem; transition: 0.2s; width: 100%;}
-    .btn-logout:hover { background: #fca5a5; }
+    .btn-logout { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 0.85rem; transition: 0.2s; width: 100%;}
+    .btn-logout:hover { background: rgba(239, 68, 68, 0.25); }
     .discord-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #5865F2; }
 
     .main-content { 
@@ -194,49 +194,49 @@
     .tab-section.active { display: block; opacity: 1; animation: fadeIn 0.5s forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    h1 { color: #1e3a8a; margin-bottom: 20px; font-size: 1.8rem; font-weight: 800; border-bottom: 2px solid #bfdbfe; padding-bottom: 10px; }
+    h1 { color: #f3f4f6; margin-bottom: 20px; font-size: 1.8rem; font-weight: 800; border-bottom: 2px solid #27272a; padding-bottom: 10px; }
 
     .welcome-card {
-      background: rgba(255, 255, 255, 0.88);
+      background: rgba(24, 24, 27, 0.85);
       padding: 40px; border-radius: 20px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.06);
-      border: 1px solid #e5e7eb;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      border: 1px solid #27272a;
       backdrop-filter: blur(12px);
       text-align: center;
     }
-    .welcome-card h2 { color: #1d4ed8; font-size: 2.2rem; margin-bottom: 15px; }
-    .welcome-card p { font-size: 1.1rem; color: #4b5563; line-height: 1.6; margin-bottom: 20px; }
+    .welcome-card h2 { color: #60a5fa; font-size: 2.2rem; margin-bottom: 15px; }
+    .welcome-card p { font-size: 1.05rem; color: #9ca3af; line-height: 1.6; margin-bottom: 20px; }
     .welcome-icon { font-size: 4rem; margin-bottom: 10px; animation: bounce 2s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-    .filter-box { margin-bottom: 25px; display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.9); padding: 15px 20px; border-radius: 14px; border: 1px solid #e5e7eb; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-    .filter-box label { color: #374151; font-size: 1rem; font-weight: 700; }
-    .filter-box select { background: #f9fafb; color: #1f2937; border: 1px solid #d1d5db; padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; outline: none; cursor: pointer; transition: 0.2s; }
-    .filter-box select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+    .filter-box { margin-bottom: 25px; display: flex; align-items: center; gap: 12px; background: rgba(24, 24, 27, 0.85); padding: 15px 20px; border-radius: 14px; border: 1px solid #27272a; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .filter-box label { color: #d1d5db; font-size: 1rem; font-weight: 700; }
+    .filter-box select { background: #121212; color: #f3f4f6; border: 1px solid #3f3f46; padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; outline: none; cursor: pointer; transition: 0.2s; }
+    .filter-box select:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
 
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
     .log-card { 
-      background: rgba(255, 255, 255, 0.95); 
+      background: rgba(24, 24, 27, 0.9); 
       padding: 22px; border-radius: 16px; 
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+      border: 1px solid #27272a;
       display: flex; flex-direction: column; gap: 12px; 
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
-    .log-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); border-color: #bfdbfe; }
-    .log-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #e5e7eb; padding-bottom: 12px; }
+    .log-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); border-color: #3f3f46; }
+    .log-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #27272a; padding-bottom: 12px; color: #d1d5db; }
     
     .status-badge { padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.85em; display: inline-block; }
-    .status-1 { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-    .status-0 { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-    .status-other { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    .status-1 { background: rgba(22, 101, 52, 0.3); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+    .status-0 { background: rgba(153, 27, 27, 0.3); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+    .status-other { background: rgba(30, 64, 175, 0.3); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
 
-    .log-info { font-size: 1rem; color: #374151; font-weight: 500; }
-    .highlight { color: #2563eb; font-weight: 800; font-size: 1.1rem; }
-    .sub-id { font-size: 0.85em; color: #6b7280; margin-left: 6px; font-weight: normal; }
-    .timestamp { font-size: 0.85em; color: #6b7280; text-align: right; font-style: italic; }
+    .log-info { font-size: 1rem; color: #d1d5db; font-weight: 500; }
+    .highlight { color: #60a5fa; font-weight: 800; font-size: 1.1rem; }
+    .sub-id { font-size: 0.85em; color: #9ca3af; margin-left: 6px; font-weight: normal; }
+    .timestamp { font-size: 0.85em; color: #9ca3af; text-align: right; font-style: italic; }
     
-    .empty-msg { text-align: center; color: #4b5563; padding: 40px; background: rgba(255,255,255,0.85); border-radius: 14px; border: 2px dashed #cbd5e1; font-size: 1.05rem; }
+    .empty-msg { text-align: center; color: #9ca3af; padding: 40px; background: rgba(24, 24, 27, 0.85); border-radius: 14px; border: 2px dashed #3f3f46; font-size: 1.05rem; }
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -244,32 +244,32 @@
 </head>
 <body>
 
-  <!-- MÀN HÌNH LOADING HACKER MASK -->
+  <!-- MÀN HÌNH LOADING HACKER MASK (ĐÃ THU NHỎ & ĐIỀU CHỈNH GỌN GÀNG) -->
   <div id="loader-wrapper">
     <div class="mask-container" id="maskContainer">
-      <!-- 11x11 Grid (121 particles forming Guy Fawkes Hacker Mask) -->
+      <!-- 13 Columns Grid for Guy Fawkes Hacker Mask Outline -->
       <!-- Row 0 -->
-      <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
       <!-- Row 1 -->
-      <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
       <!-- Row 2 -->
-      <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
       <!-- Row 3 -->
-      <div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div>
+      <div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div>
       <!-- Row 4 -->
-      <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
       <!-- Row 5 -->
-      <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
       <!-- Row 6 -->
-      <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
       <!-- Row 7 -->
-      <div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div>
+      <div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div>
       <!-- Row 8 -->
-      <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
       <!-- Row 9 -->
-      <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
       <!-- Row 10 -->
-      <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
     </div>
     <div class="loading-text">LOADING SYSTEM...</div>
   </div>
@@ -502,8 +502,8 @@
           <div style="display:flex; align-items:center; gap:12px; justify-content:center; text-align:left;">
             <img src="${avatarUrl}" class="discord-avatar">
             <div>
-              <div style="font-weight:800; color:#1e40af; font-size:0.95rem;">${currentUserDiscord.username}</div>
-              <div style="font-size:0.75rem; color:#6b7280; font-weight:600;">Đã xác thực bảo mật</div>
+              <div style="font-weight:800; color:#f3f4f6; font-size:0.95rem;">${currentUserDiscord.username}</div>
+              <div style="font-size:0.75rem; color:#9ca3af; font-weight:600;">Đã xác thực bảo mật</div>
             </div>
           </div>
           <button class="btn-logout" onclick="logout()">Đăng xuất</button>
@@ -673,9 +673,9 @@
 
       if (userLinkedRobloxIds.length === 0) {
         liveContainer.innerHTML = `
-          <div class='empty-msg' style="border-color:#fbbf24; background:rgba(255, 251, 235, 0.9);">
-            <p style="color:#b45309; font-weight:bold;">⚠️ Chưa tìm thấy tài khoản Roblox liên kết.</p>
-            <p style="font-size:0.9rem; margin-top:10px; color:#92400e;">
+          <div class='empty-msg' style="border-color:#f59e0b; background:rgba(24, 24, 27, 0.9);">
+            <p style="color:#fbbf24; font-weight:bold;">⚠️ Chưa tìm thấy tài khoản Roblox liên kết.</p>
+            <p style="font-size:0.9rem; margin-top:10px; color:#d1d5db;">
               Hãy dùng lệnh <b>/roblox</b> trên Bot Discord để liên kết tài khoản của bạn.
             </p>
           </div>`;
@@ -700,8 +700,8 @@
             <div>${statusBadge}</div>
           </div>
           <div class="log-info" style="margin-top:8px;">
-            <p style="margin-bottom:6px;"><strong style="color:#6b7280;">ID:</strong> ${userId}</p>
-            <p><strong style="color:#6b7280;">Vị trí gần nhất:</strong> <span style="color:#1d4ed8; font-weight:600;">${gameName}</span></p>
+            <p style="margin-bottom:6px;"><strong style="color:#9ca3af;">ID:</strong> ${userId}</p>
+            <p><strong style="color:#9ca3af;">Vị trí gần nhất:</strong> <span style="color:#60a5fa; font-weight:600;">${gameName}</span></p>
           </div>
         `;
         liveContainer.appendChild(card);
