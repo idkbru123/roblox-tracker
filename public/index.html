@@ -3,24 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roblox Logs Dashboard</title>
+  <title>Roblox Activity History</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1e1e2e; color: #cdd6f4; margin: 20px; }
-    h1 { color: #89b4fa; margin-bottom: 20px; }
-    .log-card { background: #313244; padding: 15px; margin-bottom: 12px; border-radius: 8px; border-left: 4px solid #89b4fa; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-    .log-header { font-weight: bold; color: #f9e2af; margin-bottom: 8px; font-size: 1.1em; }
-    .log-details { background: #181825; padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 0.9em; overflow-x: auto; border: 1px solid #45475a; }
-    .log-row { margin: 4px 0; word-break: break-all; }
-    .key { color: #89b4fa; font-weight: bold; }
-    .value { color: #a6e3a1; }
-    .timestamp { font-size: 0.85em; color: #a6adc8; margin-top: 8px; text-align: right; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1e1e2e; color: #cdd6f4; margin: 20px; max-width: 900px; margin-left: auto; margin-right: auto; }
+    h1 { color: #89b4fa; text-align: center; margin-bottom: 25px; }
+    .log-card { background: #313244; padding: 15px 20px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px; }
+    .log-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #45475a; padding-bottom: 8px; }
+    .status-badge { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.9em; }
+    .status-1 { background: #a6e3a1; color: #11111b; } /* Vào game */
+    .status-0 { background: #f38ba8; color: #11111b; } /* Rời game */
+    .status-other { background: #89b4fa; color: #11111b; } /* Khác */
+    .log-info { font-size: 0.95em; color: #bac2de; }
+    .highlight { color: #f9e2af; font-weight: bold; }
+    .timestamp { font-size: 0.85em; color: #a6adc8; text-align: right; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <h1>Roblox Real-time Logs</h1>
-  <div id="logs">Đang kết nối Firestore...</div>
+  <h1>📜 Lịch Sử Hoạt Động Roblox</h1>
+  <div id="logs">Đang kết nối dữ liệu lịch sử...</div>
 
   <script>
     const firebaseConfig = {
@@ -42,39 +44,47 @@
       .onSnapshot((snapshot) => {
         logsContainer.innerHTML = "";
         if (snapshot.empty) {
-          logsContainer.innerHTML = "<p>Chưa có log nào trong bộ sưu tập 'roblox_logs'.</p>";
+          logsContainer.innerHTML = "<p style='text-align:center;'>Chưa có lịch sử hoạt động nào được ghi nhận.</p>";
           return;
         }
+
         snapshot.forEach((doc) => {
           const data = doc.data();
-          const card = document.createElement("div");
-          card.className = "log-card";
           
-          let timeStr = "N/A";
+          // Xử lý thời gian
+          let timeStr = "Vừa xong";
           if (data.timestamp && data.timestamp.seconds) {
             timeStr = new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN');
           }
 
-          // Format dữ liệu chi tiết gọn gàng, tách dòng rõ ràng
-          const details = data.details || data;
-          let detailsHtml = '';
-          for (const [key, value] of Object.entries(details)) {
-            if (value !== null && value !== undefined) {
-              const displayVal = typeof value === 'object' ? JSON.stringify(value) : value;
-              detailsHtml += `<div class="log-row"><span class="key">${key}:</span> <span class="value">${displayVal}</span></div>`;
-            }
+          // Dịch mã trạng thái userStatus sang tiếng Việt dễ hiểu
+          let statusHtml = '<span class="status-badge status-other">Hoạt động</span>';
+          if (data.userStatus === 1 || data.details?.userStatus === 1) {
+            statusHtml = '<span class="status-badge status-1">🟢 Đã vào game</span>';
+          } else if (data.userStatus === 0 || data.details?.userStatus === 0) {
+            statusHtml = '<span class="status-badge status-0">🔴 Đã rời game</span>';
           }
 
+          const userId = data.robloxUserId || data.details?.robloxUserId || "Không rõ";
+          const location = data.lastLocation || data.details?.lastLocation || "Khu vực chính";
+
+          const card = document.createElement("div");
+          card.className = "log-card";
           card.innerHTML = `
-            <div class="log-header">Event: ${data.event || 'Log'}</div>
-            <div class="log-details">${detailsHtml || 'Không có dữ liệu chi tiết'}</div>
-            <div class="timestamp">Thời gian: ${timeStr}</div>
+            <div class="log-top">
+              <div>ID Người chơi: <span class="highlight">${userId}</span></div>
+              <div>${statusHtml}</div>
+            </div>
+            <div class="log-info">
+              📍 Vị trí/Map: <span style="color: #a6e3a1;">${location}</span>
+            </div>
+            <div class="timestamp">⏰ Thời gian: ${timeStr}</div>
           `;
           logsContainer.appendChild(card);
         });
       }, (error) => {
-        console.error("Lỗi lắng nghe dữ liệu:", error);
-        logsContainer.innerHTML = `<p style="color: #f38ba8;">Lỗi kết nối Firestore: ${error.message}</p>`;
+        console.error("Lỗi:", error);
+        logsContainer.innerHTML = `<p style="color: #f38ba8; text-align:center;">Lỗi kết nối: ${error.message}</p>`;
       });
   </script>
 </body>
