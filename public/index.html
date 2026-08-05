@@ -77,7 +77,6 @@
       </ul>
     </div>
 
-    <!-- NÚT ĐĂNG NHẬP DISCORD (BẮT BUỘC ĐỂ XEM DỮ LIỆU CÁ NHÂN) -->
     <div class="user-profile-box" id="authBox">
       <button class="btn-discord" onclick="loginWithDiscord()">
         <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .052.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.027.07.05.05 0 0 0 .01.011c.236.466.51.91.819 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"/></svg>
@@ -86,7 +85,6 @@
     </div>
   </div>
 
-  <!-- NỘI DUNG CHÍNH -->
   <div class="main-content">
     
     <!-- TAB 1: ROBLOX LIVE -->
@@ -172,8 +170,9 @@
       return `ID: ${userId}`;
     }
 
+    // YÊU CẦU QUYỀN DISCORD CONNECTIONS
     function loginWithDiscord() {
-      const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
+      const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify%20connections`;
       window.location.href = url;
     }
 
@@ -195,16 +194,45 @@
           if (!res.ok) throw new Error("Token expired");
           return res.json();
         })
-        .then(user => {
+        .then(async (user) => {
           if (user.id) {
             currentUserDiscord = user;
             updateAuthUI();
+            
+            // TỰ ĐỘNG ĐỌC KẾT NỐI ROBLOX TRÊN TÀI KHOẢN DISCORD
+            await autoSyncDiscordRobloxConnection(token, user.id);
+            
             loadUserPrivateData();
           } else {
             logout();
           }
         })
         .catch(() => logout());
+      }
+    }
+
+    // LẤY TÀI KHOẢN ROBLOX LIÊN KẾT TRONG DISCORD CỦA HỌ VÀ TỰ CẬP NHẬT
+    async function autoSyncDiscordRobloxConnection(token, discordId) {
+      try {
+        const res = await fetch("https://discord.com/api/users/@me/connections", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const connections = await res.json();
+          const robloxConns = connections.filter(c => c.type === 'roblox');
+          
+          if (robloxConns.length > 0) {
+            const robloxIdsToSync = robloxConns.map(c => String(c.id));
+            
+            // Tự động đẩy vào Firebase user_links
+            await db.collection("user_links").doc(String(discordId)).set({
+              discordId: String(discordId),
+              robloxIds: firebase.firestore.FieldValue.arrayUnion(...robloxIdsToSync)
+            }, { merge: true });
+          }
+        }
+      } catch (e) {
+        console.warn("Không thể tự đồng bộ Discord Connections:", e);
       }
     }
 
@@ -246,20 +274,23 @@
       };
 
       try {
-        // Chỉ quét dữ liệu thuộc riêng Discord ID của người đang đăng nhập
         const directDoc = await db.collection("user_links").doc(currentDiscordId).get();
         if (directDoc.exists) {
           const data = directDoc.data();
-          Object.values(data).forEach(val => {
-            if (Array.isArray(val)) {
-              val.forEach(item => addId(typeof item === 'object' ? (item.robloxId || item.id) : item));
-            } else {
-              addId(val);
+          if (Array.isArray(data.robloxIds)) {
+            data.robloxIds.forEach(id => addId(id));
+          }
+          Object.entries(data).forEach(([key, val]) => {
+            if (key.startsWith('robloxId')) {
+              if (Array.isArray(val)) {
+                val.forEach(item => addId(typeof item === 'object' ? (item.robloxId || item.id) : item));
+              } else {
+                addId(val);
+              }
             }
           });
         }
 
-        // Quét log chỉ khớp với Discord ID của người dùng này
         const logsSnap = await db.collection("roblox_logs").get();
         logsSnap.forEach(doc => {
           const data = doc.data();
@@ -278,7 +309,6 @@
 
       userLinkedRobloxIds = Array.from(foundIds);
 
-      // Lắng nghe real-time chỉ dành riêng cho các ID của người dùng này
       db.collection("roblox_logs")
         .onSnapshot(async (snapshot) => {
           rawLogsData = [];
