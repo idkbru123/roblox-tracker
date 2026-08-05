@@ -6,53 +6,54 @@
   <title>Roblox Personal Tracker</title>
   <style>
     /* =========================================
-       MÀN HÌNH LOADING (NHÂN VẬT BAY & MÃ NHỊ PHÂN)
+       MÀN HÌNH LOADING & INTRO MƯỢT MÀ
        ========================================= */
     #loader-wrapper {
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background-color: #ffffff;
+      background: #ffffff;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       z-index: 9999;
-      transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .loader-content {
       position: relative;
-      width: 300px;
+      width: 320px;
       height: 100px;
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
-    /* Thiết kế nhân vật bay chuẩn mẫu Meowish */
+    /* Thiết kế nhân vật bay chuẩn mẫu */
     .flyer-body {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: 50px; height: 12px;
-      background: #000000;
+      width: 52px; height: 12px;
+      background: #0f172a;
       border-radius: 50px;
       animation: flyer-bounce 0.4s linear infinite;
       z-index: 2;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
     }
 
     .flyer-head {
       position: absolute;
       content: "";
       height: 14px; width: 18px;
-      background: #000000;
+      background: #0f172a;
       border-radius: 50% 50% 20% 20%;
       transform: rotate(-35deg);
       right: -8px; top: -6px;
     }
 
-    /* Vệt số nhị phân kiểu hacker phía sau */
+    /* Vệt số nhị phân sắc nét phía sau */
     .binary-trails {
       position: absolute;
       width: 100%; height: 100%;
@@ -62,17 +63,17 @@
     .binary-trails span {
       position: absolute;
       font-family: 'Courier New', Courier, monospace;
-      font-weight: bold;
-      color: #111111;
-      opacity: 0.85;
+      font-weight: 700;
+      color: #3b82f6;
+      opacity: 0.7;
       animation: binary-move 0.4s linear infinite;
     }
 
-    .binary-trails span:nth-child(1) { top: 15px; left: 90px; font-size: 13px; animation-delay: 0s; }
-    .binary-trails span:nth-child(2) { top: 60px; left: 130px; font-size: 11px; animation-delay: 0.1s; }
-    .binary-trails span:nth-child(3) { top: 30px; left: 160px; font-size: 14px; animation-delay: 0.2s; }
-    .binary-trails span:nth-child(4) { top: 70px; left: 70px; font-size: 10px; animation-delay: 0.15s; }
-    .binary-trails span:nth-child(5) { top: 5px; left: 190px; font-size: 12px; animation-delay: 0.25s; }
+    .binary-trails span:nth-child(1) { top: 15px; left: 100px; font-size: 13px; animation-delay: 0s; }
+    .binary-trails span:nth-child(2) { top: 60px; left: 140px; font-size: 11px; animation-delay: 0.1s; }
+    .binary-trails span:nth-child(3) { top: 30px; left: 170px; font-size: 14px; animation-delay: 0.2s; }
+    .binary-trails span:nth-child(4) { top: 70px; left: 80px; font-size: 10px; animation-delay: 0.15s; }
+    .binary-trails span:nth-child(5) { top: 5px; left: 200px; font-size: 12px; animation-delay: 0.25s; }
 
     @keyframes flyer-bounce {
       0% { transform: translate(-50%, -53%) rotate(-3deg); }
@@ -81,35 +82,35 @@
     }
 
     @keyframes binary-move {
-      0% { transform: translateX(0); opacity: 0.9; }
-      100% { transform: translateX(-110px); opacity: 0; }
+      0% { transform: translateX(0); opacity: 0.8; }
+      100% { transform: translateX(-120px); opacity: 0; }
     }
 
-    /* TRẠNG THÁI DỪNG BAY TỪ TỪ VÀ TÀNG HÌNH */
+    /* TRẠNG THÁI KẾT THÚC INTRO */
     .loader-content.slowing .flyer-body {
-      animation: flyer-stop 1.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards !important;
+      animation: flyer-stop 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     }
     .loader-content.slowing .binary-trails span {
-      animation: binary-stop 1.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards !important;
+      animation: binary-stop 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     }
 
     @keyframes flyer-stop {
       0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-30px, -50%) rotate(0deg); opacity: 0.2; }
+      100% { transform: translate(-40px, -50%) scale(1.1); rotate(0deg); opacity: 0; }
     }
 
     @keyframes binary-stop {
-      0% { transform: translateX(-20px); opacity: 0.5; }
-      100% { transform: translateX(-40px); opacity: 0; }
+      0% { transform: translateX(-20px); opacity: 0.4; }
+      100% { transform: translateX(-50px); opacity: 0; }
     }
 
     .loading-text {
       margin-top: 25px;
       font-family: 'Segoe UI', Tahoma, sans-serif;
       font-weight: 800;
-      letter-spacing: 6px;
-      color: #000000;
-      font-size: 13px;
+      letter-spacing: 8px;
+      color: #1e3a8a;
+      font-size: 12px;
       transition: opacity 0.4s ease;
     }
     .loader-content.slowing + .loading-text {
@@ -117,7 +118,7 @@
     }
 
     /* =========================================
-       CSS GIAO DIỆN CHÍNH
+       CSS GIAO DIỆN CHÍNH & HIỆU ỨNG APPARITION
        ========================================= */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
@@ -126,6 +127,7 @@
       display: flex; 
       min-height: 100vh;
       overflow-x: hidden;
+      background-color: #f0f4f8;
     }
 
     .bg-video {
@@ -139,8 +141,8 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(240, 244, 248, 0.6);
-      backdrop-filter: blur(8px);
+      background: rgba(240, 244, 248, 0.65);
+      backdrop-filter: blur(10px);
       z-index: -1;
     }
 
@@ -153,11 +155,11 @@
       color: #3b82f6;
       font-size: 1.5rem;
       width: 45px; height: 45px;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       display: flex; align-items: center; justify-content: center;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .menu-toggle-btn:hover { background: #f3f4f6; transform: scale(1.05); }
 
@@ -170,8 +172,8 @@
       top: 0; left: -280px; 
       display: flex; flex-direction: column; justify-content: space-between; 
       z-index: 300; 
-      box-shadow: 4px 0 15px rgba(0,0,0,0.05);
-      transition: left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 4px 0 20px rgba(0,0,0,0.05);
+      transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .sidebar.open { left: 0; }
 
@@ -188,7 +190,7 @@
     .menu { list-style: none; margin-top: 15px; padding: 0 10px; }
     .menu-btn { 
       width: 100%; padding: 14px 15px; margin-bottom: 5px;
-      background: transparent; border: none; border-radius: 8px;
+      background: transparent; border: none; border-radius: 10px;
       color: #4b5563; font-size: 1rem; font-weight: 600; text-align: left; 
       cursor: pointer; display: flex; align-items: center; gap: 12px; 
       transition: all 0.2s ease; 
@@ -197,18 +199,28 @@
     .menu-btn.active { background: #eff6ff; color: #1d4ed8; font-weight: 700; border-left: 4px solid #2563eb; }
 
     .user-profile-box { padding: 20px; border-top: 1px solid #e5e7eb; background: #fafafa; text-align: center; }
-    .btn-discord { background: #5865F2; color: #fff; border: none; padding: 12px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; box-shadow: 0 4px 6px rgba(88,101,242,0.3); }
+    .btn-discord { background: #5865F2; color: #fff; border: none; padding: 12px 14px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; box-shadow: 0 4px 12px rgba(88,101,242,0.25); }
     .btn-discord:hover { background: #4752C4; transform: translateY(-2px); }
-    .btn-logout { background: #fee2e2; color: #b91c1c; border: none; padding: 8px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 0.85rem; transition: 0.2s; width: 100%;}
+    .btn-logout { background: #fee2e2; color: #b91c1c; border: none; padding: 8px 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 0.85rem; transition: 0.2s; width: 100%;}
     .btn-logout:hover { background: #fca5a5; }
     .discord-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #5865F2; }
 
+    /* HIỆU ỨNG SẮP XẾP & HIỂN THỊ MƯỢT MÀ SAU KHI INTRO KẾT THÚC */
     .main-content { 
       flex: 1; 
       padding: 40px 30px; 
       width: 100%; max-width: 1100px;
       margin: 0 auto; margin-left: auto;
-      transition: margin-left 0.4s ease, padding-left 0.4s ease;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s, 
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s, 
+                  margin-left 0.4s ease, 
+                  padding-left 0.4s ease;
+    }
+    .main-content.loaded {
+      opacity: 1;
+      transform: translateY(0);
     }
     .main-content.shifted { padding-left: 310px; }
 
@@ -219,11 +231,11 @@
     h1 { color: #1e3a8a; margin-bottom: 20px; font-size: 1.8rem; font-weight: 800; border-bottom: 2px solid #bfdbfe; padding-bottom: 10px; }
 
     .welcome-card {
-      background: rgba(255, 255, 255, 0.85);
-      padding: 40px; border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      background: rgba(255, 255, 255, 0.88);
+      padding: 40px; border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.06);
       border: 1px solid #e5e7eb;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
       text-align: center;
     }
     .welcome-card h2 { color: #1d4ed8; font-size: 2.2rem; margin-bottom: 15px; }
@@ -231,21 +243,21 @@
     .welcome-icon { font-size: 4rem; margin-bottom: 10px; animation: bounce 2s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-    .filter-box { margin-bottom: 25px; display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.9); padding: 15px 20px; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    .filter-box { margin-bottom: 25px; display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.9); padding: 15px 20px; border-radius: 14px; border: 1px solid #e5e7eb; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
     .filter-box label { color: #374151; font-size: 1rem; font-weight: 700; }
-    .filter-box select { background: #f9fafb; color: #1f2937; border: 1px solid #d1d5db; padding: 10px 16px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; outline: none; cursor: pointer; transition: 0.2s; }
+    .filter-box select { background: #f9fafb; color: #1f2937; border: 1px solid #d1d5db; padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; outline: none; cursor: pointer; transition: 0.2s; }
     .filter-box select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
 
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
     .log-card { 
       background: rgba(255, 255, 255, 0.95); 
-      padding: 20px; border-radius: 12px; 
-      box-shadow: 0 8px 20px rgba(0,0,0,0.06); 
+      padding: 22px; border-radius: 16px; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
       border: 1px solid #e5e7eb;
       display: flex; flex-direction: column; gap: 12px; 
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
-    .log-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); border-color: #bfdbfe; }
+    .log-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); border-color: #bfdbfe; }
     .log-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #e5e7eb; padding-bottom: 12px; }
     
     .status-badge { padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.85em; display: inline-block; }
@@ -258,7 +270,7 @@
     .sub-id { font-size: 0.85em; color: #6b7280; margin-left: 6px; font-weight: normal; }
     .timestamp { font-size: 0.85em; color: #6b7280; text-align: right; font-style: italic; }
     
-    .empty-msg { text-align: center; color: #4b5563; padding: 40px; background: rgba(255,255,255,0.8); border-radius: 12px; border: 2px dashed #cbd5e1; font-size: 1.05rem; }
+    .empty-msg { text-align: center; color: #4b5563; padding: 40px; background: rgba(255,255,255,0.85); border-radius: 14px; border: 2px dashed #cbd5e1; font-size: 1.05rem; }
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -266,7 +278,7 @@
 </head>
 <body>
 
-  <!-- MÀN HÌNH LOADING CHUẨN MẪU (NỀN TRẮNG, HACKER BAY & DỪNG TỪ TỪ) -->
+  <!-- MÀN HÌNH LOADING & INTRO -->
   <div id="loader-wrapper">
     <div class="loader-content" id="loaderContent">
       <div class="binary-trails">
@@ -280,7 +292,7 @@
         <div class="flyer-head"></div>
       </div>
     </div>
-    <div class="loading-text">LOADING...</div>
+    <div class="loading-text">LOADING SYSTEM...</div>
   </div>
 
   <video autoplay muted loop class="bg-video">
@@ -340,7 +352,7 @@
   </div>
 
   <script>
-    // XỬ LÝ HIỆU ỨNG LOADING: DỪNG TỪ TỪ RỒI TÀNG HÌNH DẦN
+    // XỬ LÝ HIỆU ỨNG INTRO VÀ SẮP XẾP BỐ CỤC MƯỢT MÀ KHI KẾT THÚC
     window.addEventListener('load', () => {
       setTimeout(() => {
         const loaderContent = document.getElementById('loaderContent');
@@ -350,9 +362,13 @@
           const loader = document.getElementById('loader-wrapper');
           loader.style.opacity = '0';
           loader.style.visibility = 'hidden';
-        }, 1200);
 
-      }, 1200);
+          // Sắp xếp và kích hoạt hiệu ứng hiển thị mượt mà cho nội dung chính
+          const mainContent = document.getElementById('mainContent');
+          mainContent.classList.add('loaded');
+        }, 1000);
+
+      }, 1000);
     });
 
     function toggleSidebar() {
