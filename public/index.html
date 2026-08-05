@@ -5,10 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Roblox Logs Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #1e1e2e; color: #fff; margin: 20px; }
-    h1 { color: #89b4fa; }
-    .log-card { background: #313244; padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid #89b4fa; }
-    .timestamp { font-size: 0.8em; color: #a6adc8; margin-top: 4px; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1e1e2e; color: #cdd6f4; margin: 20px; }
+    h1 { color: #89b4fa; margin-bottom: 20px; }
+    .log-card { background: #313244; padding: 15px; margin-bottom: 12px; border-radius: 8px; border-left: 4px solid #89b4fa; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+    .log-header { font-weight: bold; color: #f9e2af; margin-bottom: 8px; font-size: 1.1em; }
+    .log-details { background: #181825; padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 0.9em; overflow-x: auto; border: 1px solid #45475a; }
+    .log-row { margin: 4px 0; word-break: break-all; }
+    .key { color: #89b4fa; font-weight: bold; }
+    .value { color: #a6e3a1; }
+    .timestamp { font-size: 0.85em; color: #a6adc8; margin-top: 8px; text-align: right; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -50,9 +55,19 @@
             timeStr = new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN');
           }
 
+          // Format dữ liệu chi tiết gọn gàng, tách dòng rõ ràng
+          const details = data.details || data;
+          let detailsHtml = '';
+          for (const [key, value] of Object.entries(details)) {
+            if (value !== null && value !== undefined) {
+              const displayVal = typeof value === 'object' ? JSON.stringify(value) : value;
+              detailsHtml += `<div class="log-row"><span class="key">${key}:</span> <span class="value">${displayVal}</span></div>`;
+            }
+          }
+
           card.innerHTML = `
-            <div><strong>Event:</strong> ${data.event || 'Log'}</div>
-            <div><strong>Data:</strong> ${JSON.stringify(data.details || data)}</div>
+            <div class="log-header">Event: ${data.event || 'Log'}</div>
+            <div class="log-details">${detailsHtml || 'Không có dữ liệu chi tiết'}</div>
             <div class="timestamp">Thời gian: ${timeStr}</div>
           `;
           logsContainer.appendChild(card);
