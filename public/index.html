@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roblox Logs Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #1e1e2e; color: #fff; margin: 20px; }
+    h1 { color: #89b4fa; }
+    .log-card { background: #313244; padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid #89b4fa; }
+    .timestamp { font-size: 0.8em; color: #a6adc8; margin-top: 4px; }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <h1>Roblox Real-time Logs</h1>
+  <div id="logs">Đang kết nối Firestore...</div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBYZE99y7JcqBXDQh7wHxFPdI0GVCCc_XE",
+      authDomain: "roblox-logs-406cd.firebaseapp.com",
+      projectId: "roblox-logs-406cd",
+      storageBucket: "roblox-logs-406cd.firebasestorage.app",
+      messagingSenderId: "678655678400",
+      appId: "1:678655678400:web:8e99a81d2b2e23ec355a25",
+      measurementId: "G-H7BS9DHD4C"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const logsContainer = document.getElementById("logs");
+    
+    db.collection("roblox_logs").orderBy("timestamp", "desc").limit(20)
+      .onSnapshot((snapshot) => {
+        logsContainer.innerHTML = "";
+        if (snapshot.empty) {
+          logsContainer.innerHTML = "<p>Chưa có log nào trong bộ sưu tập 'roblox_logs'.</p>";
+          return;
+        }
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const card = document.createElement("div");
+          card.className = "log-card";
+          
+          let timeStr = "N/A";
+          if (data.timestamp && data.timestamp.seconds) {
+            timeStr = new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN');
+          }
+
+          card.innerHTML = `
+            <div><strong>Event:</strong> ${data.event || 'Log'}</div>
+            <div><strong>Data:</strong> ${JSON.stringify(data.details || data)}</div>
+            <div class="timestamp">Thời gian: ${timeStr}</div>
+          `;
+          logsContainer.appendChild(card);
+        });
+      }, (error) => {
+        console.error("Lỗi lắng nghe dữ liệu:", error);
+        logsContainer.innerHTML = `<p style="color: #f38ba8;">Lỗi kết nối Firestore: ${error.message}</p>`;
+      });
+  </script>
+</body>
+</html>
