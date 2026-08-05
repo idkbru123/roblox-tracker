@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roblox Public Tracker Dashboard</title>
+  <title>Roblox Personal Tracker</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1e1e2e; color: #cdd6f4; display: flex; min-height: 100vh; }
@@ -66,21 +66,21 @@
       <ul class="menu">
         <li>
           <button class="menu-btn active" onclick="showTab('live', this)">
-            🔴 1. Roblox Live (Tất cả)
+            🔴 1. Roblox Live
           </button>
         </li>
         <li>
           <button class="menu-btn" onclick="showTab('history', this)">
-            📜 2. Lịch sử hoạt động
+            📜 2. Xem lịch sử hoạt động
           </button>
         </li>
       </ul>
     </div>
 
-    <!-- NÚT ĐĂNG NHẬP DISCORD (TÙY CHỌN) -->
+    <!-- NÚT ĐĂNG NHẬP DISCORD (BẮT BUỘC ĐỂ XEM DỮ LIỆU CÁ NHÂN) -->
     <div class="user-profile-box" id="authBox">
       <button class="btn-discord" onclick="loginWithDiscord()">
-        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .052.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.027.07.05.05 0 0 0 .01.011c.236.466.51.91.819 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"/></svg>
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .052.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.027.07.05.05 0 0 0 .01.011c.236.466.51.91.819 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"/></svg>
         Đăng nhập Discord
       </button>
     </div>
@@ -91,22 +91,26 @@
     
     <!-- TAB 1: ROBLOX LIVE -->
     <div id="tab-live" class="tab-section active">
-      <h1>🔴 Trạng Thái Trực Tiếp (Tất Cả Tài Khoản)</h1>
-      <div id="live-container" class="grid-container">Đang tải dữ liệu toàn hệ thống...</div>
+      <h1>🔴 Trạng Thái Trực Tiếp (Cá Nhân)</h1>
+      <div id="live-container" class="grid-container">
+        <p class='empty-msg'>Vui lòng đăng nhập bằng tài khoản Discord của bạn để xem trạng thái.</p>
+      </div>
     </div>
 
     <!-- TAB 2: LỊCH SỬ HOẠT ĐỘNG -->
     <div id="tab-history" class="tab-section">
-      <h1>📜 Lịch Sử Hoạt Động (Tất Cả Tài Khoản)</h1>
+      <h1>📜 Lịch Sử Hoạt Động (Cá Nhân)</h1>
       
-      <div class="filter-box" id="filterBox">
-        <label for="userFilter">👤 Lọc theo tài khoản:</label>
+      <div class="filter-box" id="filterBox" style="display: none;">
+        <label for="userFilter">👤 Tài khoản của bạn:</label>
         <select id="userFilter" onchange="renderHistoryLogs()">
-          <option value="ALL">✨ Tất cả các tài khoản trong hệ thống</option>
+          <option value="ALL">✨ Tất cả tài khoản đã liên kết của tôi</option>
         </select>
       </div>
 
-      <div id="logs">Đang tải lịch sử...</div>
+      <div id="logs">
+        <p class='empty-msg'>Vui lòng đăng nhập bằng tài khoản Discord của bạn để xem lịch sử.</p>
+      </div>
     </div>
 
   </div>
@@ -129,7 +133,8 @@
     const db = firebase.firestore();
 
     const usernameCache = {};
-    let allSystemRobloxIds = [];
+    let currentUserDiscord = null;
+    let userLinkedRobloxIds = [];
     let rawLogsData = [];
 
     function showTab(tabName, btn) {
@@ -186,31 +191,52 @@
         fetch("https://discord.com/api/users/@me", {
           headers: { Authorization: `Bearer ${token}` }
         })
-        .then(res => res.ok ? res.json() : Promise.reject())
+        .then(res => {
+          if (!res.ok) throw new Error("Token expired");
+          return res.json();
+        })
         .then(user => {
           if (user.id) {
-            const authBox = document.getElementById("authBox");
-            const avatarUrl = user.avatar 
-              ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-              : `https://cdn.discordapp.com/embed/avatars/0.png`;
-
-            authBox.innerHTML = `
-              <div style="display:flex; align-items:center; gap:10px; justify-content:center; text-align:left;">
-                <img src="${avatarUrl}" class="discord-avatar">
-                <div>
-                  <div style="font-weight:bold; color:#fff; font-size:0.9rem;">${user.username}</div>
-                  <div style="font-size:0.75rem; color:#a6adc8;">Đã đăng nhập</div>
-                </div>
-              </div>
-              <button class="btn-logout" onclick="localStorage.removeItem('discord_token'); window.location.reload();">Đăng xuất</button>
-            `;
+            currentUserDiscord = user;
+            updateAuthUI();
+            loadUserPrivateData();
+          } else {
+            logout();
           }
         })
-        .catch(() => localStorage.removeItem("discord_token"));
+        .catch(() => logout());
       }
     }
 
-    async function initGlobalTracker() {
+    function logout() {
+      localStorage.removeItem("discord_token");
+      window.location.reload();
+    }
+
+    function updateAuthUI() {
+      const authBox = document.getElementById("authBox");
+      if (currentUserDiscord) {
+        const avatarUrl = currentUserDiscord.avatar 
+          ? `https://cdn.discordapp.com/avatars/${currentUserDiscord.id}/${currentUserDiscord.avatar}.png`
+          : `https://cdn.discordapp.com/embed/avatars/0.png`;
+
+        authBox.innerHTML = `
+          <div style="display:flex; align-items:center; gap:10px; justify-content:center; text-align:left;">
+            <img src="${avatarUrl}" class="discord-avatar">
+            <div>
+              <div style="font-weight:bold; color:#fff; font-size:0.9rem;">${currentUserDiscord.username}</div>
+              <div style="font-size:0.75rem; color:#a6adc8;">Đã đăng nhập bảo mật</div>
+            </div>
+          </div>
+          <button class="btn-logout" onclick="logout()">Đăng xuất</button>
+        `;
+      }
+    }
+
+    async function loadUserPrivateData() {
+      if (!currentUserDiscord) return;
+
+      const currentDiscordId = String(currentUserDiscord.id);
       let foundIds = new Set();
 
       const addId = (id) => {
@@ -220,10 +246,10 @@
       };
 
       try {
-        // 1. Quét toàn bộ collection user_links để lấy tất cả các ID đã được liên kết trong hệ thống
-        const userLinksSnap = await db.collection("user_links").get();
-        userLinksSnap.forEach(doc => {
-          const data = doc.data();
+        // Chỉ quét dữ liệu thuộc riêng Discord ID của người đang đăng nhập
+        const directDoc = await db.collection("user_links").doc(currentDiscordId).get();
+        if (directDoc.exists) {
+          const data = directDoc.data();
           Object.values(data).forEach(val => {
             if (Array.isArray(val)) {
               val.forEach(item => addId(typeof item === 'object' ? (item.robloxId || item.id) : item));
@@ -231,36 +257,46 @@
               addId(val);
             }
           });
-        });
+        }
 
-        // 2. Quét toàn bộ bảng roblox_logs để vét sạch mọi Roblox ID từng đẩy log lên hệ thống
+        // Quét log chỉ khớp với Discord ID của người dùng này
         const logsSnap = await db.collection("roblox_logs").get();
         logsSnap.forEach(doc => {
           const data = doc.data();
-          addId(data.robloxUserId);
-          addId(data.robloxId);
-          addId(data.details?.robloxUserId);
-          addId(data.details?.robloxId);
+          const docDiscordId = String(data.discordId || data.details?.discordId || "");
+          if (docDiscordId === currentDiscordId) {
+            addId(data.robloxUserId);
+            addId(data.robloxId);
+            addId(data.details?.robloxUserId);
+            addId(data.details?.robloxId);
+          }
         });
 
       } catch (err) {
-        console.warn("Lỗi tải thông tin toàn hệ thống:", err);
+        console.warn("Lỗi tải thông tin cá nhân:", err);
       }
 
-      allSystemRobloxIds = Array.from(foundIds);
+      userLinkedRobloxIds = Array.from(foundIds);
 
-      // 3. Lắng nghe real-time toàn bộ logs công khai trên hệ thống
+      // Lắng nghe real-time chỉ dành riêng cho các ID của người dùng này
       db.collection("roblox_logs")
         .onSnapshot(async (snapshot) => {
           rawLogsData = [];
           
           snapshot.forEach(doc => {
             const data = doc.data();
+            const docDiscordId = String(data.discordId || data.details?.discordId || "");
             const rId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
 
-            rawLogsData.push({ id: doc.id, ...data });
-            if (isValidRobloxId(rId) && !allSystemRobloxIds.includes(rId)) {
-              allSystemRobloxIds.push(rId);
+            const isMatchDiscord = (docDiscordId === currentDiscordId);
+            const isMatchRoblox = (isValidRobloxId(rId) && userLinkedRobloxIds.includes(rId));
+
+            if (isMatchDiscord || isMatchRoblox) {
+              rawLogsData.push({ id: doc.id, ...data });
+              if (isValidRobloxId(rId) && !userLinkedRobloxIds.includes(rId)) {
+                userLinkedRobloxIds.push(rId);
+                addId(rId);
+              }
             }
           });
 
@@ -280,7 +316,7 @@
     }
 
     async function preloadUsernames() {
-      const promises = allSystemRobloxIds.map(async id => {
+      const promises = userLinkedRobloxIds.map(async id => {
         const name = await fetchRobloxUsername(id);
         usernameCache[id] = name;
       });
@@ -291,11 +327,19 @@
     }
 
     function updateUserFilterOptions() {
+      const filterBox = document.getElementById("filterBox");
       const userFilterSelect = document.getElementById("userFilter");
+
+      if (userLinkedRobloxIds.length === 0) {
+        filterBox.style.display = "none";
+        return;
+      }
+
+      filterBox.style.display = "flex";
       const currentSelected = userFilterSelect.value;
-      let optionsHtml = '<option value="ALL">✨ Tất cả các tài khoản trong hệ thống</option>';
+      let optionsHtml = '<option value="ALL">✨ Tất cả tài khoản của tôi</option>';
       
-      allSystemRobloxIds.forEach(id => {
+      userLinkedRobloxIds.forEach(id => {
         const name = usernameCache[id] && !usernameCache[id].startsWith("ID:") ? usernameCache[id] : `ID: ${id}`;
         optionsHtml += `<option value="${id}">${name} (ID: ${id})</option>`;
       });
@@ -309,14 +353,19 @@
       const selectedUserId = filterSelect ? filterSelect.value : "ALL";
       logsContainer.innerHTML = "";
 
+      if (!currentUserDiscord) {
+        logsContainer.innerHTML = "<p class='empty-msg'>Vui lòng đăng nhập Discord để xem lịch sử.</p>";
+        return;
+      }
+
       const filteredLogs = rawLogsData.filter(data => {
         const userId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
-        if (selectedUserId === "ALL") return allSystemRobloxIds.includes(userId);
+        if (selectedUserId === "ALL") return userLinkedRobloxIds.includes(userId);
         return userId === selectedUserId;
       });
 
       if (filteredLogs.length === 0) {
-        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào.</p>";
+        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào của bạn.</p>";
         return;
       }
 
@@ -355,12 +404,17 @@
       const liveContainer = document.getElementById("live-container");
       liveContainer.innerHTML = "";
 
-      if (allSystemRobloxIds.length === 0) {
-        liveContainer.innerHTML = "<p class='empty-msg'>Chưa có tài khoản Roblox nào được ghi nhận trong hệ thống.</p>";
+      if (!currentUserDiscord) {
+        liveContainer.innerHTML = "<p class='empty-msg'>Vui lòng đăng nhập bằng tài khoản Discord của bạn để xem trạng thái.</p>";
         return;
       }
 
-      allSystemRobloxIds.forEach(userId => {
+      if (userLinkedRobloxIds.length === 0) {
+        liveContainer.innerHTML = "<p class='empty-msg'>Tài khoản Discord của bạn chưa liên kết với tài khoản Roblox nào.</p>";
+        return;
+      }
+
+      userLinkedRobloxIds.forEach(userId => {
         const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId || item.robloxId) === String(userId));
         const isOnline = userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1) : false;
         const playerName = usernameCache[userId] && !usernameCache[userId].startsWith("ID:") ? usernameCache[userId] : `ID: ${userId}`;
@@ -387,7 +441,6 @@
     }
 
     checkDiscordAuth();
-    initGlobalTracker();
   </script>
 </body>
 </html>
