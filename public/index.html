@@ -170,7 +170,6 @@
       return `ID: ${userId}`;
     }
 
-    // YÊU CẦU QUYỀN DISCORD CONNECTIONS
     function loginWithDiscord() {
       const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify%20connections`;
       window.location.href = url;
@@ -199,9 +198,7 @@
             currentUserDiscord = user;
             updateAuthUI();
             
-            // TỰ ĐỘNG ĐỌC KẾT NỐI ROBLOX TRÊN TÀI KHOẢN DISCORD
             await autoSyncDiscordRobloxConnection(token, user.id);
-            
             loadUserPrivateData();
           } else {
             logout();
@@ -211,7 +208,6 @@
       }
     }
 
-    // LẤY TÀI KHOẢN ROBLOX LIÊN KẾT TRONG DISCORD CỦA HỌ VÀ TỰ CẬP NHẬT
     async function autoSyncDiscordRobloxConnection(token, discordId) {
       try {
         const res = await fetch("https://discord.com/api/users/@me/connections", {
@@ -224,7 +220,6 @@
           if (robloxConns.length > 0) {
             const robloxIdsToSync = robloxConns.map(c => String(c.id));
             
-            // Tự động đẩy vào Firebase user_links
             await db.collection("user_links").doc(String(discordId)).set({
               discordId: String(discordId),
               robloxIds: firebase.firestore.FieldValue.arrayUnion(...robloxIdsToSync)
@@ -261,45 +256,42 @@
       }
     }
 
+    // Hàm quét sâu tự động tìm mọi ID Roblox trong dữ liệu Firebase
+    function scanAndExtractRobloxIds(data, foundSet) {
+      if (!data) return;
+      if (typeof data === 'string' || typeof data === 'number') {
+        if (isValidRobloxId(data)) foundSet.add(String(data));
+      } else if (Array.isArray(data)) {
+        data.forEach(item => scanAndExtractRobloxIds(item, foundSet));
+      } else if (typeof data === 'object') {
+        Object.entries(data).forEach(([key, val]) => {
+          if (key !== 'discordId' && key !== 'discord_id') {
+            scanAndExtractRobloxIds(val, foundSet);
+          }
+        });
+      }
+    }
+
     async function loadUserPrivateData() {
       if (!currentUserDiscord) return;
 
       const currentDiscordId = String(currentUserDiscord.id);
       let foundIds = new Set();
 
-      const addId = (id) => {
-        if (isValidRobloxId(id)) {
-          foundIds.add(String(id));
-        }
-      };
-
       try {
+        // 1. Lấy dữ liệu từ user_links và quét toàn bộ các ID có trong đó
         const directDoc = await db.collection("user_links").doc(currentDiscordId).get();
         if (directDoc.exists) {
-          const data = directDoc.data();
-          if (Array.isArray(data.robloxIds)) {
-            data.robloxIds.forEach(id => addId(id));
-          }
-          Object.entries(data).forEach(([key, val]) => {
-            if (key.startsWith('robloxId')) {
-              if (Array.isArray(val)) {
-                val.forEach(item => addId(typeof item === 'object' ? (item.robloxId || item.id) : item));
-              } else {
-                addId(val);
-              }
-            }
-          });
+          scanAndExtractRobloxIds(directDoc.data(), foundIds);
         }
 
+        // 2. Quét thêm từ roblox_logs nếu có log lưu kèm discordId
         const logsSnap = await db.collection("roblox_logs").get();
         logsSnap.forEach(doc => {
           const data = doc.data();
           const docDiscordId = String(data.discordId || data.details?.discordId || "");
           if (docDiscordId === currentDiscordId) {
-            addId(data.robloxUserId);
-            addId(data.robloxId);
-            addId(data.details?.robloxUserId);
-            addId(data.details?.robloxId);
+            scanAndExtractRobloxIds(data, foundIds);
           }
         });
 
@@ -309,6 +301,7 @@
 
       userLinkedRobloxIds = Array.from(foundIds);
 
+      // Lắng nghe dữ liệu real-time từ Firestore
       db.collection("roblox_logs")
         .onSnapshot(async (snapshot) => {
           rawLogsData = [];
@@ -325,7 +318,6 @@
               rawLogsData.push({ id: doc.id, ...data });
               if (isValidRobloxId(rId) && !userLinkedRobloxIds.includes(rId)) {
                 userLinkedRobloxIds.push(rId);
-                addId(rId);
               }
             }
           });
