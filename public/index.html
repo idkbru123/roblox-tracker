@@ -23,6 +23,12 @@
 
     h1 { color: #89b4fa; margin-bottom: 20px; font-size: 1.6rem; border-bottom: 1px solid #313244; padding-bottom: 10px; }
 
+    /* FILTER BOX STYLES */
+    .filter-box { margin-bottom: 20px; display: flex; align-items: center; gap: 12px; background: #181825; padding: 12px 18px; border-radius: 8px; border: 1px solid #313244; }
+    .filter-box label { color: #a6adc8; font-size: 0.95rem; font-weight: 600; }
+    .filter-box select { background: #313244; color: #cdd6f4; border: 1px solid #45475a; padding: 8px 14px; border-radius: 6px; font-size: 0.9rem; outline: none; cursor: pointer; }
+    .filter-box select:focus { border-color: #89b4fa; }
+
     /* CARD STYLES */
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
     .log-card { background: #313244; padding: 15px 20px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px; }
@@ -75,6 +81,15 @@
     <!-- TAB 2: LỊCH SỬ HOẠT ĐỘNG -->
     <div id="tab-history" class="tab-section">
       <h1>📜 Lịch Sử Hoạt Động Roblox</h1>
+      
+      <!-- BỘ LỌC NGƯỜI CHƠI -->
+      <div class="filter-box">
+        <label for="userFilter">👤 Lọc theo người chơi:</label>
+        <select id="userFilter" onchange="renderHistoryLogs()">
+          <option value="ALL">✨ Tất cả người chơi</option>
+        </select>
+      </div>
+
       <div id="logs">Đang kết nối dữ liệu lịch sử...</div>
     </div>
 
@@ -104,7 +119,7 @@
       btn.classList.add('active');
     }
 
-    // 1. LẤY TRẠNG THÁI ROBLOX LIVE (Collection: roblox_users / live_status)
+    // 1. LẤY TRẠNG THÁI ROBLOX LIVE
     const liveContainer = document.getElementById("live-container");
     db.collection("roblox_users").onSnapshot((snapshot) => {
       liveContainer.innerHTML = "";
@@ -138,66 +153,119 @@
       liveContainer.innerHTML = `<p class='empty-msg' style='color:#f38ba8;'>Lỗi tải dữ liệu Live: ${err.message}</p>`;
     });
 
-    // 2. LẤY LỊCH SỬ HOẠT ĐỘNG (Collection: roblox_logs)
+    // 2. LẤY LỊCH SỬ HOẠT ĐỘNG
     const logsContainer = document.getElementById("logs");
-    db.collection("roblox_logs").orderBy("timestamp", "desc").limit(30)
+    const userFilterSelect = document.getElementById("userFilter");
+    let rawLogsData = [];
+
+    db.collection("roblox_logs").orderBy("timestamp", "desc").limit(100)
       .onSnapshot((snapshot) => {
-        logsContainer.innerHTML = "";
+        rawLogsData = [];
         if (snapshot.empty) {
           logsContainer.innerHTML = "<p class='empty-msg'>Chưa có lịch sử hoạt động nào được ghi nhận.</p>";
+          userFilterSelect.innerHTML = '<option value="ALL">✨ Tất cả người chơi</option>';
           return;
         }
 
         snapshot.forEach((doc) => {
-          const data = doc.data();
-          
-          let timeStr = "Vừa xong";
-          if (data.timestamp && data.timestamp.seconds) {
-            timeStr = new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN');
-          }
-
-          let statusHtml = '<span class="status-badge status-other">Hoạt động</span>';
-          if (data.userStatus === 1 || data.details?.userStatus === 1) {
-            statusHtml = '<span class="status-badge status-1">🟢 Đã vào game</span>';
-          } else if (data.userStatus === 0 || data.details?.userStatus === 0) {
-            statusHtml = '<span class="status-badge status-0">🔴 Đã rời game</span>';
-          }
-
-          const playerName = data.playerName || data.details?.playerName;
-          const userId = data.robloxUserId || data.details?.robloxUserId || "Không rõ";
-          
-          let playerDisplay = playerName 
-            ? `<span class="highlight">${playerName}</span><span class="sub-id">(ID: ${userId})</span>`
-            : `<span class="highlight">ID: ${userId}</span>`;
-
-          const gameName = data.gameName || data.details?.gameName || data.lastLocation || data.details?.lastLocation || data.placeName || data.details?.placeName;
-          const placeId = data.placeId || data.details?.placeId;
-          
-          let gameDisplay = 'Chưa xác định';
-          if (gameName && gameName !== "Website") {
-            gameDisplay = `<span style="color: #a6e3a1; font-weight: bold;">🎮 ${gameName}</span>`;
-          } else if (placeId) {
-            gameDisplay = `<span style="color: #a6e3a1;">🗺️ Place ID: ${placeId}</span>`;
-          } else {
-            gameDisplay = `<span style="color: #f9e2af;">🌐 Trang chủ / Website Roblox</span>`;
-          }
-
-          const card = document.createElement("div");
-          card.className = "log-card";
-          card.innerHTML = `
-            <div class="log-top">
-              <div>Người chơi: ${playerDisplay}</div>
-              <div>${statusHtml}</div>
-            </div>
-            <div class="log-info">${gameDisplay}</div>
-            <div class="timestamp">⏰ Thời gian: ${timeStr}</div>
-          `;
-          logsContainer.appendChild(card);
+          rawLogsData.push({ id: doc.id, ...doc.data() });
         });
+
+        updateUserFilterOptions();
+        renderHistoryLogs();
       }, (error) => {
         console.error("Lỗi:", error);
         logsContainer.innerHTML = `<p class='empty-msg' style='color:#f38ba8;'>Lỗi kết nối: ${error.message}</p>`;
       });
+
+    // CẬP NHẬT DANH SÁCH NGƯỜI CHƠI VÀO DROPDOWN
+    function updateUserFilterOptions() {
+      const currentSelected = userFilterSelect.value;
+      const userMap = new Map();
+
+      rawLogsData.forEach(item => {
+        const userId = item.robloxUserId || item.details?.robloxUserId || "Không rõ";
+        const playerName = item.playerName || item.details?.playerName || "";
+        if (userId !== "Không rõ" && !userMap.has(String(userId))) {
+          userMap.set(String(userId), playerName);
+        }
+      });
+
+      let optionsHtml = '<option value="ALL">✨ Tất cả người chơi</option>';
+      userMap.forEach((name, id) => {
+        const label = name ? `${name} (ID: ${id})` : `ID: ${id}`;
+        optionsHtml += `<option value="${id}">${label}</option>`;
+      });
+
+      userFilterSelect.innerHTML = optionsHtml;
+      if (currentSelected && userMap.has(currentSelected)) {
+        userFilterSelect.value = currentSelected;
+      } else {
+        userFilterSelect.value = "ALL";
+      }
+    }
+
+    // LỌC VÀ HÌNH THÀNH DANH SÁCH LỊCH SỬ
+    function renderHistoryLogs() {
+      const selectedUserId = userFilterSelect.value;
+      logsContainer.innerHTML = "";
+
+      const filteredLogs = rawLogsData.filter(data => {
+        if (selectedUserId === "ALL") return true;
+        const userId = data.robloxUserId || data.details?.robloxUserId;
+        return String(userId) === String(selectedUserId);
+      });
+
+      if (filteredLogs.length === 0) {
+        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy lịch sử hoạt động cho người chơi này.</p>";
+        return;
+      }
+
+      filteredLogs.forEach((data) => {
+        let timeStr = "Vừa xong";
+        if (data.timestamp && data.timestamp.seconds) {
+          timeStr = new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN');
+        }
+
+        let statusHtml = '<span class="status-badge status-other">Hoạt động</span>';
+        if (data.userStatus === 1 || data.details?.userStatus === 1) {
+          statusHtml = '<span class="status-badge status-1">🟢 Đã vào game</span>';
+        } else if (data.userStatus === 0 || data.details?.userStatus === 0) {
+          statusHtml = '<span class="status-badge status-0">🔴 Đã rời game</span>';
+        }
+
+        const playerName = data.playerName || data.details?.playerName;
+        const userId = data.robloxUserId || data.details?.robloxUserId || "Không rõ";
+        
+        let playerDisplay = playerName 
+          ? `<span class="highlight">${playerName}</span><span class="sub-id">(ID: ${userId})</span>`
+          : `<span class="highlight">ID: ${userId}</span>`;
+
+        const gameName = data.gameName || data.details?.gameName || data.lastLocation || data.details?.lastLocation || data.placeName || data.details?.placeName;
+        const placeId = data.placeId || data.details?.placeId;
+        
+        let gameDisplay = 'Chưa xác định';
+        if (gameName && gameName !== "Website") {
+          gameDisplay = `<span style="color: #a6e3a1; font-weight: bold;">🎮 ${gameName}</span>`;
+        } else if (placeId) {
+          gameDisplay = `<span style="color: #a6e3a1;">🗺️ Place ID: ${placeId}</span>`;
+        } else {
+          gameDisplay = `<span style="color: #f9e2af;">🌐 Trang chủ / Website Roblox</span>`;
+        }
+
+        const card = document.createElement("div");
+        card.className = "log-card";
+        card.innerHTML = `
+          <div class="log-top">
+            <div>Người chơi: ${playerDisplay}</div>
+            <div>${statusHtml}</div>
+          </div>
+          <div class="log-info">${gameDisplay}</div>
+          <div class="timestamp">⏰ Thời gian: ${timeStr}</div>
+        `;
+        logsContainer.appendChild(card);
+      });
+    }
   </script>
 </body>
 </html>
