@@ -221,7 +221,7 @@
       }
     }
 
-    // TẢI DỮ LIỆU & TỰ ĐỘNG NHẬN DIỆN TÀI KHOẢN
+    // TẢI DỮ LIỆU & HỖ TRỢ ĐA TÀI KHOẢN LIÊN KẾT CHO MỌI USER DISCORD
     async function loadUserDataAndInit() {
       if (!currentUserDiscord) return;
 
@@ -229,15 +229,44 @@
       userLinkedRobloxIds = [];
 
       try {
-        // Đã sửa thành collection "user_links" khớp với Firebase của bạn
+        // Quét collection user_links để tìm TẤT CẢ các Roblox ID của Discord user này
         const linkedSnap = await db.collection("user_links").get();
         linkedSnap.forEach(doc => {
           const data = doc.data();
-          const dId = String(data.discordId || data.discord_id || "");
-          if (dId === currentDiscordId) {
-            const rId = String(data.robloxId || data.robloxUserId || doc.id);
-            if (rId && !userLinkedRobloxIds.includes(rId)) {
-              userLinkedRobloxIds.push(rId);
+          const docId = String(doc.id);
+          const dId = String(data.discordId || data.discord_id || data.userId || "");
+          
+          const isUserMatch = (dId === currentDiscordId) || (docId === currentDiscordId);
+
+          if (isUserMatch) {
+            // Trường hợp 1: Lưu dạng trường đơn lẻ
+            const singleRId = data.robloxId || data.robloxUserId || data.roblox_id || data.userId || data.robloxID;
+            if (singleRId && !Array.isArray(singleRId)) {
+              const strId = String(singleRId);
+              if (!userLinkedRobloxIds.includes(strId)) userLinkedRobloxIds.push(strId);
+            }
+
+            // Trường hợp 2: Document ID chính là Roblox ID
+            if (dId === currentDiscordId && docId !== currentDiscordId) {
+              if (!userLinkedRobloxIds.includes(docId)) userLinkedRobloxIds.push(docId);
+            }
+
+            // Trường hợp 3: Lưu dạng mảng (array) nhiều tài khoản
+            ['robloxIds', 'roblox_ids', 'accounts', 'linkedAccounts', 'users', 'robloxUsers'].forEach(field => {
+              if (Array.isArray(data[field])) {
+                data[field].forEach(id => {
+                  if (id) {
+                    const strId = String(id);
+                    if (!userLinkedRobloxIds.includes(strId)) userLinkedRobloxIds.push(strId);
+                  }
+                });
+              }
+            });
+          }
+
+          if (docId && !userLinkedRobloxIds.includes(docId)) {
+            if (dId === currentDiscordId) {
+              userLinkedRobloxIds.push(docId);
             }
           }
         });
@@ -245,7 +274,7 @@
         console.warn("Lỗi đọc user_links:", err);
       }
 
-      // Quét realtime từ collection roblox_logs
+      // Lắng nghe realtime từ collection roblox_logs
       db.collection("roblox_logs")
         .onSnapshot(async (snapshot) => {
           rawLogsData = [];
@@ -255,9 +284,13 @@
             const docDiscordId = String(data.discordId || data.details?.discordId || "");
             const rId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
 
-            if (docDiscordId === currentDiscordId || (rId && userLinkedRobloxIds.includes(rId))) {
+            const isMatchDiscord = (docDiscordId === currentDiscordId);
+            const isMatchRoblox = (rId && userLinkedRobloxIds.includes(rId));
+
+            if (isMatchDiscord || isMatchRoblox) {
               rawLogsData.push({ id: doc.id, ...data });
-              if (rId && !userLinkedRobloxIds.includes(rId)) {
+              // Tự động nhận diện thêm Roblox ID nếu xuất hiện trong log của Discord user này
+              if (rId && !userLinkedRobloxIds.includes(rId) && isMatchDiscord) {
                 userLinkedRobloxIds.push(rId);
               }
             }
@@ -364,7 +397,7 @@
       }
 
       if (userLinkedRobloxIds.length === 0) {
-        liveContainer.innerHTML = "<p class='empty-msg'>Tài khoản Discord của bạn chưa liên kết với Roblox ID nào trong Bot.</p>";
+        liveContainer.innerHTML = "<p class='empty-msg'>Tài khoản Discord của bạn chưa liên kết với Roblox ID nào trong hệ thống.</p>";
         return;
       }
 
