@@ -266,7 +266,7 @@
 </head>
 <body>
 
-  <!-- MÀN HÌNH LOADING CHUẨN MẪU MEOWISH (NỀN TRẮNG, HACKER BAY & DỪNG TỪ TỪ) -->
+  <!-- MÀN HÌNH LOADING CHUẨN MẪU (NỀN TRẮNG, HACKER BAY & DỪNG TỪ TỪ) -->
   <div id="loader-wrapper">
     <div class="loader-content" id="loaderContent">
       <div class="binary-trails">
@@ -355,7 +355,6 @@
       }, 1200);
     });
 
-    // --- LOGIC ĐÓNG MỞ MENU VÀ FIREBASE ---
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const mainContent = document.getElementById('mainContent');
@@ -550,7 +549,7 @@
         const logsSnap = await db.collection("roblox_logs").where("discordId", "==", currentDiscordId).get();
         logsSnap.forEach(doc => {
           const data = doc.data();
-          const rId = String(data.robloxUserId || data.robloxId || "");
+          const rId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
           if (isValidRobloxId(rId)) foundIds.add(rId);
         });
       } catch (err) {
