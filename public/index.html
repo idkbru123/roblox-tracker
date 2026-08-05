@@ -96,7 +96,6 @@
   </div>
 
   <script>
-    // CẤU HÌNH FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyBYZE99y7JcqBXDQh7wHxFPdI0GVCCc_XE",
       authDomain: "roblox-logs-406cd.firebaseapp.com",
@@ -110,7 +109,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // CHUYỂN TAB NAVIGATION
+    const usernameCache = {}; // Cache tên Roblox lấy từ API
+
     function showTab(tabName, btn) {
       document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
@@ -119,51 +119,37 @@
       btn.classList.add('active');
     }
 
-    // 1. LẤY TRẠNG THÁI ROBLOX LIVE
-    const liveContainer = document.getElementById("live-container");
-    db.collection("roblox_users").onSnapshot((snapshot) => {
-      liveContainer.innerHTML = "";
-      if (snapshot.empty) {
-        liveContainer.innerHTML = "<p class='empty-msg'>Chưa có tài khoản nào được theo dõi live.</p>";
-        return;
+    // TỰ ĐỘNG LẤY TÊN THẬT TỪ ROBLOX API NẾU THIẾU
+    async function fetchRobloxUsername(userId) {
+      if (!userId || userId === "Không rõ") return "Unknown";
+      if (usernameCache[userId]) return usernameCache[userId];
+
+      try {
+        const response = await fetch(`https://users.roblox.com/v1/users/${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          const name = data.displayName || data.name;
+          usernameCache[userId] = name;
+          return name;
+        }
+      } catch (e) {
+        console.warn("Không thể lấy tên cho ID:", userId);
       }
+      return null;
+    }
 
-      snapshot.forEach((doc) => {
-        const user = doc.data();
-        const isOnline = user.isOnline || user.userStatus === 1;
-        const statusBadge = isOnline 
-          ? '<span class="status-badge status-1">🟢 Online / In Game</span>' 
-          : '<span class="status-badge status-0">🔴 Offline</span>';
-
-        const card = document.createElement("div");
-        card.className = "log-card";
-        card.innerHTML = `
-          <div class="log-top">
-            <div><span class="highlight">${user.playerName || user.username || 'User'}</span></div>
-            <div>${statusBadge}</div>
-          </div>
-          <div class="log-info">
-            <p><strong>ID:</strong> ${user.robloxUserId || doc.id}</p>
-            <p><strong>Đang chơi:</strong> ${user.currentGame || user.lastLocation || 'Trang chủ / Khác'}</p>
-          </div>
-        `;
-        liveContainer.appendChild(card);
-      });
-    }, (err) => {
-      liveContainer.innerHTML = `<p class='empty-msg' style='color:#f38ba8;'>Lỗi tải dữ liệu Live: ${err.message}</p>`;
-    });
-
-    // 2. LẤY LỊCH SỬ HOẠT ĐỘNG
     const logsContainer = document.getElementById("logs");
+    const liveContainer = document.getElementById("live-container");
     const userFilterSelect = document.getElementById("userFilter");
     let rawLogsData = [];
 
+    // LẤY DỮ LIỆU LỊCH SỬ TỪ FIREBASE
     db.collection("roblox_logs").orderBy("timestamp", "desc").limit(100)
-      .onSnapshot((snapshot) => {
+      .onSnapshot(async (snapshot) => {
         rawLogsData = [];
         if (snapshot.empty) {
           logsContainer.innerHTML = "<p class='empty-msg'>Chưa có lịch sử hoạt động nào được ghi nhận.</p>";
-          userFilterSelect.innerHTML = '<option value="ALL">✨ Tất cả người chơi</option>';
+          liveContainer.innerHTML = "<p class='empty-msg'>Chưa có thông tin Live.</p>";
           return;
         }
 
@@ -171,30 +157,52 @@
           rawLogsData.push({ id: doc.id, ...doc.data() });
         });
 
+        // Tự động bù tên còn thiếu từ API Roblox
+        await preloadMissingUsernames();
+
         updateUserFilterOptions();
         renderHistoryLogs();
+        renderLiveFromLogs();
       }, (error) => {
         console.error("Lỗi:", error);
         logsContainer.innerHTML = `<p class='empty-msg' style='color:#f38ba8;'>Lỗi kết nối: ${error.message}</p>`;
       });
 
-    // CẬP NHẬT DANH SÁCH NGƯỜI CHƠI VÀO DROPDOWN
+    async function preloadMissingUsernames() {
+      const fetchPromises = [];
+      rawLogsData.forEach(item => {
+        const userId = item.robloxUserId || item.details?.robloxUserId;
+        const playerName = item.playerName || item.details?.playerName;
+
+        if (playerName && playerName !== "User") {
+          usernameCache[userId] = playerName;
+        } else if (userId && !usernameCache[userId]) {
+          fetchPromises.push(
+            fetchRobloxUsername(userId).then(fetchedName => {
+              if (fetchedName) usernameCache[userId] = fetchedName;
+            })
+          );
+        }
+      });
+      await Promise.all(fetchPromises);
+    }
+
+    // CẬP NHẬT DROPDOWN
     function updateUserFilterOptions() {
       const currentSelected = userFilterSelect.value;
       const userMap = new Map();
 
       rawLogsData.forEach(item => {
         const userId = item.robloxUserId || item.details?.robloxUserId || "Không rõ";
-        const playerName = item.playerName || item.details?.playerName || "";
         if (userId !== "Không rõ" && !userMap.has(String(userId))) {
-          userMap.set(String(userId), playerName);
+          const name = usernameCache[userId] || "Đang tải tên...";
+          userMap.set(String(userId), name);
         }
       });
 
       let optionsHtml = '<option value="ALL">✨ Tất cả người chơi</option>';
       userMap.forEach((name, id) => {
-        const label = name ? `${name} (ID: ${id})` : `ID: ${id}`;
-        optionsHtml += `<option value="${id}">${label}</option>`;
+        optionsHtml += `<option value="${id}">${name} (ID: ${id})</option>`;
       });
 
       userFilterSelect.innerHTML = optionsHtml;
@@ -205,7 +213,7 @@
       }
     }
 
-    // LỌC VÀ HÌNH THÀNH DANH SÁCH LỊCH SỬ
+    // RENDER LỊCH SỬ
     function renderHistoryLogs() {
       const selectedUserId = userFilterSelect.value;
       logsContainer.innerHTML = "";
@@ -234,12 +242,10 @@
           statusHtml = '<span class="status-badge status-0">🔴 Đã rời game</span>';
         }
 
-        const playerName = data.playerName || data.details?.playerName;
         const userId = data.robloxUserId || data.details?.robloxUserId || "Không rõ";
+        const playerName = usernameCache[userId] || data.playerName || data.details?.playerName || `ID: ${userId}`;
         
-        let playerDisplay = playerName 
-          ? `<span class="highlight">${playerName}</span><span class="sub-id">(ID: ${userId})</span>`
-          : `<span class="highlight">ID: ${userId}</span>`;
+        let playerDisplay = `<span class="highlight">${playerName}</span><span class="sub-id">(ID: ${userId})</span>`;
 
         const gameName = data.gameName || data.details?.gameName || data.lastLocation || data.details?.lastLocation || data.placeName || data.details?.placeName;
         const placeId = data.placeId || data.details?.placeId;
@@ -264,6 +270,49 @@
           <div class="timestamp">⏰ Thời gian: ${timeStr}</div>
         `;
         logsContainer.appendChild(card);
+      });
+    }
+
+    // TỰ ĐỘNG TẠO TRẠNG THÁI LIVE TỪ BẢN GHI MỚI NHẤT CỦA TỪNG NGƯỜI CHƠI
+    function renderLiveFromLogs() {
+      liveContainer.innerHTML = "";
+      const latestUserMap = new Map();
+
+      // Lấy log mới nhất của từng User ID
+      rawLogsData.forEach(item => {
+        const userId = item.robloxUserId || item.details?.robloxUserId;
+        if (userId && !latestUserMap.has(String(userId))) {
+          latestUserMap.set(String(userId), item);
+        }
+      });
+
+      if (latestUserMap.size === 0) {
+        liveContainer.innerHTML = "<p class='empty-msg'>Chưa có thông tin trạng thái Live.</p>";
+        return;
+      }
+
+      latestUserMap.forEach((userLog, userId) => {
+        const isOnline = userLog.userStatus === 1 || userLog.details?.userStatus === 1;
+        const playerName = usernameCache[userId] || `ID: ${userId}`;
+        const gameName = userLog.gameName || userLog.details?.gameName || userLog.lastLocation || 'Trang chủ / Website Roblox';
+
+        const statusBadge = isOnline 
+          ? '<span class="status-badge status-1">🟢 Online / In Game</span>' 
+          : '<span class="status-badge status-0">🔴 Offline</span>';
+
+        const card = document.createElement("div");
+        card.className = "log-card";
+        card.innerHTML = `
+          <div class="log-top">
+            <div><span class="highlight">${playerName}</span></div>
+            <div>${statusBadge}</div>
+          </div>
+          <div class="log-info">
+            <p><strong>ID:</strong> ${userId}</p>
+            <p><strong>Vị trí gần nhất:</strong> ${gameName}</p>
+          </div>
+        `;
+        liveContainer.appendChild(card);
       });
     }
   </script>
