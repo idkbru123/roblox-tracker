@@ -173,7 +173,6 @@
       window.location.href = url;
     }
 
-    // 1. Hàm checkDiscordAuth đã tối ưu
     function checkDiscordAuth() {
       const hash = window.location.hash;
       let token = localStorage.getItem("discord_token");
@@ -230,42 +229,64 @@
       }
     }
 
-    // 2. Tải dữ liệu & Quản lý Firestore không cần Composite Index
+    // 3. TẢI DỮ LIỆU & TỰ ĐỘNG NHẬN DIỆN TÀI KHOẢN
     async function loadUserDataAndInit() {
       if (!currentUserDiscord) return;
 
-      const linkedSnap = await db.collection("roblox_users").where("discordId", "==", currentUserDiscord.id).get();
-      
+      const currentDiscordId = String(currentUserDiscord.id);
       userLinkedRobloxIds = [];
-      linkedSnap.forEach(doc => {
-        const data = doc.data();
-        const rId = data.robloxUserId || doc.id;
-        if (rId) userLinkedRobloxIds.push(String(rId));
-      });
 
-      // Query đơn giản lấy snapshot dữ liệu realtime
+      try {
+        // 1. Tìm trong collection roblox_users (kiểm tra cả String và Number)
+        const linkedSnap = await db.collection("roblox_users").get();
+        linkedSnap.forEach(doc => {
+          const data = doc.data();
+          const dId = String(data.discordId || data.discord_id || "");
+          if (dId === currentDiscordId) {
+            const rId = String(data.robloxUserId || data.robloxId || doc.id);
+            if (rId && !userLinkedRobloxIds.includes(rId)) {
+              userLinkedRobloxIds.push(rId);
+            }
+          }
+        });
+      } catch (err) {
+        console.warn("Không thể tải roblox_users:", err);
+      }
+
+      // 2. Lắng nghe realtime từ roblox_logs (Tự động quét thêm ID liên kết từ logs)
       db.collection("roblox_logs")
         .onSnapshot(async (snapshot) => {
           rawLogsData = [];
+          
           snapshot.forEach(doc => {
             const data = doc.data();
-            const rId = String(data.robloxUserId || data.details?.robloxUserId);
-            
-            if ((data.discordId && data.discordId === currentUserDiscord.id) || userLinkedRobloxIds.includes(rId)) {
+            const docDiscordId = String(data.discordId || data.details?.discordId || "");
+            const rId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
+
+            // Nếu log có chứa Discord ID trùng khớp HOẶC Roblox ID thuộc danh sách đã liên kết
+            if (docDiscordId === currentDiscordId || (rId && userLinkedRobloxIds.includes(rId))) {
               rawLogsData.push({ id: doc.id, ...data });
-              if (!userLinkedRobloxIds.includes(rId)) userLinkedRobloxIds.push(rId);
+              
+              // Tự động bổ sung Roblox ID vào danh sách nếu chưa có
+              if (rId && !userLinkedRobloxIds.includes(rId)) {
+                userLinkedRobloxIds.push(rId);
+              }
             }
           });
 
-          // Sắp xếp giảm dần theo thời gian ở Client để tránh tạo Index Firestore
-          rawLogsData.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+          // Sắp xếp log mới nhất lên đầu
+          rawLogsData.sort((a, b) => {
+            const timeA = a.timestamp?.seconds || a.time || 0;
+            const timeB = b.timestamp?.seconds || b.time || 0;
+            return timeB - timeA;
+          });
 
           await preloadUsernames();
           updateUserFilterOptions();
           renderHistoryLogs();
           renderLiveFromLogs();
         }, (err) => {
-          console.error("Lỗi Firestore:", err);
+          console.error("Lỗi kết nối Firestore Logs:", err);
         });
     }
 
@@ -303,7 +324,7 @@
       }
 
       const filteredLogs = rawLogsData.filter(data => {
-        const userId = String(data.robloxUserId || data.details?.robloxUserId);
+        const userId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId);
         if (selectedUserId === "ALL") return userLinkedRobloxIds.includes(userId);
         return userId === selectedUserId;
       });
@@ -326,7 +347,7 @@
           statusHtml = '<span class="status-badge status-0">🔴 Đã rời game</span>';
         }
 
-        const userId = data.robloxUserId || data.details?.robloxUserId || "Không rõ";
+        const userId = data.robloxUserId || data.details?.robloxUserId || data.robloxId || "Không rõ";
         const playerName = usernameCache[userId] || data.playerName || `ID: ${userId}`;
         const gameName = data.gameName || data.details?.gameName || data.lastLocation || 'Trang chủ / Website Roblox';
 
@@ -359,7 +380,7 @@
       }
 
       userLinkedRobloxIds.forEach(userId => {
-        const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId) === String(userId));
+        const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId || item.robloxId) === String(userId));
         const isOnline = userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1) : false;
         const playerName = usernameCache[userId] || `ID: ${userId}`;
         const gameName = userLog ? (userLog.gameName || userLog.details?.gameName || userLog.lastLocation || 'Trang chủ / Website Roblox') : 'Chưa ghi nhận';
