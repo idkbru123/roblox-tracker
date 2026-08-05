@@ -3,29 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roblox Activity History</title>
+  <title>Roblox Activity & Live Dashboard</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1e1e2e; color: #cdd6f4; margin: 20px; max-width: 900px; margin-left: auto; margin-right: auto; }
-    h1 { color: #89b4fa; text-align: center; margin-bottom: 25px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1e1e2e; color: #cdd6f4; display: flex; min-height: 100vh; }
+
+    /* SIDEBAR NAVIGATION */
+    .sidebar { width: 250px; background: #181825; border-right: 1px solid #313244; position: fixed; height: 100vh; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; }
+    .sidebar .brand { padding: 22px 16px; font-size: 1.1rem; font-weight: bold; color: #89b4fa; text-align: center; border-bottom: 1px solid #313244; }
+    .sidebar .menu { list-style: none; margin-top: 15px; }
+    .sidebar .menu-btn { width: 100%; padding: 14px 20px; background: transparent; border: none; color: #a6adc8; font-size: 0.95rem; font-weight: 600; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; }
+    .sidebar .menu-btn:hover { background: #313244; color: #cdd6f4; }
+    .sidebar .menu-btn.active { background: #313244; color: #89b4fa; border-left: 4px solid #89b4fa; }
+
+    /* MAIN CONTENT AREA */
+    .main-content { margin-left: 250px; flex: 1; padding: 25px; width: calc(100% - 250px); max-width: 1000px; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+
+    h1 { color: #89b4fa; margin-bottom: 20px; font-size: 1.6rem; border-bottom: 1px solid #313244; padding-bottom: 10px; }
+
+    /* CARD STYLES */
+    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
     .log-card { background: #313244; padding: 15px 20px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px; }
     .log-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #45475a; padding-bottom: 8px; }
-    .status-badge { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.9em; }
-    .status-1 { background: #a6e3a1; color: #11111b; } /* Vào game */
-    .status-0 { background: #f38ba8; color: #11111b; } /* Rời game */
-    .status-other { background: #89b4fa; color: #11111b; } /* Khác */
+    
+    /* BADGES */
+    .status-badge { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.85em; }
+    .status-1 { background: #a6e3a1; color: #11111b; } /* Vào game / Online */
+    .status-0 { background: #f38ba8; color: #11111b; } /* Rời game / Offline */
+    .status-other { background: #89b4fa; color: #11111b; }
+
     .log-info { font-size: 0.95em; color: #bac2de; }
     .highlight { color: #f9e2af; font-weight: bold; }
     .sub-id { font-size: 0.8em; color: #a6adc8; margin-left: 6px; }
     .timestamp { font-size: 0.85em; color: #a6adc8; text-align: right; }
+    .empty-msg { text-align: center; color: #a6adc8; padding: 30px; }
   </style>
+
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <h1>📜 Lịch Sử Hoạt Động Roblox</h1>
-  <div id="logs">Đang kết nối dữ liệu lịch sử...</div>
+
+  <!-- MENU BÊN TRÁI -->
+  <div class="sidebar">
+    <div class="brand">🎮 ROBLOX TRACKER</div>
+    <ul class="menu">
+      <li>
+        <button class="menu-btn active" onclick="showTab('live', this)">
+          🔴 1. Roblox Live
+        </button>
+      </li>
+      <li>
+        <button class="menu-btn" onclick="showTab('history', this)">
+          📜 2. Xem lịch sử hoạt động
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- NỘI DUNG CHÍNH -->
+  <div class="main-content">
+    
+    <!-- TAB 1: ROBLOX LIVE -->
+    <div id="tab-live" class="tab-section active">
+      <h1>🔴 Trạng Thái Trực Tiếp (Live)</h1>
+      <div id="live-container" class="grid-container">Đang tải trạng thái tài khoản...</div>
+    </div>
+
+    <!-- TAB 2: LỊCH SỬ HOẠT ĐỘNG -->
+    <div id="tab-history" class="tab-section">
+      <h1>📜 Lịch Sử Hoạt Động Roblox</h1>
+      <div id="logs">Đang kết nối dữ liệu lịch sử...</div>
+    </div>
+
+  </div>
 
   <script>
+    // CẤU HÌNH FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyBYZE99y7JcqBXDQh7wHxFPdI0GVCCc_XE",
       authDomain: "roblox-logs-406cd.firebaseapp.com",
@@ -39,13 +95,56 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // CHUYỂN TAB NAVIGATION
+    function showTab(tabName, btn) {
+      document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById('tab-' + tabName).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // 1. LẤY TRẠNG THÁI ROBLOX LIVE (Collection: roblox_users / live_status)
+    const liveContainer = document.getElementById("live-container");
+    db.collection("roblox_users").onSnapshot((snapshot) => {
+      liveContainer.innerHTML = "";
+      if (snapshot.empty) {
+        liveContainer.innerHTML = "<p class='empty-msg'>Chưa có tài khoản nào được theo dõi live.</p>";
+        return;
+      }
+
+      snapshot.forEach((doc) => {
+        const user = doc.data();
+        const isOnline = user.isOnline || user.userStatus === 1;
+        const statusBadge = isOnline 
+          ? '<span class="status-badge status-1">🟢 Online / In Game</span>' 
+          : '<span class="status-badge status-0">🔴 Offline</span>';
+
+        const card = document.createElement("div");
+        card.className = "log-card";
+        card.innerHTML = `
+          <div class="log-top">
+            <div><span class="highlight">${user.playerName || user.username || 'User'}</span></div>
+            <div>${statusBadge}</div>
+          </div>
+          <div class="log-info">
+            <p><strong>ID:</strong> ${user.robloxUserId || doc.id}</p>
+            <p><strong>Đang chơi:</strong> ${user.currentGame || user.lastLocation || 'Trang chủ / Khác'}</p>
+          </div>
+        `;
+        liveContainer.appendChild(card);
+      });
+    }, (err) => {
+      liveContainer.innerHTML = `<p class='empty-msg' style='color:#f38ba8;'>Lỗi tải dữ liệu Live: ${err.message}</p>`;
+    });
+
+    // 2. LẤY LỊCH SỬ HOẠT ĐỘNG (Collection: roblox_logs)
     const logsContainer = document.getElementById("logs");
-    
-    db.collection("roblox_logs").orderBy("timestamp", "desc").limit(20)
+    db.collection("roblox_logs").orderBy("timestamp", "desc").limit(30)
       .onSnapshot((snapshot) => {
         logsContainer.innerHTML = "";
         if (snapshot.empty) {
-          logsContainer.innerHTML = "<p style='text-align:center;'>Chưa có lịch sử hoạt động nào được ghi nhận.</p>";
+          logsContainer.innerHTML = "<p class='empty-msg'>Chưa có lịch sử hoạt động nào được ghi nhận.</p>";
           return;
         }
 
@@ -67,14 +166,10 @@
           const playerName = data.playerName || data.details?.playerName;
           const userId = data.robloxUserId || data.details?.robloxUserId || "Không rõ";
           
-          let playerDisplay = '';
-          if (playerName) {
-            playerDisplay = `<span class="highlight">${playerName}</span><span class="sub-id">(ID: ${userId})</span>`;
-          } else {
-            playerDisplay = `<span class="highlight">ID: ${userId}</span>`;
-          }
+          let playerDisplay = playerName 
+            ? `<span class="highlight">${playerName}</span><span class="sub-id">(ID: ${userId})</span>`
+            : `<span class="highlight">ID: ${userId}</span>`;
 
-          // Xử lý tên trò chơi / map thông minh hơn
           const gameName = data.gameName || data.details?.gameName || data.lastLocation || data.details?.lastLocation || data.placeName || data.details?.placeName;
           const placeId = data.placeId || data.details?.placeId;
           
@@ -94,16 +189,14 @@
               <div>Người chơi: ${playerDisplay}</div>
               <div>${statusHtml}</div>
             </div>
-            <div class="log-info">
-              ${gameDisplay}
-            </div>
+            <div class="log-info">${gameDisplay}</div>
             <div class="timestamp">⏰ Thời gian: ${timeStr}</div>
           `;
           logsContainer.appendChild(card);
         });
       }, (error) => {
         console.error("Lỗi:", error);
-        logsContainer.innerHTML = `<p style="color: #f38ba8; text-align:center;">Lỗi kết nối: ${error.message}</p>`;
+        logsContainer.innerHTML = `<p class='empty-msg' style='color:#f38ba8;'>Lỗi kết nối: ${error.message}</p>`;
       });
   </script>
 </body>
