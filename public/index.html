@@ -140,11 +140,9 @@
       btn.classList.add('active');
     }
 
-    // Hàm kiểm tra xem một chuỗi có phải Roblox ID hợp lệ hay không (tránh nhầm lẫn với Discord ID dài 18-19 số)
     function isValidRobloxId(id) {
       if (!id) return false;
       const str = String(id).trim();
-      // Roblox ID thường là số và có độ dài từ 5 đến 14 chữ số (Discord ID dài từ 17 đến 19 chữ số)
       return /^\d{5,14}$/.test(str);
     }
 
@@ -231,47 +229,66 @@
       }
     }
 
-    // TẢI DỮ LIỆU VÀ LỌC CHUẨN XÁC CHỈ LẤY ROBLOX ID
+    // TẢI DỮ LIỆU NHANH VÀ HỖ TRỢ ĐA TÀI KHOẢN LIÊN KẾT
     async function loadUserDataAndInit() {
       if (!currentUserDiscord) return;
 
       const currentDiscordId = String(currentUserDiscord.id);
-      userLinkedRobloxIds = [];
+      let foundIds = new Set();
+
+      const addId = (id) => {
+        if (isValidRobloxId(id)) {
+          foundIds.add(String(id));
+        }
+      };
 
       try {
-        const linkedSnap = await db.collection("user_links").get();
-        linkedSnap.forEach(doc => {
-          const data = doc.data();
-          const docId = String(doc.id);
-          const dId = String(data.discordId || data.discord_id || data.userId || "");
-          
-          const isUserMatch = (dId === currentDiscordId) || (docId === currentDiscordId);
+        // 1. Lấy trực tiếp document theo Discord ID (Tốc độ cực nhanh, không quét toàn bộ DB)
+        const directDoc = await db.collection("user_links").doc(currentDiscordId).get();
+        if (directDoc.exists) {
+          const data = directDoc.data();
+          if (Array.isArray(data.robloxIds)) data.robloxIds.forEach(addId);
+          if (Array.isArray(data.accounts)) data.accounts.forEach(acc => addId(acc.robloxId || acc.id || acc));
+          if (data.robloxId) addId(data.robloxId);
+          if (data.robloxUserId) addId(data.robloxUserId);
+        }
 
-          if (isUserMatch) {
-            // Kiểm tra các trường chứa Roblox ID
-            const potentialIds = [
-              data.robloxId, data.robloxUserId, data.roblox_id, 
-              data.userId, data.robloxID, data.robloxUser
-            ];
-
-            potentialIds.forEach(id => {
-              if (isValidRobloxId(id)) {
-                const strId = String(id);
-                if (!userLinkedRobloxIds.includes(strId)) userLinkedRobloxIds.push(strId);
-              }
-            });
-
-            // Nếu docId chính là Roblox ID (không phải Discord ID)
-            if (isValidRobloxId(docId) && docId !== currentDiscordId) {
-              if (!userLinkedRobloxIds.includes(docId)) userLinkedRobloxIds.push(docId);
-            }
-          }
+        // 2. Truy vấn các document có trường chứa Discord ID
+        const queries = [
+          db.collection("user_links").where("discordId", "==", currentDiscordId).get(),
+          db.collection("user_links").where("discord_id", "==", currentDiscordId).get(),
+          db.collection("user_links").where("userId", "==", currentDiscordId).get()
+        ];
+        
+        const snapshots = await Promise.all(queries);
+        snapshots.forEach(snap => {
+          snap.forEach(doc => {
+            const data = doc.data();
+            addId(doc.id);
+            addId(data.robloxId);
+            addId(data.robloxUserId);
+            addId(data.roblox_id);
+            addId(data.userId);
+            if (Array.isArray(data.robloxIds)) data.robloxIds.forEach(addId);
+          });
         });
+
+        // 3. Quét thêm từ bảng roblox_logs để quét sạch các ID đã từng hoạt động ứng với Discord ID này
+        const logsSnap = await db.collection("roblox_logs").where("discordId", "==", currentDiscordId).get();
+        logsSnap.forEach(doc => {
+          const data = doc.data();
+          addId(data.robloxUserId);
+          addId(data.robloxId);
+          addId(data.details?.robloxUserId);
+        });
+
       } catch (err) {
-        console.warn("Lỗi đọc user_links:", err);
+        console.warn("Lỗi tải thông tin liên kết:", err);
       }
 
-      // Lắng nghe từ collection roblox_logs để bổ sung
+      userLinkedRobloxIds = Array.from(foundIds);
+
+      // Lắng nghe realtime từ roblox_logs
       db.collection("roblox_logs")
         .onSnapshot(async (snapshot) => {
           rawLogsData = [];
@@ -286,8 +303,9 @@
 
             if (isMatchDiscord || isMatchRoblox) {
               rawLogsData.push({ id: doc.id, ...data });
-              if (isValidRobloxId(rId) && !userLinkedRobloxIds.includes(rId) && isMatchDiscord) {
+              if (isValidRobloxId(rId) && !userLinkedRobloxIds.includes(rId)) {
                 userLinkedRobloxIds.push(rId);
+                addId(rId);
               }
             }
           });
@@ -313,7 +331,6 @@
         usernameCache[id] = name;
       });
       await Promise.all(promises);
-      // Cập nhật lại giao diện ngay sau khi đã tải xong tên
       updateUserFilterOptions();
       renderHistoryLogs();
       renderLiveFromLogs();
