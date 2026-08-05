@@ -229,20 +229,20 @@
       userLinkedRobloxIds = [];
 
       try {
-        // Quét collection roblox_users
-        const linkedSnap = await db.collection("roblox_users").get();
+        // Đã sửa thành collection "user_links" khớp với Firebase của bạn
+        const linkedSnap = await db.collection("user_links").get();
         linkedSnap.forEach(doc => {
           const data = doc.data();
           const dId = String(data.discordId || data.discord_id || "");
           if (dId === currentDiscordId) {
-            const rId = String(data.robloxUserId || data.robloxId || doc.id);
+            const rId = String(data.robloxId || data.robloxUserId || doc.id);
             if (rId && !userLinkedRobloxIds.includes(rId)) {
               userLinkedRobloxIds.push(rId);
             }
           }
         });
       } catch (err) {
-        console.warn("Lỗi đọc roblox_users:", err);
+        console.warn("Lỗi đọc user_links:", err);
       }
 
       // Quét realtime từ collection roblox_logs
