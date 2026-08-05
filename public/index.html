@@ -15,6 +15,7 @@
     .status-other { background: #89b4fa; color: #11111b; } /* Khác */
     .log-info { font-size: 0.95em; color: #bac2de; }
     .highlight { color: #f9e2af; font-weight: bold; }
+    .sub-id { font-size: 0.8em; color: #a6adc8; margin-left: 6px; }
     .timestamp { font-size: 0.85em; color: #a6adc8; text-align: right; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -51,13 +52,11 @@
         snapshot.forEach((doc) => {
           const data = doc.data();
           
-          // Xử lý thời gian
           let timeStr = "Vừa xong";
           if (data.timestamp && data.timestamp.seconds) {
             timeStr = new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN');
           }
 
-          // Dịch mã trạng thái userStatus sang tiếng Việt dễ hiểu
           let statusHtml = '<span class="status-badge status-other">Hoạt động</span>';
           if (data.userStatus === 1 || data.details?.userStatus === 1) {
             statusHtml = '<span class="status-badge status-1">🟢 Đã vào game</span>';
@@ -65,14 +64,24 @@
             statusHtml = '<span class="status-badge status-0">🔴 Đã rời game</span>';
           }
 
+          // Lấy tên người chơi, nếu không có thì fallback về ID
+          const playerName = data.playerName || data.details?.playerName;
           const userId = data.robloxUserId || data.details?.robloxUserId || "Không rõ";
+          
+          let playerDisplay = '';
+          if (playerName) {
+            playerDisplay = `<span class="highlight">${playerName}</span><span class="sub-id">(ID: ${userId})</span>`;
+          } else {
+            playerDisplay = `<span class="highlight">ID: ${userId}</span>`;
+          }
+
           const location = data.lastLocation || data.details?.lastLocation || "Khu vực chính";
 
           const card = document.createElement("div");
           card.className = "log-card";
           card.innerHTML = `
             <div class="log-top">
-              <div>ID Người chơi: <span class="highlight">${userId}</span></div>
+              <div>Người chơi: ${playerDisplay}</div>
               <div>${statusHtml}</div>
             </div>
             <div class="log-info">
