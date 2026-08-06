@@ -375,6 +375,11 @@
   </div>
 
   <script>
+    // ⚠️ QUAN TRỌNG: Thay đổi URL dưới đây thành link server backend/bot thực tế của bạn nếu cần
+    // Ví dụ: const BACKEND_URL = "https://ten-ung-dung-cua-ban.onrender.com";
+    // Nếu frontend và backend chạy chung 1 server Render, bạn có thể để trống hoặc điền link đầy đủ.
+    const BACKEND_URL = ""; 
+
     const urlParams = new URLSearchParams(window.location.search);
     const loggedInUserId = urlParams.get('user_id');
     const loggedInName = urlParams.get('name');
@@ -438,7 +443,7 @@
       msgDiv.innerHTML = "<p style='color: #60a5fa;'>Đang gửi yêu cầu đến Bot Discord...</p>";
 
       try {
-        const response = await fetch('/api/verify-roblox', {
+        const response = await fetch(`${BACKEND_URL}/api/verify-roblox`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ roblox_id: robloxId })
@@ -470,7 +475,7 @@
       msgDiv.innerHTML = "<p style='color: #60a5fa;'>Đang kiểm tra mã xác nhận...</p>";
 
       try {
-        const response = await fetch('/api/confirm-code', {
+        const response = await fetch(`${BACKEND_URL}/api/confirm-code`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ roblox_id: currentVerifyingRobloxId, code: code })
