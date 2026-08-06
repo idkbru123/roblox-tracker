@@ -1,3 +1,10 @@
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Phục vụ giao diện tĩnh từ thư mục public
+app.use(express.static('public'));
+
 // 1. Route xử lý khi bấm nút "Đăng nhập bằng Roblox"
 app.get('/auth/roblox', (req, res) => {
   const clientId = process.env.ROBLOX_CLIENT_ID;
@@ -43,4 +50,8 @@ app.get('/roblox/callback', async (req, res) => {
     console.error('Lỗi xác thực OAuth:', error);
     res.status(500).send('Lỗi xác thực tài khoản Roblox.');
   }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
