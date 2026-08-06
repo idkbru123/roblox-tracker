@@ -545,5 +545,28 @@
       console.error("Lỗi khi đồng bộ dữ liệu Firestore:", error);
     });
   </script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('logged_in') === 'true') {
+        const name = params.get('name');
+        
+        // Tìm nút đăng nhập ở góc dưới bên trái
+        const buttons = document.querySelectorAll('button, a');
+        buttons.forEach(el => {
+          if (el.textContent.includes('Đăng nhập bằng Roblox')) {
+            el.innerHTML = `👤 ${name}`;
+            el.style.backgroundColor = '#2ecc71';
+            el.removeAttribute('href');
+            el.onclick = (e) => {
+              e.preventDefault();
+              alert(`Xin chào, ${name}! Bạn đã đăng nhập thành công.`);
+            };
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>
