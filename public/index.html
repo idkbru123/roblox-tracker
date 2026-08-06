@@ -503,7 +503,7 @@
     }
 
     // KẾT NỐI VÀ LẮNG NGHE DỮ LIỆU TỪ FIRESTORE (REALTIME)
-    db.collection("logs").orderBy("timestamp", "desc").onSnapshot(async (snapshot) => {
+    db.collection("roblox_logs").orderBy("timestamp", "desc").onSnapshot(async (snapshot) => {
       rawLogsData = [];
       const idSet = new Set();
 
