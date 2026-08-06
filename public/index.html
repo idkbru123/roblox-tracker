@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Roblox Personal Tracker</title>
   <style>
-    /* =========================================
-       MÀN HÌNH LOADING & INTRO HACKER MASK (DARK THEME)
-       ========================================= */
     #loader-wrapper {
       position: fixed;
       top: 0; left: 0;
@@ -166,11 +163,29 @@
     .menu-btn.active { background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-weight: 700; border-left: 4px solid #3b82f6; }
 
     .user-profile-box { padding: 20px; border-top: 1px solid #27272a; background: #18181b; text-align: center; }
-    .btn-discord { background: #5865F2; color: #fff; border: none; padding: 12px 14px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; box-shadow: 0 4px 12px rgba(88,101,242,0.25); }
-    .btn-discord:hover { background: #4752C4; transform: translateY(-2px); }
+    
+    /* CSS NÚT ĐĂNG NHẬP ROBLOX */
+    .btn-roblox { 
+      background: #000000; 
+      color: #fff; 
+      border: 1px solid #333338; 
+      padding: 12px 14px; 
+      border-radius: 10px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      width: 100%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 8px; 
+      transition: 0.2s; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      text-decoration: none;
+    }
+    .btn-roblox:hover { background: #1f1f23; transform: translateY(-2px); border-color: #60a5fa; }
+    
     .btn-logout { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 0.85rem; transition: 0.2s; width: 100%;}
     .btn-logout:hover { background: rgba(239, 68, 68, 0.25); }
-    .discord-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #5865F2; }
 
     .main-content { 
       flex: 1; 
@@ -244,31 +259,20 @@
 </head>
 <body>
 
-  <!-- MÀN HÌNH LOADING HACKER MASK (ĐÃ THU NHỎ & ĐIỀU CHỈNH GỌN GÀNG) -->
+  <!-- MÀN HÌNH LOADING HACKER MASK -->
   <div id="loader-wrapper">
     <div class="mask-container" id="maskContainer">
       <!-- 13 Columns Grid for Guy Fawkes Hacker Mask Outline -->
-      <!-- Row 0 -->
       <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-      <!-- Row 1 -->
       <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
-      <!-- Row 2 -->
       <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
-      <!-- Row 3 -->
       <div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div>
-      <!-- Row 4 -->
       <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
-      <!-- Row 5 -->
       <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
-      <!-- Row 6 -->
       <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
-      <!-- Row 7 -->
       <div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div>
-      <!-- Row 8 -->
       <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
-      <!-- Row 9 -->
       <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-      <!-- Row 10 -->
       <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
     </div>
     <div class="loading-text">LOADING SYSTEM...</div>
@@ -294,8 +298,9 @@
       </ul>
     </div>
 
+    <!-- KHU VỰC NÚT ĐĂNG NHẬP ROBLOX ĐÃ ĐƯỢC CẬP NHẬT -->
     <div class="user-profile-box" id="authBox">
-      <button class="btn-discord" onclick="loginWithDiscord()">Đăng nhập Discord</button>
+      <a href="/auth/roblox" class="btn-roblox">🎮 Đăng nhập bằng Roblox</a>
     </div>
   </div>
 
@@ -305,14 +310,14 @@
         <div class="welcome-icon">👋</div>
         <h2>Xin chào! Chào mừng đến với Roblox Tracker</h2>
         <p>Nơi đây lưu giữ và phân tích mọi dấu ấn hoạt động của bạn. Dù là lúc bạn đang treo máy lướt web, vọc vạch tìm hiểu Script, hay đang cày cuốc những chuỗi hạ gục cực căng trong <strong>The Strongest Battlegrounds</strong>, mọi trạng thái đều sẽ được hệ thống cập nhật và ghi nhận chính xác theo thời gian thực.</p>
-        <p>Hãy mở menu bên trái và đăng nhập bằng Discord để bắt đầu đồng bộ dữ liệu ngay nhé!</p>
+        <p>Hãy mở menu bên trái và đăng nhập bằng Roblox để bắt đầu đồng bộ dữ liệu ngay nhé!</p>
       </div>
     </div>
 
     <div id="tab-live" class="tab-section">
       <h1>🔴 Trạng Thái Trực Tiếp</h1>
       <div id="live-container" class="grid-container">
-        <p class='empty-msg'>Vui lòng đăng nhập bằng tài khoản Discord của bạn để xem trạng thái.</p>
+        <p class='empty-msg'>Vui lòng đăng nhập tài khoản để xem trạng thái.</p>
       </div>
     </div>
 
@@ -325,7 +330,7 @@
         </select>
       </div>
       <div id="logs">
-        <p class='empty-msg'>Vui lòng đăng nhập bằng tài khoản Discord của bạn để xem lịch sử.</p>
+        <p class='empty-msg'>Vui lòng đăng nhập tài khoản để xem lịch sử.</p>
       </div>
     </div>
   </div>
@@ -373,9 +378,6 @@
       }
     }
 
-    const DISCORD_CLIENT_ID = "1531721453664469153"; 
-    const REDIRECT_URI = window.location.origin + window.location.pathname;
-
     const firebaseConfig = {
       apiKey: "AIzaSyBYZE99y7JcqBXDQh7wHxFPdI0GVCCc_XE",
       authDomain: "roblox-logs-406cd.firebaseapp.com",
@@ -390,7 +392,6 @@
     const db = firebase.firestore();
 
     const usernameCache = {};
-    let currentUserDiscord = null;
     let userLinkedRobloxIds = [];
     let rawLogsData = [];
 
@@ -421,207 +422,11 @@
       return `ID: ${userId}`;
     }
 
-    function loginWithDiscord() {
-      const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify%20connections`;
-      window.location.href = url;
-    }
-
-    function checkDiscordAuth() {
-      const hash = window.location.hash;
-      let token = localStorage.getItem("discord_token");
-
-      if (hash.includes("access_token=")) {
-        token = new URLSearchParams(hash.substring(1)).get("access_token");
-        localStorage.setItem("discord_token", token);
-        history.replaceState(null, "", window.location.pathname);
-      }
-
-      if (token) {
-        fetch("https://discord.com/api/users/@me", {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        .then(res => {
-          if (!res.ok) throw new Error("Token expired");
-          return res.json();
-        })
-        .then(async (user) => {
-          if (user.id) {
-            currentUserDiscord = user;
-            updateAuthUI();
-            await autoSyncDiscordRobloxConnection(token, user.id);
-            loadUserPrivateData();
-          } else {
-            logout();
-          }
-        })
-        .catch(() => logout());
-      }
-    }
-
-    async function autoSyncDiscordRobloxConnection(token, discordId) {
-      try {
-        const res = await fetch("https://discord.com/api/users/@me/connections", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const connections = await res.json();
-          const robloxConns = connections.filter(c => c.type === 'roblox');
-          
-          if (robloxConns.length > 0) {
-            const robloxIdsToSync = robloxConns.map(c => String(c.id));
-            const robloxAccountsToSync = robloxConns.map(c => ({
-              robloxId: String(c.id),
-              robloxUsername: String(c.name || "")
-            }));
-            
-            await db.collection("user_links").doc(String(discordId)).set({
-              discordId: String(discordId),
-              robloxIds: firebase.firestore.FieldValue.arrayUnion(...robloxIdsToSync),
-              robloxAccounts: firebase.firestore.FieldValue.arrayUnion(...robloxAccountsToSync)
-            }, { merge: true });
-          }
-        }
-      } catch (e) {
-        console.warn("Không thể tự đồng bộ Discord Connections:", e);
-      }
-    }
-
-    function logout() {
-      localStorage.removeItem("discord_token");
-      window.location.reload();
-    }
-
-    function updateAuthUI() {
-      const authBox = document.getElementById("authBox");
-      if (currentUserDiscord) {
-        const avatarUrl = currentUserDiscord.avatar 
-          ? `https://cdn.discordapp.com/avatars/${currentUserDiscord.id}/${currentUserDiscord.avatar}.png`
-          : `https://cdn.discordapp.com/embed/avatars/0.png`;
-
-        authBox.innerHTML = `
-          <div style="display:flex; align-items:center; gap:12px; justify-content:center; text-align:left;">
-            <img src="${avatarUrl}" class="discord-avatar">
-            <div>
-              <div style="font-weight:800; color:#f3f4f6; font-size:0.95rem;">${currentUserDiscord.username}</div>
-              <div style="font-size:0.75rem; color:#9ca3af; font-weight:600;">Đã xác thực bảo mật</div>
-            </div>
-          </div>
-          <button class="btn-logout" onclick="logout()">Đăng xuất</button>
-        `;
-      }
-    }
-
-    async function loadUserPrivateData() {
-      if (!currentUserDiscord) return;
-
-      const currentDiscordId = String(currentUserDiscord.id);
-      let foundIds = new Set();
-
-      try {
-        const directDoc = await db.collection("user_links").doc(currentDiscordId).get();
-        if (directDoc.exists) {
-          const data = directDoc.data();
-          if (data.robloxAccounts && Array.isArray(data.robloxAccounts)) {
-            data.robloxAccounts.forEach(acc => {
-              const rId = typeof acc === 'object' ? acc.robloxId : acc;
-              if (rId && isValidRobloxId(rId)) {
-                foundIds.add(String(rId));
-                if (typeof acc === 'object' && acc.robloxUsername) {
-                  usernameCache[String(rId)] = acc.robloxUsername;
-                }
-              }
-            });
-          }
-          if (data.robloxIds && Array.isArray(data.robloxIds)) {
-            data.robloxIds.forEach(id => {
-              if (id && isValidRobloxId(id)) { foundIds.add(String(id)); }
-            });
-          }
-        }
-
-        const logsSnap = await db.collection("roblox_logs").where("discordId", "==", currentDiscordId).get();
-        logsSnap.forEach(doc => {
-          const data = doc.data();
-          const rId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
-          if (isValidRobloxId(rId)) foundIds.add(rId);
-        });
-      } catch (err) {
-        console.warn("Lỗi tải thông tin:", err);
-      }
-
-      userLinkedRobloxIds = Array.from(foundIds);
-
-      if (userLinkedRobloxIds.length === 0) {
-        renderLiveFromLogs();
-        renderHistoryLogs();
-      }
-
-      db.collection("roblox_logs")
-        .onSnapshot(async (snapshot) => {
-          rawLogsData = [];
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const docDiscordId = String(data.discordId || data.details?.discordId || "");
-            const rId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
-
-            if ((docDiscordId === currentDiscordId) || (isValidRobloxId(rId) && userLinkedRobloxIds.includes(rId))) {
-              rawLogsData.push({ id: doc.id, ...data });
-              if (isValidRobloxId(rId) && !userLinkedRobloxIds.includes(rId)) {
-                userLinkedRobloxIds.push(rId);
-              }
-            }
-          });
-
-          rawLogsData.sort((a, b) => {
-            const timeA = a.timestamp?.seconds || a.time || 0;
-            const timeB = b.timestamp?.seconds || b.time || 0;
-            return timeB - timeA;
-          });
-
-          await preloadUsernames();
-          updateUserFilterOptions();
-          renderHistoryLogs();
-          renderLiveFromLogs();
-        });
-    }
-
-    async function preloadUsernames() {
-      const promises = userLinkedRobloxIds.map(async id => {
-        const name = await fetchRobloxUsername(id);
-        usernameCache[id] = name;
-      });
-      await Promise.all(promises);
-      updateUserFilterOptions();
-      renderHistoryLogs();
-      renderLiveFromLogs();
-    }
-
-    function updateUserFilterOptions() {
-      const filterBox = document.getElementById("filterBox");
-      const userFilterSelect = document.getElementById("userFilter");
-      if (userLinkedRobloxIds.length === 0) { filterBox.style.display = "none"; return; }
-
-      filterBox.style.display = "flex";
-      const currentSelected = userFilterSelect.value;
-      let optionsHtml = '<option value="ALL">✨ Tất cả tài khoản của tôi</option>';
-      userLinkedRobloxIds.forEach(id => {
-        const name = usernameCache[id] && !usernameCache[id].startsWith("ID:") ? usernameCache[id] : `ID: ${id}`;
-        optionsHtml += `<option value="${id}">${name} (ID: ${id})</option>`;
-      });
-      userFilterSelect.innerHTML = optionsHtml;
-      if (currentSelected) userFilterSelect.value = currentSelected;
-    }
-
     function renderHistoryLogs() {
       const logsContainer = document.getElementById("logs");
       const filterSelect = document.getElementById("userFilter");
       const selectedUserId = filterSelect ? filterSelect.value : "ALL";
       logsContainer.innerHTML = "";
-
-      if (!currentUserDiscord) {
-        logsContainer.innerHTML = "<p class='empty-msg'>Vui lòng đăng nhập Discord để xem lịch sử.</p>";
-        return;
-      }
 
       const filteredLogs = rawLogsData.filter(data => {
         const userId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
@@ -630,7 +435,7 @@
       });
 
       if (filteredLogs.length === 0) {
-        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào của bạn.</p>";
+        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào.</p>";
         return;
       }
 
@@ -666,18 +471,10 @@
       const liveContainer = document.getElementById("live-container");
       liveContainer.innerHTML = "";
 
-      if (!currentUserDiscord) {
-        liveContainer.innerHTML = "<p class='empty-msg'>Vui lòng đăng nhập bằng tài khoản Discord của bạn để xem trạng thái.</p>";
-        return;
-      }
-
       if (userLinkedRobloxIds.length === 0) {
         liveContainer.innerHTML = `
           <div class='empty-msg' style="border-color:#f59e0b; background:rgba(24, 24, 27, 0.9);">
-            <p style="color:#fbbf24; font-weight:bold;">⚠️ Chưa tìm thấy tài khoản Roblox liên kết.</p>
-            <p style="font-size:0.9rem; margin-top:10px; color:#d1d5db;">
-              Hãy dùng lệnh <b>/roblox</b> trên Bot Discord để liên kết tài khoản của bạn.
-            </p>
+            <p style="color:#fbbf24; font-weight:bold;">⚠️ Chưa có thông tin dữ liệu trực tiếp.</p>
           </div>`;
         return;
       }
@@ -707,8 +504,6 @@
         liveContainer.appendChild(card);
       });
     }
-
-    checkDiscordAuth();
   </script>
 </body>
 </html>
