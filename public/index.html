@@ -304,6 +304,7 @@
         <li><button class="menu-btn active" onclick="showTab('home', this)">🏠 Trang Chủ</button></li>
         <li><button class="menu-btn" onclick="showTab('live', this)">🔴 Roblox Live</button></li>
         <li><button class="menu-btn" onclick="showTab('history', this)">📜 Lịch Sử Hoạt Động</button></li>
+        <li><button class="menu-btn" onclick="showTab('verify', this)">🔐 Xác Thực Tài Khoản</button></li>
       </ul>
     </div>
 
@@ -324,7 +325,6 @@
     <div id="tab-live" class="tab-section">
       <h1>🔴 Trạng Thái Trực Tiếp</h1>
       
-      <!-- Khung thêm tài khoản cải tiến -->
       <div class="control-panel">
         <h3>➕ Thêm tài khoản theo dõi</h3>
         <p class="control-desc">
@@ -355,6 +355,41 @@
       <div id="logs">
         <p class='empty-msg'>Đang tải lịch sử hoạt động...</p>
       </div>
+    </div>
+
+    <!-- Tab Xác Thực Mới Thêm -->
+    <div id="tab-verify" class="tab-section">
+      <h1>🔐 Xác Thực Tài Khoản Discord & Roblox</h1>
+      
+      <!-- Bước 1: Nhập Roblox ID để gửi mã qua Discord DM -->
+      <div class="control-panel" id="verifyStep1">
+        <h3>📩 Bước 1: Yêu cầu gửi mã xác nhận</h3>
+        <p class="control-desc">
+          Nhập ID tài khoản Roblox của bạn. Hệ thống sẽ kiểm tra tài khoản Discord đã liên kết và gửi tin nhắn (DM) chứa mã xác nhận qua Bot Discord.
+        </p>
+        <div class="input-wrapper">
+          <div class="input-row">
+            <input type="text" id="verifyRobloxId" placeholder="Nhập Roblox ID của bạn...">
+            <button class="btn-action" onclick="requestVerificationCode()">Gửi mã về Discord</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bước 2: Nhập mã xác nhận nhận được từ Bot -->
+      <div class="control-panel" id="verifyStep2" style="display: none;">
+        <h3>✅ Bước 2: Nhập mã xác nhận</h3>
+        <p class="control-desc">
+          Mã xác nhận đã được gửi vào tin nhắn riêng (DM) trên Discord của bạn. Vui lòng kiểm tra và nhập mã vào ô bên dưới.
+        </p>
+        <div class="input-wrapper">
+          <div class="input-row">
+            <input type="text" id="verifyCodeInput" placeholder="Nhập mã xác nhận (Ví dụ: 123456)...">
+            <button class="btn-action" onclick="confirmVerificationCode()">Xác nhận</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="verifyResultMsg" style="margin-top: 15px;"></div>
     </div>
   </div>
 
@@ -403,6 +438,71 @@
       btn.classList.add('active');
       if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('open');
+      }
+    }
+
+    // Biến lưu trữ tạm Roblox ID đang xác thực
+    let currentVerifyingRobloxId = "";
+
+    async function requestVerificationCode() {
+      const robloxId = document.getElementById('verifyRobloxId').value.trim();
+      const msgDiv = document.getElementById('verifyResultMsg');
+
+      if (!isValidRobloxId(robloxId)) {
+        msgDiv.innerHTML = "<p style='color: #f87171;'>Vui lòng nhập Roblox ID hợp lệ!</p>";
+        return;
+      }
+
+      msgDiv.innerHTML = "<p style='color: #60a5fa;'>Đang gửi yêu cầu đến Bot Discord...</p>";
+
+      try {
+        const response = await fetch('/api/verify-roblox', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roblox_id: robloxId })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          currentVerifyingRobloxId = robloxId;
+          msgDiv.innerHTML = `<p style='color: #4ade80;'>${data.message || 'Mã xác nhận đã được gửi vào Discord của bạn!'}</p>`;
+          // Chuyển sang hiển thị bước 2 nhập mã
+          document.getElementById('verifyStep2').style.display = 'block';
+        } else {
+          msgDiv.innerHTML = `<p style='color: #f87171;'>Lỗi: ${data.error || 'Không thể gửi mã xác nhận.'}</p>`;
+        }
+      } catch (err) {
+        msgDiv.innerHTML = "<p style='color: #f87171;'>Không thể kết nối tới server bot.</p>";
+      }
+    }
+
+    async function confirmVerificationCode() {
+      const code = document.getElementById('verifyCodeInput').value.trim();
+      const msgDiv = document.getElementById('verifyResultMsg');
+
+      if (!code) {
+        msgDiv.innerHTML = "<p style='color: #f87171;'>Vui lòng nhập mã xác nhận!</p>";
+        return;
+      }
+
+      msgDiv.innerHTML = "<p style='color: #60a5fa;'>Đang kiểm tra mã xác nhận...</p>";
+
+      try {
+        const response = await fetch('/api/confirm-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roblox_id: currentVerifyingRobloxId, code: code })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          msgDiv.innerHTML = `<p style='color: #4ade80; font-weight: bold;'>🎉 ${data.message || 'Xác thực tài khoản thành công!'}</p>`;
+          document.getElementById('verifyStep2').style.display = 'none';
+        } else {
+          msgDiv.innerHTML = `<p style='color: #f87171;'>Lỗi: ${data.error || 'Mã xác nhận không chính xác hoặc đã hết hạn.'}</p>`;
+        }
+      } catch (err) {
+        msgDiv.innerHTML = "<p style='color: #f87171;'>Không thể kết nối tới server bot.</p>";
       }
     }
 
