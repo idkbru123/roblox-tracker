@@ -304,7 +304,6 @@
         <li><button class="menu-btn active" onclick="showTab('home', this)">🏠 Trang Chủ</button></li>
         <li><button class="menu-btn" onclick="showTab('live', this)">🔴 Roblox Live</button></li>
         <li><button class="menu-btn" onclick="showTab('history', this)">📜 Lịch Sử Hoạt Động</button></li>
-        <li><button class="menu-btn" onclick="showTab('verify', this)">🔐 Xác Thực Tài Khoản</button></li>
       </ul>
     </div>
 
@@ -325,19 +324,36 @@
     <div id="tab-live" class="tab-section">
       <h1>🔴 Trạng Thái Trực Tiếp</h1>
       
-      <div class="control-panel">
-        <h3>➕ Thêm tài khoản theo dõi</h3>
+      <!-- Bảng thay thế: Yêu cầu gửi mã xác nhận qua Bot Discord -->
+      <div class="control-panel" id="verifyStep1">
+        <h3>📩 Yêu cầu gửi mã xác nhận qua Discord</h3>
         <p class="control-desc">
-          💡 Nhập ID Roblox của bất kỳ ai bạn muốn giám sát. <em>Lưu ý: Tài khoản đó cần phải gửi dữ liệu log lên hệ thống thì trạng thái trực tiếp mới có thể cập nhật.</em>
+          Nhập ID tài khoản Roblox của bạn. Hệ thống sẽ kiểm tra tài khoản Discord đã liên kết và gửi tin nhắn (DM) chứa mã xác nhận qua Bot Discord.
         </p>
         <div class="input-wrapper">
           <div class="input-row">
-            <input type="text" id="newRobloxIdInput" placeholder="Nhập Roblox ID (Ví dụ: 11245290442)">
+            <input type="text" id="verifyRobloxId" placeholder="Nhập Roblox ID của bạn...">
             <input type="text" id="newRobloxNameInput" placeholder="Tên hiển thị gợi nhớ (Tùy chọn)">
-            <button class="btn-action" onclick="addTrackedAccount()">Thêm vào danh sách</button>
+            <button class="btn-action" onclick="requestVerificationCode()">Gửi mã về Discord</button>
           </div>
         </div>
       </div>
+
+      <!-- Bước 2: Nhập mã xác nhận nhận được từ Bot (Sẽ hiện ra sau khi bấm gửi mã ở bước 1) -->
+      <div class="control-panel" id="verifyStep2" style="display: none;">
+        <h3>✅ Nhập mã xác nhận</h3>
+        <p class="control-desc">
+          Mã xác nhận đã được gửi vào tin nhắn riêng (DM) trên Discord của bạn. Vui lòng nhập mã và bấm xác nhận để thêm vào danh sách theo dõi.
+        </p>
+        <div class="input-wrapper">
+          <div class="input-row">
+            <input type="text" id="verifyCodeInput" placeholder="Nhập mã xác nhận (Ví dụ: 123456)...">
+            <button class="btn-action" onclick="confirmVerificationCode()">Xác nhận</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="verifyResultMsg" style="margin-bottom: 15px;"></div>
 
       <div id="live-container" class="grid-container">
         <p class='empty-msg'>Chưa có tài khoản nào được thêm.</p>
@@ -355,41 +371,6 @@
       <div id="logs">
         <p class='empty-msg'>Đang tải lịch sử hoạt động...</p>
       </div>
-    </div>
-
-    <!-- Tab Xác Thực Mới Thêm -->
-    <div id="tab-verify" class="tab-section">
-      <h1>🔐 Xác Thực Tài Khoản Discord & Roblox</h1>
-      
-      <!-- Bước 1: Nhập Roblox ID để gửi mã qua Discord DM -->
-      <div class="control-panel" id="verifyStep1">
-        <h3>📩 Bước 1: Yêu cầu gửi mã xác nhận</h3>
-        <p class="control-desc">
-          Nhập ID tài khoản Roblox của bạn. Hệ thống sẽ kiểm tra tài khoản Discord đã liên kết và gửi tin nhắn (DM) chứa mã xác nhận qua Bot Discord.
-        </p>
-        <div class="input-wrapper">
-          <div class="input-row">
-            <input type="text" id="verifyRobloxId" placeholder="Nhập Roblox ID của bạn...">
-            <button class="btn-action" onclick="requestVerificationCode()">Gửi mã về Discord</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bước 2: Nhập mã xác nhận nhận được từ Bot -->
-      <div class="control-panel" id="verifyStep2" style="display: none;">
-        <h3>✅ Bước 2: Nhập mã xác nhận</h3>
-        <p class="control-desc">
-          Mã xác nhận đã được gửi vào tin nhắn riêng (DM) trên Discord của bạn. Vui lòng kiểm tra và nhập mã vào ô bên dưới.
-        </p>
-        <div class="input-wrapper">
-          <div class="input-row">
-            <input type="text" id="verifyCodeInput" placeholder="Nhập mã xác nhận (Ví dụ: 123456)...">
-            <button class="btn-action" onclick="confirmVerificationCode()">Xác nhận</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="verifyResultMsg" style="margin-top: 15px;"></div>
     </div>
   </div>
 
@@ -441,15 +422,16 @@
       }
     }
 
-    // Biến lưu trữ tạm Roblox ID đang xác thực
     let currentVerifyingRobloxId = "";
+    let currentVerifyingName = "";
 
     async function requestVerificationCode() {
       const robloxId = document.getElementById('verifyRobloxId').value.trim();
+      const nameInput = document.getElementById('newRobloxNameInput').value.trim();
       const msgDiv = document.getElementById('verifyResultMsg');
 
       if (!isValidRobloxId(robloxId)) {
-        msgDiv.innerHTML = "<p style='color: #f87171;'>Vui lòng nhập Roblox ID hợp lệ!</p>";
+        msgDiv.innerHTML = "<p style='color: #f87171;'>Vui lòng nhập Roblox ID hợp lệ (5-14 chữ số)!</p>";
         return;
       }
 
@@ -465,11 +447,11 @@
 
         if (response.ok) {
           currentVerifyingRobloxId = robloxId;
+          currentVerifyingName = nameInput || `ID: ${robloxId}`;
           msgDiv.innerHTML = `<p style='color: #4ade80;'>${data.message || 'Mã xác nhận đã được gửi vào Discord của bạn!'}</p>`;
-          // Chuyển sang hiển thị bước 2 nhập mã
           document.getElementById('verifyStep2').style.display = 'block';
         } else {
-          msgDiv.innerHTML = `<p style='color: #f87171;'>Lỗi: ${data.error || 'Không thể gửi mã xác nhận.'}</p>`;
+          msgDiv.innerHTML = `<p style='color: #f87171;'>Lỗi: ${data.error || 'Không tìm thấy tài khoản Discord liên kết với Roblox ID này.'}</p>`;
         }
       } catch (err) {
         msgDiv.innerHTML = "<p style='color: #f87171;'>Không thể kết nối tới server bot.</p>";
@@ -498,6 +480,11 @@
         if (response.ok) {
           msgDiv.innerHTML = `<p style='color: #4ade80; font-weight: bold;'>🎉 ${data.message || 'Xác thực tài khoản thành công!'}</p>`;
           document.getElementById('verifyStep2').style.display = 'none';
+          document.getElementById('verifyRobloxId').value = '';
+          document.getElementById('newRobloxNameInput').value = '';
+
+          // Thêm thành công vào danh sách theo dõi local storage giống tính năng cũ
+          addTrackedAccountDirect(currentVerifyingRobloxId, currentVerifyingName);
         } else {
           msgDiv.innerHTML = `<p style='color: #f87171;'>Lỗi: ${data.error || 'Mã xác nhận không chính xác hoặc đã hết hạn.'}</p>`;
         }
@@ -547,17 +534,7 @@
       return accountMap;
     }
 
-    function addTrackedAccount() {
-      const idInput = document.getElementById('newRobloxIdInput');
-      const nameInput = document.getElementById('newRobloxNameInput');
-      const id = idInput.value.trim();
-      const name = nameInput.value.trim() || `ID: ${id}`;
-
-      if (!isValidRobloxId(id)) {
-        alert('Roblox ID không hợp lệ! Vui lòng nhập dãy số từ 5 đến 14 chữ số.');
-        return;
-      }
-
+    function addTrackedAccountDirect(id, name) {
       let customAccounts = [];
       try {
         customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
@@ -569,9 +546,6 @@
       }
 
       usernameCache[id] = name;
-      idInput.value = '';
-      nameInput.value = '';
-
       updateUI();
     }
 
@@ -617,7 +591,7 @@
         liveContainer.innerHTML = `
           <div class='empty-msg'>
             <p style="color:#fbbf24; font-weight:bold;">⚠️ Chưa có tài khoản nào được thêm.</p>
-            <p style="font-size:0.9rem; margin-top:5px; color:#9ca3af;">Hãy nhập Roblox ID vào khung phía trên để bắt đầu theo dõi.</p>
+            <p style="font-size:0.9rem; margin-top:5px; color:#9ca3af;">Hãy xác thực và thêm Roblox ID vào khung phía trên để bắt đầu theo dõi.</p>
           </div>`;
         return;
       }
