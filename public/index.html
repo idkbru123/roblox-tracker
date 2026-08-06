@@ -318,6 +318,16 @@
   </div>
 
   <script>
+    // Lấy thông tin user đăng nhập từ URL query params
+    const urlParams = new URLSearchParams(window.location.search);
+    const loggedInUserId = urlParams.get('user_id');
+    const loggedInName = urlParams.get('name');
+
+    const usernameCache = {};
+    if (loggedInUserId && loggedInName) {
+      usernameCache[loggedInUserId] = loggedInName;
+    }
+
     // XỬ LÝ HIỆU ỨNG INTRO & ẨN MÀN HÌNH LOADING
     window.addEventListener('load', () => {
       setTimeout(() => {
@@ -373,7 +383,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const usernameCache = {};
     let userLinkedRobloxIds = [];
     let rawLogsData = [];
 
@@ -382,25 +391,10 @@
       return /^\d{5,14}$/.test(String(id).trim());
     }
 
+    // Đã loại bỏ proxy ngoài gây lỗi CORS, sử dụng trực tiếp cache/ID
     async function fetchRobloxUsername(userId) {
       if (!isValidRobloxId(userId)) return `ID: ${userId}`;
       if (usernameCache[userId]) return usernameCache[userId];
-
-      try {
-        const targetUrl = `https://users.roblox.com/v1/users/${userId}`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-        const res = await fetch(proxyUrl);
-        if (res.ok) {
-          const data = await res.json();
-          const name = data.displayName || data.name;
-          if (name) {
-            usernameCache[userId] = name;
-            return name;
-          }
-        }
-      } catch (e) {
-        console.warn("Lỗi lấy tên Roblox:", userId);
-      }
       return `ID: ${userId}`;
     }
 
@@ -492,6 +486,11 @@
       rawLogsData = [];
       const idSet = new Set();
 
+      // Đảm bảo ID của người dùng đang đăng nhập luôn được đưa vào danh sách theo dõi
+      if (loggedInUserId && isValidRobloxId(loggedInUserId)) {
+        idSet.add(loggedInUserId);
+      }
+
       snapshot.forEach(doc => {
         const data = doc.data();
         rawLogsData.push(data);
@@ -525,20 +524,6 @@
         if (filterBox) filterBox.style.display = "none";
       }
 
-      // Lấy tên người dùng Roblox cho các ID mới
-      for (const userId of userLinkedRobloxIds) {
-        if (!usernameCache[userId]) {
-          const name = await fetchRobloxUsername(userId);
-          usernameCache[userId] = name;
-          if (filterSelect) {
-            const opt = filterSelect.querySelector(`option[value="${userId}"]`);
-            if (opt) {
-              opt.textContent = `${name} (ID: ${userId})`;
-            }
-          }
-        }
-      }
-
       renderHistoryLogs();
       renderLiveFromLogs();
     }, (error) => {
@@ -547,21 +532,18 @@
   </script>
 
   <script>
+    // Xử lý đổi nút đăng nhập thành tên người dùng
     window.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('logged_in') === 'true') {
-        const name = params.get('name');
-        
-        // Tìm nút đăng nhập ở góc dưới bên trái
+      if (loggedInUserId && loggedInName) {
         const buttons = document.querySelectorAll('button, a');
         buttons.forEach(el => {
           if (el.textContent.includes('Đăng nhập bằng Roblox')) {
-            el.innerHTML = `👤 ${name}`;
+            el.innerHTML = `👤 ${loggedInName}`;
             el.style.backgroundColor = '#2ecc71';
             el.removeAttribute('href');
             el.onclick = (e) => {
               e.preventDefault();
-              alert(`Xin chào, ${name}! Bạn đã đăng nhập thành công.`);
+              alert(`Xin chào, ${loggedInName}! Bạn đã đăng nhập thành công.`);
             };
           }
         });
