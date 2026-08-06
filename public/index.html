@@ -164,7 +164,6 @@
 
     .user-profile-box { padding: 20px; border-top: 1px solid #27272a; background: #18181b; text-align: center; }
     
-    /* CSS NÚT ĐĂNG NHẬP ROBLOX */
     .btn-roblox { 
       background: #000000; 
       color: #fff; 
@@ -262,7 +261,6 @@
   <!-- MÀN HÌNH LOADING HACKER MASK -->
   <div id="loader-wrapper">
     <div class="mask-container" id="maskContainer">
-      <!-- 13 Columns Grid for Guy Fawkes Hacker Mask Outline -->
       <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
       <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
       <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
@@ -298,7 +296,6 @@
       </ul>
     </div>
 
-    <!-- KHU VỰC NÚT ĐĂNG NHẬP ROBLOX ĐÃ ĐƯỢC CẬP NHẬT -->
     <div class="user-profile-box" id="authBox">
       <a href="/auth/roblox" class="btn-roblox">🎮 Đăng nhập bằng Roblox</a>
     </div>
@@ -317,7 +314,7 @@
     <div id="tab-live" class="tab-section">
       <h1>🔴 Trạng Thái Trực Tiếp</h1>
       <div id="live-container" class="grid-container">
-        <p class='empty-msg'>Vui lòng đăng nhập tài khoản để xem trạng thái.</p>
+        <p class='empty-msg'>Đang tải trạng thái trực tiếp...</p>
       </div>
     </div>
 
@@ -330,7 +327,7 @@
         </select>
       </div>
       <div id="logs">
-        <p class='empty-msg'>Vui lòng đăng nhập tài khoản để xem lịch sử.</p>
+        <p class='empty-msg'>Đang tải lịch sử hoạt động...</p>
       </div>
     </div>
   </div>
@@ -504,6 +501,64 @@
         liveContainer.appendChild(card);
       });
     }
+
+    // KẾT NỐI VÀ LẮNG NGHE DỮ LIỆU TỪ FIRESTORE (REALTIME)
+    db.collection("logs").orderBy("timestamp", "desc").onSnapshot(async (snapshot) => {
+      rawLogsData = [];
+      const idSet = new Set();
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        rawLogsData.push(data);
+        const userId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
+        if (userId && isValidRobloxId(userId)) {
+          idSet.add(userId);
+        }
+      });
+
+      userLinkedRobloxIds = Array.from(idSet);
+
+      const filterSelect = document.getElementById("userFilter");
+      const filterBox = document.getElementById("filterBox");
+      if (userLinkedRobloxIds.length > 0) {
+        if (filterBox) filterBox.style.display = "flex";
+        if (filterSelect) {
+          const currentVal = filterSelect.value;
+          filterSelect.innerHTML = '<option value="ALL">✨ Tất cả tài khoản đã liên kết</option>';
+          for (const uid of userLinkedRobloxIds) {
+            const opt = document.createElement("option");
+            opt.value = uid;
+            const cachedName = usernameCache[uid] || `ID: ${uid}`;
+            opt.textContent = `${cachedName} (ID: ${uid})`;
+            filterSelect.appendChild(opt);
+          }
+          if (filterSelect.querySelector(`option[value="${currentVal}"]`)) {
+            filterSelect.value = currentVal;
+          }
+        }
+      } else {
+        if (filterBox) filterBox.style.display = "none";
+      }
+
+      // Lấy tên người dùng Roblox cho các ID mới
+      for (const userId of userLinkedRobloxIds) {
+        if (!usernameCache[userId]) {
+          const name = await fetchRobloxUsername(userId);
+          usernameCache[userId] = name;
+          if (filterSelect) {
+            const opt = filterSelect.querySelector(`option[value="${userId}"]`);
+            if (opt) {
+              opt.textContent = `${name} (ID: ${userId})`;
+            }
+          }
+        }
+      }
+
+      renderHistoryLogs();
+      renderLiveFromLogs();
+    }, (error) => {
+      console.error("Lỗi khi đồng bộ dữ liệu Firestore:", error);
+    });
   </script>
 </body>
 </html>
