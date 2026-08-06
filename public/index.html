@@ -67,7 +67,6 @@
       transition: opacity 0.4s ease;
     }
 
-    /* TRẠNG THÁI KẾT THÚC INTRO */
     #loader-wrapper.slowing .mask-container {
       animation: mask-exit 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
@@ -80,9 +79,6 @@
       100% { transform: scale(1.2); opacity: 0; filter: blur(4px); }
     }
 
-    /* =========================================
-       CSS GIAO DIỆN CHÍNH (MEDIUM BLACK & DỄ ĐỌC)
-       ========================================= */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -211,6 +207,26 @@
     .welcome-icon { font-size: 4rem; margin-bottom: 10px; animation: bounce 2s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
+    .control-panel {
+      background: rgba(24, 24, 27, 0.85);
+      padding: 20px; border-radius: 16px;
+      border: 1px solid #27272a;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .control-panel h3 { color: #f3f4f6; font-size: 1.1rem; margin-bottom: 12px; }
+    .input-group { display: flex; gap: 10px; flex-wrap: wrap; }
+    .input-group input {
+      background: #121212; color: #f3f4f6; border: 1px solid #3f3f46;
+      padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; outline: none; flex: 1; min-width: 200px;
+    }
+    .input-group input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
+    .btn-action {
+      background: #3b82f6; color: white; border: none; padding: 10px 20px;
+      border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s;
+    }
+    .btn-action:hover { background: #2563eb; transform: translateY(-1px); }
+
     .filter-box { margin-bottom: 25px; display: flex; align-items: center; gap: 12px; background: rgba(24, 24, 27, 0.85); padding: 15px 20px; border-radius: 14px; border: 1px solid #27272a; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     .filter-box label { color: #d1d5db; font-size: 1rem; font-weight: 700; }
     .filter-box select { background: #121212; color: #f3f4f6; border: 1px solid #3f3f46; padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; outline: none; cursor: pointer; transition: 0.2s; }
@@ -223,6 +239,7 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
       border: 1px solid #27272a;
       display: flex; flex-direction: column; gap: 12px; 
+      position: relative;
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
     .log-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); border-color: #3f3f46; }
@@ -238,6 +255,12 @@
     .sub-id { font-size: 0.85em; color: #9ca3af; margin-left: 6px; font-weight: normal; }
     .timestamp { font-size: 0.85em; color: #9ca3af; text-align: right; font-style: italic; }
     
+    .btn-remove-acc {
+      background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: 0.2s;
+    }
+    .btn-remove-acc:hover { background: rgba(239, 68, 68, 0.4); color: #fff; }
+
     .empty-msg { text-align: center; color: #9ca3af; padding: 40px; background: rgba(24, 24, 27, 0.85); border-radius: 14px; border: 2px dashed #3f3f46; font-size: 1.05rem; }
   </style>
 
@@ -246,7 +269,6 @@
 </head>
 <body>
 
-  <!-- MÀN HÌNH LOADING HACKER MASK -->
   <div id="loader-wrapper">
     <div class="mask-container" id="maskContainer">
       <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
@@ -291,24 +313,34 @@
       <div class="welcome-card">
         <div class="welcome-icon">👋</div>
         <h2>Xin chào! Chào mừng đến với Roblox Tracker</h2>
-        <p>Nơi đây lưu giữ và phân tích mọi dấu ấn hoạt động của bạn. Dù là lúc bạn đang treo máy lướt web, vọc vạch tìm hiểu Script, hay đang cày cuốc những chuỗi hạ gục cực căng trong <strong>The Strongest Battlegrounds</strong>, mọi trạng thái đều sẽ được hệ thống cập nhật và ghi nhận chính xác theo thời gian thực.</p>
-        <p>Hãy mở menu bên trái và đăng nhập bằng Roblox để bắt đầu đồng bộ dữ liệu ngay nhé!</p>
+        <p>Nơi đây giúp bạn theo dõi trạng thái hoạt động trực tiếp của các tài khoản Roblox bạn quan tâm. Bạn có thể thêm thủ công nhiều tài khoản khác nhau ở tab <strong>Roblox Live</strong> để dễ dàng giám sát.</p>
       </div>
     </div>
 
     <div id="tab-live" class="tab-section">
       <h1>🔴 Trạng Thái Trực Tiếp</h1>
+      
+      <!-- Thêm khung nhập tài khoản muốn theo dõi -->
+      <div class="control-panel">
+        <h3>➕ Thêm tài khoản Roblox theo dõi</h3>
+        <div class="input-group">
+          <input type="text" id="newRobloxIdInput" placeholder="Nhập Roblox ID (Ví dụ: 11245290442)">
+          <input type="text" id="newRobloxNameInput" placeholder="Tên hiển thị (Tùy chọn)">
+          <button class="btn-action" onclick="addTrackedAccount()">Thêm tài khoản</button>
+        </div>
+      </div>
+
       <div id="live-container" class="grid-container">
-        <p class='empty-msg'>Đang tải trạng thái trực tiếp...</p>
+        <p class='empty-msg'>Chưa có tài khoản nào được thêm.</p>
       </div>
     </div>
 
     <div id="tab-history" class="tab-section">
       <h1>📜 Lịch Sử Hoạt Động</h1>
-      <div class="filter-box" id="filterBox" style="display: none;">
-        <label for="userFilter">👤 Tài khoản của bạn:</label>
+      <div class="filter-box" id="filterBox">
+        <label for="userFilter">👤 Tài khoản:</label>
         <select id="userFilter" onchange="renderHistoryLogs()">
-          <option value="ALL">✨ Tất cả tài khoản đã liên kết</option>
+          <option value="ALL">✨ Tất cả tài khoản đang theo dõi</option>
         </select>
       </div>
       <div id="logs">
@@ -318,7 +350,6 @@
   </div>
 
   <script>
-    // Lấy thông tin user đăng nhập từ URL query params
     const urlParams = new URLSearchParams(window.location.search);
     const loggedInUserId = urlParams.get('user_id');
     const loggedInName = urlParams.get('name');
@@ -328,7 +359,6 @@
       usernameCache[loggedInUserId] = loggedInName;
     }
 
-    // XỬ LÝ HIỆU ỨNG INTRO & ẨN MÀN HÌNH LOADING
     window.addEventListener('load', () => {
       setTimeout(() => {
         const loaderWrapper = document.getElementById('loader-wrapper');
@@ -337,11 +367,8 @@
         setTimeout(() => {
           loaderWrapper.style.opacity = '0';
           loaderWrapper.style.visibility = 'hidden';
-
-          const mainContent = document.getElementById('mainContent');
-          mainContent.classList.add('loaded');
+          document.getElementById('mainContent').classList.add('loaded');
         }, 800);
-
       }, 1000);
     });
 
@@ -383,7 +410,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let userLinkedRobloxIds = [];
     let rawLogsData = [];
 
     function isValidRobloxId(id) {
@@ -391,27 +417,156 @@
       return /^\d{5,14}$/.test(String(id).trim());
     }
 
-    // Đã loại bỏ proxy ngoài gây lỗi CORS, sử dụng trực tiếp cache/ID
-    async function fetchRobloxUsername(userId) {
-      if (!isValidRobloxId(userId)) return `ID: ${userId}`;
-      if (usernameCache[userId]) return usernameCache[userId];
-      return `ID: ${userId}`;
+    // Lấy danh sách tài khoản theo dõi từ LocalStorage kết hợp tài khoản đăng nhập URL
+    function getTrackedAccounts() {
+      let customAccounts = [];
+      try {
+        customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
+      } catch(e) {}
+
+      const accountMap = new Map();
+
+      // Thêm tài khoản đăng nhập bằng Roblox qua URL (nếu có)
+      if (loggedInUserId && isValidRobloxId(loggedInUserId)) {
+        accountMap.set(loggedInUserId, loggedInName || `ID: ${loggedInUserId}`);
+      }
+
+      // Thêm các tài khoản người dùng tự chủ động nhập vào
+      customAccounts.forEach(acc => {
+        if (isValidRobloxId(acc.id)) {
+          accountMap.set(acc.id, acc.name || `ID: ${acc.id}`);
+        }
+      });
+
+      return accountMap;
+    }
+
+    function addTrackedAccount() {
+      const idInput = document.getElementById('newRobloxIdInput');
+      const nameInput = document.getElementById('newRobloxNameInput');
+      const id = idInput.value.trim();
+      const name = nameInput.value.trim() || `ID: ${id}`;
+
+      if (!isValidRobloxId(id)) {
+        alert('Roblox ID không hợp lệ! Vui lòng nhập dãy số từ 5 đến 14 chữ số.');
+        return;
+      }
+
+      let customAccounts = [];
+      try {
+        customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
+      } catch(e) {}
+
+      if (!customAccounts.some(acc => acc.id === id)) {
+        customAccounts.push({ id, name });
+        localStorage.setItem('custom_tracked_accounts', JSON.stringify(customAccounts));
+      }
+
+      usernameCache[id] = name;
+      idInput.value = '';
+      nameInput.value = '';
+
+      updateUI();
+    }
+
+    function removeTrackedAccount(id) {
+      let customAccounts = [];
+      try {
+        customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
+      } catch(e) {}
+
+      customAccounts = customAccounts.filter(acc => acc.id !== id);
+      localStorage.setItem('custom_tracked_accounts', JSON.stringify(customAccounts));
+      updateUI();
+    }
+
+    function updateUI() {
+      const trackedMap = getTrackedAccounts();
+      const trackedIds = Array.from(trackedMap.keys());
+
+      // Cập nhật Dropdown lịch sử
+      const filterSelect = document.getElementById("userFilter");
+      if (filterSelect) {
+        const currentVal = filterSelect.value;
+        filterSelect.innerHTML = '<option value="ALL">✨ Tất cả tài khoản đang theo dõi</option>';
+        trackedIds.forEach(uid => {
+          const opt = document.createElement("option");
+          opt.value = uid;
+          opt.textContent = `${trackedMap.get(uid)} (ID: ${uid})`;
+          filterSelect.appendChild(opt);
+        });
+        if (filterSelect.querySelector(`option[value="${currentVal}"]`)) {
+          filterSelect.value = currentVal;
+        }
+      }
+
+      renderLiveView(trackedMap, trackedIds);
+      renderHistoryLogs();
+    }
+
+    function renderLiveView(trackedMap, trackedIds) {
+      const liveContainer = document.getElementById("live-container");
+      liveContainer.innerHTML = "";
+
+      if (trackedIds.length === 0) {
+        liveContainer.innerHTML = `
+          <div class='empty-msg'>
+            <p style="color:#fbbf24; font-weight:bold;">⚠️ Chưa có tài khoản nào được thêm.</p>
+            <p style="font-size:0.9rem; margin-top:5px; color:#9ca3af;">Hãy nhập Roblox ID vào khung phía trên để bắt đầu xem trạng thái.</p>
+          </div>`;
+        return;
+      }
+
+      trackedIds.forEach(userId => {
+        const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId || item.robloxId) === String(userId));
+        const isOnline = userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1 || userLog.userStatus === 2) : false;
+        const playerName = trackedMap.get(userId) || `ID: ${userId}`;
+        const gameName = userLog ? (userLog.lastLocation || userLog.gameName || userLog.details?.gameName || 'Trang chủ / Website Roblox') : 'Chưa ghi nhận hoạt động mới';
+
+        const statusBadge = isOnline 
+          ? '<span class="status-badge status-1">🟢 Online / In Game</span>' 
+          : '<span class="status-badge status-0">🔴 Offline</span>';
+
+        const isCustomAdded = userId !== loggedInUserId;
+        const removeBtnHtml = isCustomAdded ? `<button class="btn-remove-acc" onclick="removeTrackedAccount('${userId}')">🗑️ Xóa</button>` : '';
+
+        const card = document.createElement("div");
+        card.className = "log-card";
+        card.innerHTML = `
+          <div class="log-top">
+            <div><span class="highlight">${playerName}</span></div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              ${statusBadge}
+              ${removeBtnHtml}
+            </div>
+          </div>
+          <div class="log-info" style="margin-top:8px;">
+            <p style="margin-bottom:6px;"><strong style="color:#9ca3af;">ID:</strong> ${userId}</p>
+            <p><strong style="color:#9ca3af;">Vị trí gần nhất:</strong> <span style="color:#60a5fa; font-weight:600;">${gameName}</span></p>
+          </div>
+        `;
+        liveContainer.appendChild(card);
+      });
     }
 
     function renderHistoryLogs() {
       const logsContainer = document.getElementById("logs");
       const filterSelect = document.getElementById("userFilter");
       const selectedUserId = filterSelect ? filterSelect.value : "ALL";
+      const trackedMap = getTrackedAccounts();
+      const trackedIds = Array.from(trackedMap.keys());
+      
       logsContainer.innerHTML = "";
 
       const filteredLogs = rawLogsData.filter(data => {
         const userId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
-        if (selectedUserId === "ALL") return userLinkedRobloxIds.includes(userId);
+        if (!trackedIds.includes(userId)) return false;
+        if (selectedUserId === "ALL") return true;
         return userId === selectedUserId;
       });
 
       if (filteredLogs.length === 0) {
-        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào.</p>";
+        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào cho các tài khoản này.</p>";
         return;
       }
 
@@ -426,7 +581,7 @@
         else if (data.userStatus === 0 || data.details?.userStatus === 0) statusHtml = '<span class="status-badge status-0">🔴 Đã rời game</span>';
 
         const userId = data.robloxUserId || data.details?.robloxUserId || data.robloxId || "Không rõ";
-        const playerName = usernameCache[userId] && !usernameCache[userId].startsWith("ID:") ? usernameCache[userId] : (data.playerName || `ID: ${userId}`);
+        const playerName = trackedMap.get(userId) || data.playerName || `ID: ${userId}`;
         const gameName = data.gameName || data.details?.gameName || data.lastLocation || 'Trang chủ / Website Roblox';
 
         const card = document.createElement("div");
@@ -443,96 +598,17 @@
       });
     }
 
-    function renderLiveFromLogs() {
-      const liveContainer = document.getElementById("live-container");
-      liveContainer.innerHTML = "";
-
-      if (userLinkedRobloxIds.length === 0) {
-        liveContainer.innerHTML = `
-          <div class='empty-msg' style="border-color:#f59e0b; background:rgba(24, 24, 27, 0.9);">
-            <p style="color:#fbbf24; font-weight:bold;">⚠️ Chưa có thông tin dữ liệu trực tiếp.</p>
-          </div>`;
-        return;
-      }
-
-      userLinkedRobloxIds.forEach(userId => {
-        const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId || item.robloxId) === String(userId));
-        const isOnline = userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1 || userLog.userStatus === 2) : false;
-        const playerName = usernameCache[userId] && !usernameCache[userId].startsWith("ID:") ? usernameCache[userId] : `ID: ${userId}`;
-        const gameName = userLog ? (userLog.lastLocation || userLog.gameName || userLog.details?.gameName || 'Trang chủ / Website Roblox') : 'Chưa ghi nhận hoạt động mới';
-
-        const statusBadge = isOnline 
-          ? '<span class="status-badge status-1">🟢 Online / In Game</span>' 
-          : '<span class="status-badge status-0">🔴 Offline</span>';
-
-        const card = document.createElement("div");
-        card.className = "log-card";
-        card.innerHTML = `
-          <div class="log-top">
-            <div><span class="highlight">${playerName}</span></div>
-            <div>${statusBadge}</div>
-          </div>
-          <div class="log-info" style="margin-top:8px;">
-            <p style="margin-bottom:6px;"><strong style="color:#9ca3af;">ID:</strong> ${userId}</p>
-            <p><strong style="color:#9ca3af;">Vị trí gần nhất:</strong> <span style="color:#60a5fa; font-weight:600;">${gameName}</span></p>
-          </div>
-        `;
-        liveContainer.appendChild(card);
-      });
-    }
-
-    // KẾT NỐI VÀ LẮNG NGHE DỮ LIỆU TỪ FIRESTORE (REALTIME)
-    db.collection("roblox_logs").orderBy("timestamp", "desc").onSnapshot(async (snapshot) => {
+    // Lắng nghe dữ liệu Firestore real-time
+    db.collection("roblox_logs").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
       rawLogsData = [];
-      const idSet = new Set();
-
-      // Đảm bảo ID của người dùng đang đăng nhập luôn được đưa vào danh sách theo dõi
-      if (loggedInUserId && isValidRobloxId(loggedInUserId)) {
-        idSet.add(loggedInUserId);
-      }
-
       snapshot.forEach(doc => {
-        const data = doc.data();
-        rawLogsData.push(data);
-        const userId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
-        if (userId && isValidRobloxId(userId)) {
-          idSet.add(userId);
-        }
+        rawLogsData.push(doc.data());
       });
-
-      userLinkedRobloxIds = Array.from(idSet);
-
-      const filterSelect = document.getElementById("userFilter");
-      const filterBox = document.getElementById("filterBox");
-      if (userLinkedRobloxIds.length > 0) {
-        if (filterBox) filterBox.style.display = "flex";
-        if (filterSelect) {
-          const currentVal = filterSelect.value;
-          filterSelect.innerHTML = '<option value="ALL">✨ Tất cả tài khoản đã liên kết</option>';
-          for (const uid of userLinkedRobloxIds) {
-            const opt = document.createElement("option");
-            opt.value = uid;
-            const cachedName = usernameCache[uid] || `ID: ${uid}`;
-            opt.textContent = `${cachedName} (ID: ${uid})`;
-            filterSelect.appendChild(opt);
-          }
-          if (filterSelect.querySelector(`option[value="${currentVal}"]`)) {
-            filterSelect.value = currentVal;
-          }
-        }
-      } else {
-        if (filterBox) filterBox.style.display = "none";
-      }
-
-      renderHistoryLogs();
-      renderLiveFromLogs();
+      updateUI();
     }, (error) => {
       console.error("Lỗi khi đồng bộ dữ liệu Firestore:", error);
     });
-  </script>
 
-  <script>
-    // Xử lý đổi nút đăng nhập thành tên người dùng
     window.addEventListener('DOMContentLoaded', () => {
       if (loggedInUserId && loggedInName) {
         const buttons = document.querySelectorAll('button, a');
