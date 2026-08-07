@@ -18,7 +18,7 @@ const client = new Client({
   ]
 });
 
-// Kho lưu trữ mã xác nhận tạm thời trên RAM { roblox_id: { code: '123456', discordId: '...' } }
+// Kho lưu trữ mã xác nhận tạm thời trên RAM { roblox_id: { code: '123456', timestamp: 123456789 } }
 const verificationStorage = {};
 
 client.on('ready', () => {
@@ -40,18 +40,13 @@ if (process.env.DISCORD_BOT_TOKEN) {
 
 // 1. API sinh mã và gửi tin nhắn (DM) qua Bot Discord
 app.post('/api/verify-roblox', async (req, res) => {
-  const { roblox_id } = req.body;
+  const { roblox_id, discord_id } = req.body; // Nhận thêm discord_id từ client gửi lên
   
-  if (!roblox_id) {
-    return res.status(400).json({ error: 'Thiếu thông tin Roblox ID!' });
+  if (!roblox_id || !discord_id) {
+    return res.status(400).json({ error: 'Thiếu thông tin Roblox ID hoặc Discord ID!' });
   }
 
   try {
-    // TODO: Nếu hệ thống của bạn có lưu liên kết Roblox ID với Discord User ID trong Database (MongoDB/Firestore), 
-    // hãy truy vấn lấy discordId thực tế của người dùng ở đây.
-    // Dưới đây là ví dụ tạm thời dùng một Discord ID mẫu hoặc bạn cần thay bằng logic database của bạn:
-    const targetDiscordUserId = process.env.TEST_DISCORD_USER_ID || "HÃY_THAY_DISCORD_USER_ID_CỦA_BẠN_VÀO_ĐÂY"; 
-
     // Tạo mã xác nhận ngẫu nhiên 6 chữ số
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -61,22 +56,22 @@ app.post('/api/verify-roblox', async (req, res) => {
       timestamp: Date.now()
     };
 
-    // Lấy user Discord và gửi tin nhắn trực tiếp (DM)
-    const discordUser = await client.users.fetch(targetDiscordUserId);
+    // Lấy user Discord dựa vào discord_id do chính người đó nhập vào
+    const discordUser = await client.users.fetch(discord_id);
     if (!discordUser) {
       return res.status(404).json({ error: 'Không tìm thấy tài khoản Discord tương ứng!' });
     }
 
     await discordUser.send(`🔐 Mã xác nhận Roblox Tracker của bạn là: **${verificationCode}**\nMã này dùng để xác thực tài khoản Roblox ID: ${roblox_id}`);
 
-    console.log(`Đã gửi mã ${verificationCode} cho Roblox ID: ${roblox_id}`);
+    console.log(`Đã gửi mã ${verificationCode} cho Roblox ID: ${roblox_id} qua Discord ID: ${discord_id}`);
     return res.status(200).json({ 
       success: true, 
       message: 'Mã xác nhận đã được gửi thành công vào tin nhắn riêng (DM) trên Discord của bạn!' 
     });
   } catch (error) {
     console.error('Lỗi khi gửi mã qua Discord:', error);
-    return res.status(500).json({ error: 'Không thể gửi tin nhắn qua Discord. Hãy kiểm tra lại Bot Token hoặc quyền nhắn tin.' });
+    return res.status(500).json({ error: 'Không thể gửi tin nhắn qua Discord. Hãy chắc chắn bạn đã bật cho phép nhận tin nhắn từ thành viên trong server chung với bot.' });
   }
 });
 
@@ -116,7 +111,7 @@ app.post('/api/confirm-code', async (req, res) => {
 });
 
 // ==========================================
-// CÁC ROUTE ROBLOX OAUTH[span_0](start_span)[span_0](end_span)
+// CÁC ROUTE ROBLOX OAUTH
 // ==========================================
 
 app.get('/auth/roblox', (req, res) => {
