@@ -334,6 +334,8 @@
           <div class="input-row">
             <input type="text" id="verifyRobloxId" placeholder="Nhập Roblox ID của bạn...">
             <input type="text" id="newRobloxNameInput" placeholder="Tên hiển thị gợi nhớ (Tùy chọn)">
+            <!-- Thêm ô nhập Discord ID -->
+            <input type="text" id="verifyDiscordId" placeholder="Nhập Discord ID của bạn...">
             <button class="btn-action" onclick="requestVerificationCode()">Gửi mã về Discord</button>
           </div>
         </div>
@@ -433,10 +435,16 @@
     async function requestVerificationCode() {
       const robloxId = document.getElementById('verifyRobloxId').value.trim();
       const nameInput = document.getElementById('newRobloxNameInput').value.trim();
+      const discordId = document.getElementById('verifyDiscordId').value.trim(); // Lấy Discord ID người dùng nhập
       const msgDiv = document.getElementById('verifyResultMsg');
 
       if (!isValidRobloxId(robloxId)) {
         msgDiv.innerHTML = "<p style='color: #f87171;'>Vui lòng nhập Roblox ID hợp lệ (5-14 chữ số)!</p>";
+        return;
+      }
+
+      if (!discordId) {
+        msgDiv.innerHTML = "<p style='color: #f87171;'>Vui lòng nhập Discord ID của bạn!</p>";
         return;
       }
 
@@ -446,7 +454,7 @@
         const response = await fetch(`${BACKEND_URL}/api/verify-roblox`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roblox_id: robloxId })
+          body: JSON.stringify({ roblox_id: robloxId, discord_id: discordId }) // Gửi kèm discord_id lên server
         });
         const data = await response.json();
 
