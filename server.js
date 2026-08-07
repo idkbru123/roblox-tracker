@@ -21,6 +21,11 @@ const client = new Client({
 // Kho lưu trữ mã xác nhận tạm thời trên RAM { roblox_id: { code: '123456', timestamp: 123456789 } }
 const verificationStorage = {};
 
+// Danh sách các Discord ID được phép sử dụng hệ thống (Whitelist)
+const allowedDiscordIds = [
+  "1312336007852462080", // Thêm các Discord ID được phép vào đây
+];
+
 client.on('ready', () => {
   console.log(`Bot Discord đã đăng nhập thành công với tên: ${client.user.tag}`);
 });
@@ -44,6 +49,11 @@ app.post('/api/verify-roblox', async (req, res) => {
   
   if (!roblox_id || !discord_id) {
     return res.status(400).json({ error: 'Thiếu thông tin Roblox ID hoặc Discord ID!' });
+  }
+
+  // Kiểm tra xem discord_id có nằm trong danh sách cho phép (whitelist) không
+  if (!allowedDiscordIds.includes(discord_id)) {
+    return res.status(403).json({ error: 'Discord ID này chưa được cấp quyền sử dụng hệ thống!' });
   }
 
   try {
