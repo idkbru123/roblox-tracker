@@ -18,7 +18,7 @@
       overflow: hidden;
       transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s ease;
     }
-
+    
     #codeScrollScreen {
       position: absolute;
       top: 0; left: 0;
@@ -38,7 +38,7 @@
       font-size: 11px;
       line-height: 1.5;
       white-space: pre-wrap;
-      animation: scrollCodeFast 6s linear infinite;
+      animation: scrollCodeFast 1.5s linear infinite;
     }
 
     @keyframes scrollCodeFast {
@@ -55,17 +55,19 @@
       justify-content: center;
       align-items: center;
       z-index: 3;
-      padding: 20px;
+      padding: 10px;
+      overflow: auto;
     }
 
     #skullContent {
       color: #ff1f3d;
       text-shadow: 0 0 8px rgba(255, 31, 61, 0.6);
       font-family: 'Courier New', Courier, monospace;
-      font-size: clamp(8px, 1.4vw, 12px);
-      line-height: 1.2;
+      font-size: clamp(7px, 1.3vw, 11px);
+      line-height: 1.15;
       white-space: pre;
-      text-align: center;
+      display: inline-block;
+      text-align: left;
     }
 
     #matrixCanvas {
@@ -569,8 +571,7 @@ void main () {
 }
 `;
 
-    const skullArt = `
-          uu$:$:$:$:$:$:$_uu
+    const skullArt = `          uu$:$:$:$:$:$:$_uu
       uu$$$$$$$$$$$$$$$$$$$$$$uu
      u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u
      u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u
@@ -594,17 +595,14 @@ void main () {
         u$$$uuuv$$$$$$$$$$$$u **$$$$$$$$$$$$uuu$$$$
         $$$$$$$$****           **$$$$$$$$$$$$$*
           *$$$$$*                  *$$$$*
-            $$$*    PRESS ANY KEY!  $$$*
-`;
+            $$$*    PRESS ANY KEY!  $$$*`;
 
     function runIntroSequence() {
       const codeContent = document.getElementById('codeContent');
       if (!codeContent) return;
 
-      // Lặp lại đoạn code để tạo hiệu ứng cuộn mượt mà
       codeContent.textContent = redCodeBlock.repeat(3);
 
-      // Thời gian chạy đoạn code đỏ (lâu hơn theo yêu cầu)
       setTimeout(() => {
         document.getElementById('codeScrollScreen').style.display = 'none';
         startSkullSequence();
@@ -617,14 +615,13 @@ void main () {
       skullScreen.style.display = 'flex';
 
       let charIndex = 0;
-      const speed = 3; // Tốc độ hiện ký tự đầu lâu
+      const speed = 4; 
       function typeSkull() {
         if (charIndex < skullArt.length) {
           charIndex += speed;
           skullContent.textContent = skullArt.substring(0, charIndex);
-          setTimeout(typeSkull, 12);
+          setTimeout(typeSkull, 10);
         } else {
-          // Giữ màn hình đầu lâu trong 1.8 giây trước khi chuyển sang hiệu ứng ma trận và vào trang chính
           setTimeout(() => {
             startRedMatrixRainSequence();
           }, 1800);
