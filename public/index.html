@@ -17,7 +17,7 @@
       padding: 24px;
       z-index: 9999;
       overflow: hidden;
-      transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s ease;
+      transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s ease;
     }
 
     .console-screen {
@@ -37,13 +37,13 @@
     }
 
     .terminal-line {
-      color: rgba(255, 255, 255, 0.65);
-      text-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+      color: rgba(255, 77, 109, 0.85);
+      text-shadow: 0 0 4px rgba(255, 77, 109, 0.4);
       margin-bottom: 4px;
     }
 
     .error-glitch-bar {
-      background: rgba(255, 31, 61, 0.15);
+      background: rgba(255, 31, 61, 0.2);
       border-left: 3px solid #ff1f3d;
       color: #ff1f3d;
       padding: 3px 8px;
@@ -55,6 +55,33 @@
     @keyframes glitchExpand {
       0% { transform: scaleY(0.1); opacity: 0; }
       100% { transform: scaleY(1); opacity: 1; }
+    }
+
+    #glitchOverlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000000;
+      color: #ffffff;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      padding: 20px;
+      white-space: pre-wrap;
+      overflow: hidden;
+      display: none;
+      z-index: 5;
+    }
+    .glitch-block-anim {
+      animation: heavyGlitchSeq 0.15s steps(2, end) infinite;
+    }
+    @keyframes heavyGlitchSeq {
+      0% { transform: translate(0, 0); filter: invert(0); }
+      20% { transform: translate(-8px, 4px); filter: invert(1); }
+      40% { transform: translate(6px, -6px); }
+      60% { transform: translate(-4px, -2px); filter: invert(0.5); }
+      80% { transform: translate(5px, 6px); }
+      100% { transform: translate(0, 0); filter: invert(0); }
     }
 
     #matrixCanvas {
@@ -69,6 +96,7 @@
     #loader-wrapper.fade-out {
       opacity: 0;
       visibility: hidden;
+      pointer-events: none;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -79,14 +107,24 @@
       min-height: 100vh;
       min-height: 100dvh;
       overflow-x: hidden;
-      background-color: #161616;
+      background-color: #0b0b0e;
+      position: relative;
+    }
+
+    #persistentBgCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: -1;
+      opacity: 0.18;
+      pointer-events: none;
     }
 
     .bg-overlay {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(22, 22, 22, 0.95);
+      background: rgba(11, 11, 14, 0.88);
       z-index: -1;
     }
 
@@ -94,9 +132,9 @@
       position: fixed;
       top: 20px; left: 20px;
       z-index: 200;
-      background: #222225;
-      border: 1px solid #333338;
-      color: #60a5fa;
+      background: #18181b;
+      border: 1px solid #27272a;
+      color: #ff4d6d;
       font-size: 1.5rem;
       width: 45px; height: 45px;
       border-radius: 12px;
@@ -105,11 +143,11 @@
       display: flex; align-items: center; justify-content: center;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .menu-toggle-btn:hover { background: #2a2a2e; transform: scale(1.05); }
+    .menu-toggle-btn:hover { background: #222228; transform: scale(1.05); }
 
     .sidebar { 
       width: 280px; 
-      background: rgba(24, 24, 27, 0.95); 
+      background: rgba(18, 18, 22, 0.95); 
       border-right: 1px solid #27272a; 
       position: fixed; 
       height: 100vh; 
@@ -118,6 +156,7 @@
       display: flex; flex-direction: column; justify-content: space-between; 
       z-index: 300; 
       box-shadow: 4px 0 25px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
       transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .sidebar.open { left: 0; }
@@ -128,9 +167,9 @@
       padding: 14px 18px;
       border-bottom: 1px solid #27272a;
     }
-    .brand { font-size: 1.05rem; font-weight: bold; color: #60a5fa; }
+    .brand { font-size: 1.05rem; font-weight: bold; color: #ff4d6d; text-shadow: 0 0 8px rgba(255,77,109,0.4); }
     .close-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #9ca3af; transition: 0.2s; }
-    .close-btn:hover { color: #f87171; transform: rotate(90deg); }
+    .close-btn:hover { color: #ff4d6d; transform: rotate(90deg); }
 
     .menu { list-style: none; margin-top: 8px; padding: 0 10px; }
     .menu-btn { 
@@ -140,15 +179,15 @@
       cursor: pointer; display: flex; align-items: center; gap: 12px; 
       transition: all 0.2s ease; 
     }
-    .menu-btn:hover { background: rgba(255,255,255,0.05); color: #f3f4f6; transform: translateX(5px); }
-    .menu-btn.active { background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-weight: 700; border-left: 4px solid #3b82f6; }
+    .menu-btn:hover { background: rgba(255,77,109,0.08); color: #f3f4f6; transform: translateX(5px); }
+    .menu-btn.active { background: rgba(255, 77, 109, 0.15); color: #ff4d6d; font-weight: 700; border-left: 4px solid #ff4d6d; }
 
-    .user-profile-box { padding: 10px 14px; border-top: 1px solid #27272a; background: #18181b; text-align: center; }
+    .user-profile-box { padding: 10px 14px; border-top: 1px solid #27272a; background: #121216; text-align: center; }
     
     .btn-roblox { 
       background: #000000; 
       color: #fff; 
-      border: 1px solid #333338; 
+      border: 1px solid #27272a; 
       padding: 9px 12px; 
       border-radius: 9px; 
       font-weight: bold; 
@@ -163,7 +202,7 @@
       text-decoration: none;
       font-size: 0.92rem;
     }
-    .btn-roblox:hover { background: #1f1f23; transform: translateY(-2px); border-color: #60a5fa; }
+    .btn-roblox:hover { background: #1a1a20; transform: translateY(-2px); border-color: #ff4d6d; }
 
     .main-content { 
       flex: 1; 
@@ -190,20 +229,20 @@
     h1 { color: #f3f4f6; margin-bottom: 20px; font-size: 1.8rem; font-weight: 800; border-bottom: 2px solid #27272a; padding-bottom: 10px; }
 
     .welcome-card {
-      background: rgba(24, 24, 27, 0.85);
+      background: rgba(18, 18, 22, 0.85);
       padding: 40px; border-radius: 20px;
       box-shadow: 0 12px 30px rgba(0,0,0,0.4);
       border: 1px solid #27272a;
       backdrop-filter: blur(12px);
       text-align: center;
     }
-    .welcome-card h2 { color: #60a5fa; font-size: 2.2rem; margin-bottom: 15px; }
+    .welcome-card h2 { color: #ff4d6d; font-size: 2.2rem; margin-bottom: 15px; text-shadow: 0 0 10px rgba(255,77,109,0.3); }
     .welcome-card p { font-size: 1.05rem; color: #9ca3af; line-height: 1.6; margin-bottom: 20px; }
     .welcome-icon { font-size: 4rem; margin-bottom: 10px; animation: bounce 2s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
     .control-panel {
-      background: rgba(24, 24, 27, 0.9);
+      background: rgba(18, 18, 22, 0.9);
       padding: 24px; border-radius: 16px;
       border: 1px solid #27272a;
       margin-bottom: 25px;
@@ -215,23 +254,23 @@
     .input-wrapper { display: flex; flex-direction: column; gap: 12px; }
     .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
     .input-wrapper input {
-      background: #121212; color: #f3f4f6; border: 1px solid #3f3f46;
+      background: #0d0d10; color: #f3f4f6; border: 1px solid #27272a;
       padding: 12px 16px; border-radius: 10px; font-size: 0.95rem; outline: none; flex: 1; min-width: 220px;
       transition: 0.2s;
     }
-    .input-wrapper input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
+    .input-wrapper input:focus { border-color: #ff4d6d; box-shadow: 0 0 0 3px rgba(255,77,109,0.2); }
     .btn-action {
-      background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 12px 24px;
-      border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+      background: linear-gradient(135deg, #ff4d6d, #d90429); color: white; border: none; padding: 12px 24px;
+      border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(255,77,109,0.3);
     }
-    .btn-action:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); transform: translateY(-1px); }
+    .btn-action:hover { background: linear-gradient(135deg, #d90429, #b50322); transform: translateY(-1px); }
 
     .filter-box { 
       margin-bottom: 25px; 
       display: flex; 
       flex-direction: column; 
       gap: 10px; 
-      background: rgba(24, 24, 27, 0.85); 
+      background: rgba(18, 18, 22, 0.85); 
       padding: 15px 20px; 
       border-radius: 14px; 
       border: 1px solid #27272a; 
@@ -239,15 +278,15 @@
     }
     .filter-box label { color: #d1d5db; font-size: 1rem; font-weight: 700; white-space: nowrap; }
     .filter-box select, .filter-box input[type="text"] { 
-      background: #121212; color: #f3f4f6; border: 1px solid #3f3f46; 
+      background: #0d0d10; color: #f3f4f6; border: 1px solid #27272a; 
       padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; 
       outline: none; transition: 0.2s; width: 100%; 
     }
-    .filter-box select:focus, .filter-box input[type="text"]:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
+    .filter-box select:focus, .filter-box input[type="text"]:focus { border-color: #ff4d6d; box-shadow: 0 0 0 3px rgba(255,77,109,0.2); }
 
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
     .log-card { 
-      background: rgba(24, 24, 27, 0.9); 
+      background: rgba(18, 18, 22, 0.9); 
       padding: 22px; border-radius: 16px; 
       box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
       border: 1px solid #27272a;
@@ -264,7 +303,7 @@
     .status-other { background: rgba(30, 64, 175, 0.3); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
 
     .log-info { font-size: 1rem; color: #d1d5db; font-weight: 500; }
-    .highlight { color: #60a5fa; font-weight: 800; font-size: 1.1rem; }
+    .highlight { color: #ff4d6d; font-weight: 800; font-size: 1.1rem; }
     .sub-id { font-size: 0.85em; color: #9ca3af; margin-left: 6px; font-weight: normal; }
     .timestamp { font-size: 0.85em; color: #9ca3af; text-align: right; font-style: italic; }
     
@@ -274,7 +313,7 @@
     }
     .btn-remove-acc:hover { background: rgba(239, 68, 68, 0.4); color: #fff; }
 
-    .empty-msg { text-align: center; color: #9ca3af; padding: 40px; background: rgba(24, 24, 27, 0.85); border-radius: 14px; border: 2px dashed #3f3f46; font-size: 1.05rem; }
+    .empty-msg { text-align: center; color: #9ca3af; padding: 40px; background: rgba(18, 18, 22, 0.85); border-radius: 14px; border: 2px dashed #27272a; font-size: 1.05rem; }
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -282,12 +321,11 @@
 </head>
 <body>
 
-  <!-- INTRO SCREEN -->
-  <div id="loader-wrapper">
-    <!-- Màn hình Console chứa cả chữ xám lẫn chữ lỗi đỏ tiếp nối bên dưới -->
-    <div class="console-screen" id="consoleScreen"></div>
+  <canvas id="persistentBgCanvas"></canvas>
 
-    <!-- Canvas hiệu ứng mưa Matrix làm nền -->
+  <div id="loader-wrapper">
+    <div class="console-screen" id="consoleScreen"></div>
+    <div id="glitchOverlay" class="glitch-block-anim"></div>
     <canvas id="matrixCanvas"></canvas>
   </div>
 
@@ -311,9 +349,9 @@
     <div class="user-profile-box" id="authBox">
       <a href="/auth/roblox" class="btn-roblox">🎮 Đăng nhập bằng Roblox</a>
       <div style="margin-top: 6px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
-        <a href="https://roblox-tracker-g1vm.onrender.com/privacy.html" target="_blank" style="color: #9ca3af; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">🔒 Bảo mật</a>
+        <a href="https://roblox-tracker-g1vm.onrender.com/privacy.html" target="_blank" style="color: #9ca3af; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff4d6d'" onmouseout="this.style.color='#9ca3af'">🔒 Bảo mật</a>
         <span style="color: #4b5563; font-size: 0.7rem;">•</span>
-        <a href="https://roblox-tracker-g1vm.onrender.com/terms.html" target="_blank" style="color: #9ca3af; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">📄 Điều khoản</a>
+        <a href="https://roblox-tracker-g1vm.onrender.com/terms.html" target="_blank" style="color: #9ca3af; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff4d6d'" onmouseout="this.style.color='#9ca3af'">📄 Điều khoản</a>
       </div>
     </div>
   </div>
@@ -375,7 +413,7 @@
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
           <label style="margin: 0;">📅 Chọn ngày xem:</label>
-          <button type="button" id="toggleDateModeBtn" onclick="toggleDateMode()" style="background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: 0.2s;">⚙️ Tùy chỉnh lịch</button>
+          <button type="button" id="toggleDateModeBtn" onclick="toggleDateMode()" style="background: rgba(255,77,109,0.2); color: #ff4d6d; border: 1px solid rgba(255,77,109,0.4); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: 0.2s;">⚙️ Tùy chỉnh lịch</button>
         </div>
 
         <div id="dropdownDateMode" style="display: flex; gap: 8px; margin-top: 6px;">
@@ -412,7 +450,6 @@
       usernameCache[loggedInUserId] = loggedInName;
     }
 
-    // Danh sách dòng lệnh xám và dòng lệnh lỗi đỏ
     const terminalLogsList = [
       "Initializing system kernel v2.4.1...",
       "Loading configuration files from /etc/edex/...",
@@ -438,7 +475,6 @@
       "[CRITICAL] SYSTEM SHUTDOWN IMMINENT... REBOOTING NETWORKS..."
     ];
 
-    // Chạy tuần tự: Chạy chữ xám -> Tiếp tục chạy chữ đỏ nối ngay bên dưới -> Kéo dài đến cuối trang -> Chuyển sang Mưa Matrix
     function runIntroSequence() {
       const consoleScreen = document.getElementById('consoleScreen');
       if (!consoleScreen) return;
@@ -452,10 +488,9 @@
           consoleScreen.appendChild(div);
           consoleScreen.scrollTop = consoleScreen.scrollHeight;
           tIndex++;
-          setTimeout(printTerminal, 250); // Tốc độ vừa phải, rõ ràng
+          setTimeout(printTerminal, 220);
         } else {
-          // Xong chữ xám, đợi một nhịp nhỏ rồi chạy tiếp chữ đỏ ngay bên dưới
-          setTimeout(printErrors, 400);
+          setTimeout(printErrors, 350);
         }
       }
 
@@ -468,26 +503,62 @@
           consoleScreen.appendChild(div);
           consoleScreen.scrollTop = consoleScreen.scrollHeight;
           eIndex++;
-          setTimeout(printErrors, 220); // Chạy chậm, lan rộng dài xuống dưới trang
+          setTimeout(printErrors, 200);
         } else {
-          // Xong hết chữ lỗi đỏ, giữ lại màn hình đọc trong 800ms rồi bật hiệu ứng Mưa chữ Matrix
-          setTimeout(startMatrixRainBackground, 900);
+          setTimeout(startHeavyGlitchEffect, 400);
         }
       }
 
       printTerminal();
     }
 
-    function startMatrixRainBackground() {
+    function startHeavyGlitchEffect() {
       const consoleScreen = document.getElementById('consoleScreen');
-      consoleScreen.style.display = 'none'; // Ẩn khung chữ đi để chuyển sang nền Matrix
+      consoleScreen.style.display = 'none';
 
+      const glitchOverlay = document.getElementById('glitchOverlay');
+      glitchOverlay.style.display = 'block';
+
+      let glitchTextContent = "";
+      const glitchChars = "ABCDEF0123456789X#@$%&*<>?/_\\|~";
+      for (let i = 0; i < 45; i++) {
+        let line = "";
+        for (let j = 0; j < 65; j++) {
+          line += glitchChars.charAt(Math.floor(Math.random() * glitchChars.length));
+        }
+        glitchTextContent += line + "\n";
+      }
+      glitchOverlay.textContent = glitchTextContent;
+
+      let glitchInterval = setInterval(() => {
+        let dynamicContent = "";
+        for (let i = 0; i < 40; i++) {
+          let line = "";
+          for (let j = 0; j < 65; j++) {
+            line += glitchChars.charAt(Math.floor(Math.random() * glitchChars.length));
+          }
+          dynamicContent += line + "\n";
+        }
+        glitchOverlay.textContent = dynamicContent;
+      }, 120);
+
+      setTimeout(() => {
+        clearInterval(glitchInterval);
+        glitchOverlay.style.display = 'none';
+
+        setTimeout(startRedMatrixRainSequence, 600);
+      }, 3500);
+    }
+
+    function startRedMatrixRainSequence() {
       const canvas = document.getElementById('matrixCanvas');
       canvas.style.display = 'block';
       const ctx = canvas.getContext('2d');
 
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+
+      initPersistentBackground();
 
       const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>/?ROBLOXTRACKER";
       const fontSize = 14;
@@ -502,7 +573,7 @@
         ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = "#00ff66";
+        ctx.fillStyle = "#ff1f3d";
         ctx.font = fontSize + "px monospace";
 
         for (let i = 0; i < drops.length; i++) {
@@ -518,7 +589,6 @@
 
       let matrixInterval = setInterval(drawMatrix, 35);
 
-      // Kéo dài thời gian hiển thị hiệu ứng mưa Matrix background (4.5 giây) cho đủ lâu rõ ràng
       setTimeout(() => {
         clearInterval(matrixInterval);
         const loaderWrapper = document.getElementById('loader-wrapper');
@@ -527,8 +597,46 @@
         setTimeout(() => {
           loaderWrapper.style.display = 'none';
           document.getElementById('mainContent').classList.add('loaded');
-        }, 1200);
-      }, 4500);
+        }, 1500);
+      }, 4200);
+    }
+
+    function initPersistentBackground() {
+      const bgCanvas = document.getElementById('persistentBgCanvas');
+      if (!bgCanvas) return;
+      const bgCtx = bgCanvas.getContext('2d');
+
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+
+      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>/?ROBLOXTRACKER";
+      const fontSize = 14;
+      const columns = Math.floor(bgCanvas.width / fontSize);
+      const drops = [];
+
+      for (let i = 0; i < columns; i++) {
+        drops[i] = Math.floor(Math.random() * bgCanvas.height);
+      }
+
+      function drawBgMatrix() {
+        bgCtx.fillStyle = "rgba(11, 11, 14, 0.08)";
+        bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+        bgCtx.fillStyle = "rgba(255, 31, 61, 0.65)";
+        bgCtx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = characters.charAt(Math.floor(Math.random() * characters.length));
+          bgCtx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > bgCanvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+
+      setInterval(drawBgMatrix, 45);
     }
 
     window.addEventListener('load', () => {
@@ -633,7 +741,7 @@
         return;
       }
 
-      msgDiv.innerHTML = "<p style='color: #60a5fa;'>Đang gửi yêu cầu đến Bot Discord...</p>";
+      msgDiv.innerHTML = "<p style='color: #ff4d6d;'>Đang gửi yêu cầu đến Bot Discord...</p>";
 
       try {
         const response = await fetch(`${BACKEND_URL}/api/verify-roblox`, {
@@ -665,7 +773,7 @@
         return;
       }
 
-      msgDiv.innerHTML = "<p style='color: #60a5fa;'>Đang kiểm tra mã xác nhận...</p>";
+      msgDiv.innerHTML = "<p style='color: #ff4d6d;'>Đang kiểm tra mã xác nhận...</p>";
 
       try {
         const response = await fetch(`${BACKEND_URL}/api/confirm-code`, {
@@ -803,9 +911,9 @@
 
         if (isOnline) {
           if (rawGame && rawGame !== 'Website' && rawGame !== 'Trang chủ / Website Roblox' && !rawGame.includes('Website')) {
-            locationText = `Đang trong trải nghiệm: <span style="color:#60a5fa; font-weight:600;">${rawGame}</span>`;
+            locationText = `Đang trong trải nghiệm: <span style="color:#ff4d6d; font-weight:600;">${rawGame}</span>`;
           } else {
-            locationText = `<span style="color:#60a5fa; font-weight:600;">trang chủ</span>`;
+            locationText = `<span style="color:#ff4d6d; font-weight:600;">trang chủ</span>`;
           }
         } else {
           locationText = `<span style="color:#9ca3af;">Chưa ghi nhận hoạt động mới</span>`;
