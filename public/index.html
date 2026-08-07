@@ -3,863 +3,221 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roblox Personal Tracker</title>
+  <title>Roblox Tracker - eDEX-UI Intro</title>
   <style>
-    #loader-wrapper {
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Courier New', Courier, monospace; 
+      background-color: #050505; 
+      color: #ffffff; 
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ------------------------------------
+       MÀN HÌNH INTRO EDE-X UI (GIỐNG VIDEO)
+    ------------------------------------ */
+    #e-intro {
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh; height: 100dvh;
-      background: #121212;
+      background: #000000;
+      z-index: 9999;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 30px;
+      overflow: hidden;
+      transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Khu vực log chạy chữ phía trên */
+    .terminal-screen {
+      width: 100%;
+      max-width: 700px;
+      height: 45vh;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      line-height: 1.4;
+      overflow: hidden;
+      white-space: pre-wrap;
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Khung cửa sổ trung tâm phóng to (Scale Up) */
+    .edex-window {
+      position: relative;
+      width: 380px;
+      height: 140px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      background: rgba(10, 10, 10, 0.9);
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+      display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 9999;
-      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: scale(0);
+      opacity: 0;
+      animation: edexZoomIn 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 1.5s; /* Chờ log chạy trước một nhịp */
     }
 
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid rgba(255, 255, 255, 0.1);
-      border-top-color: #60a5fa;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    @keyframes edexZoomIn {
+      0% {
+        transform: scale(0.05);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .edex-content {
+      text-align: center;
     }
 
-    .loading-text {
-      margin-top: 25px;
-      font-family: 'Courier New', Courier, monospace;
+    .edex-title {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      font-size: 1.1rem;
       font-weight: 700;
+      letter-spacing: 3px;
+      color: #ffffff;
+      margin-bottom: 6px;
+      text-shadow: 0 0 8px rgba(255,255,255,0.4);
+    }
+
+    .edex-sub {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      font-size: 0.85rem;
+      color: #888888;
+    }
+
+    /* Mô phỏng ánh sáng bàn phím phát sáng bên dưới như trong video */
+    .keyboard-glow-area {
+      width: 100%;
+      max-width: 500px;
+      height: 80px;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.08) 0%, transparent 70%);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      animation: fadeInKb 1s ease forwards;
+      animation-delay: 0.5s;
+    }
+
+    @keyframes fadeInKb {
+      to { opacity: 1; }
+    }
+
+    .kb-simulation {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.25);
       letter-spacing: 6px;
-      color: #e5e7eb;
-      font-size: 13px;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.8);
-      transition: opacity 0.4s ease;
+      text-transform: uppercase;
     }
 
-    #loader-wrapper.slowing .spinner {
-      animation: mask-exit 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    #loader-wrapper.slowing .loading-text {
+    /* Hiệu ứng kết thúc Intro: Phóng to ẩn đi và mượt mà hiện UI chính */
+    #e-intro.fade-out {
       opacity: 0;
+      transform: scale(1.15);
+      pointer-events: none;
     }
 
-    @keyframes mask-exit {
-      0% { transform: scale(1) rotate(0deg); opacity: 1; }
-      100% { transform: scale(1.2) rotate(360deg); opacity: 0; filter: blur(4px); }
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      color: #e5e7eb; 
-      display: flex; 
-      min-height: 100vh;
-      min-height: 100dvh;
-      overflow-x: hidden;
-      background-color: #161616;
-    }
-
-    .bg-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(22, 22, 22, 0.95);
-      z-index: -1;
-    }
-
-    .menu-toggle-btn {
-      position: fixed;
-      top: 20px; left: 20px;
-      z-index: 200;
-      background: #222225;
-      border: 1px solid #333338;
-      color: #60a5fa;
-      font-size: 1.5rem;
-      width: 45px; height: 45px;
-      border-radius: 12px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .menu-toggle-btn:hover { background: #2a2a2e; transform: scale(1.05); }
-
-    .sidebar { 
-      width: 280px; 
-      background: rgba(24, 24, 27, 0.95); 
-      border-right: 1px solid #27272a; 
-      position: fixed; 
-      height: 100vh; 
-      height: 100dvh; 
-      top: 0; left: -280px; 
-      display: flex; flex-direction: column; justify-content: space-between; 
-      z-index: 300; 
-      box-shadow: 4px 0 25px rgba(0,0,0,0.5);
-      transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .sidebar.open { left: 0; }
-
-    .sidebar-top { flex: 1; overflow-y: auto; }
-    .brand-container {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 18px;
-      border-bottom: 1px solid #27272a;
-    }
-    .brand { font-size: 1.05rem; font-weight: bold; color: #60a5fa; }
-    .close-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #9ca3af; transition: 0.2s; }
-    .close-btn:hover { color: #f87171; transform: rotate(90deg); }
-
-    .menu { list-style: none; margin-top: 8px; padding: 0 10px; }
-    .menu-btn { 
-      width: 100%; padding: 10px 14px; margin-bottom: 4px;
-      background: transparent; border: none; border-radius: 10px;
-      color: #9ca3af; font-size: 0.95rem; font-weight: 600; text-align: left; 
-      cursor: pointer; display: flex; align-items: center; gap: 12px; 
-      transition: all 0.2s ease; 
-    }
-    .menu-btn:hover { background: rgba(255,255,255,0.05); color: #f3f4f6; transform: translateX(5px); }
-    .menu-btn.active { background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-weight: 700; border-left: 4px solid #3b82f6; }
-
-    .user-profile-box { padding: 10px 14px; border-top: 1px solid #27272a; background: #18181b; text-align: center; }
-    
-    .btn-roblox { 
-      background: #000000; 
-      color: #fff; 
-      border: 1px solid #333338; 
-      padding: 9px 12px; 
-      border-radius: 9px; 
-      font-weight: bold; 
-      cursor: pointer; 
-      width: 100%; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      gap: 8px; 
-      transition: 0.2s; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      text-decoration: none;
-      font-size: 0.92rem;
-    }
-    .btn-roblox:hover { background: #1f1f23; transform: translateY(-2px); border-color: #60a5fa; }
-
-    .main-content { 
-      flex: 1; 
-      padding: 40px 30px; 
-      width: 100%; max-width: 1100px;
-      margin: 0 auto; margin-left: auto;
+    /* ------------------------------------
+       GIAO DIỆN CHÍNH (UI) SAU KHI INTRO XONG
+    ------------------------------------ */
+    .main-app {
       opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s, 
-                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s, 
-                  margin-left 0.4s ease, 
-                  padding-left 0.4s ease;
+      transform: translateY(25px);
+      transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 40px;
+      max-width: 900px;
+      margin: 0 auto;
     }
-    .main-content.loaded {
+
+    .main-app.loaded {
       opacity: 1;
       transform: translateY(0);
     }
-    .main-content.shifted { padding-left: 310px; }
 
-    .tab-section { display: none; opacity: 0; transition: opacity 0.4s ease; }
-    .tab-section.active { display: block; opacity: 1; animation: fadeIn 0.5s forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    h1 { color: #f3f4f6; margin-bottom: 20px; font-size: 1.8rem; font-weight: 800; border-bottom: 2px solid #27272a; padding-bottom: 10px; }
-
-    .welcome-card {
-      background: rgba(24, 24, 27, 0.85);
-      padding: 40px; border-radius: 20px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
-      border: 1px solid #27272a;
-      backdrop-filter: blur(12px);
-      text-align: center;
-    }
-    .welcome-card h2 { color: #60a5fa; font-size: 2.2rem; margin-bottom: 15px; }
-    .welcome-card p { font-size: 1.05rem; color: #9ca3af; line-height: 1.6; margin-bottom: 20px; }
-    .welcome-icon { font-size: 4rem; margin-bottom: 10px; animation: bounce 2s infinite; }
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-    .control-panel {
-      background: rgba(24, 24, 27, 0.9);
-      padding: 24px; border-radius: 16px;
-      border: 1px solid #27272a;
-      margin-bottom: 25px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
-    .control-panel h3 { color: #f3f4f6; font-size: 1.15rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-    .control-desc { font-size: 0.9rem; color: #9ca3af; margin-bottom: 16px; line-height: 1.5; }
-    
-    .input-wrapper { display: flex; flex-direction: column; gap: 12px; }
-    .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .input-wrapper input {
-      background: #121212; color: #f3f4f6; border: 1px solid #3f3f46;
-      padding: 12px 16px; border-radius: 10px; font-size: 0.95rem; outline: none; flex: 1; min-width: 220px;
-      transition: 0.2s;
-    }
-    .input-wrapper input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
-    .btn-action {
-      background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 12px 24px;
-      border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(59,130,246,0.3);
-    }
-    .btn-action:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); transform: translateY(-1px); }
-
-    .filter-box { 
-      margin-bottom: 25px; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 10px; 
-      background: rgba(24, 24, 27, 0.85); 
-      padding: 15px 20px; 
-      border-radius: 14px; 
-      border: 1px solid #27272a; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
-    }
-    .filter-box label { color: #d1d5db; font-size: 1rem; font-weight: 700; white-space: nowrap; }
-    .filter-box select, .filter-box input[type="text"] { 
-      background: #121212; color: #f3f4f6; border: 1px solid #3f3f46; 
-      padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; 
-      outline: none; transition: 0.2s; width: 100%; 
-    }
-    .filter-box select:focus, .filter-box input[type="text"]:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
-
-    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-    .log-card { 
-      background: rgba(24, 24, 27, 0.9); 
-      padding: 22px; border-radius: 16px; 
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
-      border: 1px solid #27272a;
-      display: flex; flex-direction: column; gap: 12px; 
-      position: relative;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-    .log-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); border-color: #3f3f46; }
-    .log-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #27272a; padding-bottom: 12px; color: #d1d5db; }
-    
-    .status-badge { padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.85em; display: inline-block; }
-    .status-1 { background: rgba(22, 101, 52, 0.3); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
-    .status-0 { background: rgba(153, 27, 27, 0.3); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
-    .status-other { background: rgba(30, 64, 175, 0.3); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
-
-    .log-info { font-size: 1rem; color: #d1d5db; font-weight: 500; }
-    .highlight { color: #60a5fa; font-weight: 800; font-size: 1.1rem; }
-    .sub-id { font-size: 0.85em; color: #9ca3af; margin-left: 6px; font-weight: normal; }
-    .timestamp { font-size: 0.85em; color: #9ca3af; text-align: right; font-style: italic; }
-    
-    .btn-remove-acc {
-      background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);
-      padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: 0.2s;
-    }
-    .btn-remove-acc:hover { background: rgba(239, 68, 68, 0.4); color: #fff; }
-
-    .empty-msg { text-align: center; color: #9ca3af; padding: 40px; background: rgba(24, 24, 27, 0.85); border-radius: 14px; border: 2px dashed #3f3f46; font-size: 1.05rem; }
+    h1 { color: #f3f4f6; margin-bottom: 12px; font-size: 1.8rem; }
+    p { color: #9ca3af; font-family: 'Segoe UI', Tahoma, sans-serif; }
   </style>
-
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-  <div id="loader-wrapper">
-    <div class="spinner"></div>
-    <div class="loading-text">LOADING SYSTEM...</div>
-  </div>
+  <!-- KHU VỰC INTRO ANIMATION (MÔ PHỎNG E-DEX UI) -->
+  <div id="e-intro">
+    <!-- Phần dòng lệnh chạy phía trên -->
+    <div class="terminal-screen" id="terminalLogs"></div>
 
-  <div class="bg-overlay"></div>
-
-  <button class="menu-toggle-btn" onclick="toggleSidebar()">☰</button>
-
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-top">
-      <div class="brand-container">
-        <div class="brand">🎮 ROBLOX TRACKER</div>
-        <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <!-- Khung cửa sổ trung tâm phóng to -->
+    <div class="edex-window">
+      <div class="edex-content">
+        <div class="edex-title">eDEX-UI // ROBLOX TRACKER</div>
+        <div class="edex-sub" id="welcomeText">Welcome back, operator</div>
       </div>
-      <ul class="menu">
-        <li><button class="menu-btn active" onclick="showTab('home', this)">🏠 Trang Chủ</button></li>
-        <li><button class="menu-btn" onclick="showTab('live', this)">🔴 Roblox Live</button></li>
-        <li><button class="menu-btn" onclick="showTab('history', this)">📜 Lịch Sử Hoạt Động</button></li>
-      </ul>
     </div>
 
-    <div class="user-profile-box" id="authBox">
-      <a href="/auth/roblox" class="btn-roblox">🎮 Đăng nhập bằng Roblox</a>
-      <div style="margin-top: 6px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
-        <a href="https://roblox-tracker-g1vm.onrender.com/privacy.html" target="_blank" style="color: #9ca3af; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">🔒 Bảo mật</a>
-        <span style="color: #4b5563; font-size: 0.7rem;">•</span>
-        <a href="https://roblox-tracker-g1vm.onrender.com/terms.html" target="_blank" style="color: #9ca3af; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">📄 Điều khoản</a>
-      </div>
+    <!-- Phần bàn phím phát sáng phía dưới -->
+    <div class="keyboard-glow-area">
+      <div class="kb-simulation">ctrl  alt  command  space  command  option</div>
     </div>
   </div>
 
-  <div class="main-content" id="mainContent">
-    <div id="tab-home" class="tab-section active">
-      <div class="welcome-card">
-        <div class="welcome-icon">👋</div>
-        <h2>Xin chào! Chào mừng đến với Roblox Tracker</h2>
-        <p>Hệ thống giúp bạn giám sát trạng thái trực tiếp của các tài khoản Roblox. Bạn có thể thêm bất kỳ ID nào muốn theo dõi ở tab <strong>Roblox Live</strong>.</p>
-      </div>
-    </div>
-
-    <div id="tab-live" class="tab-section">
-      <h1>🔴 Trạng Thái Trực Tiếp</h1>
-      
-      <div class="control-panel" id="verifyStep1">
-        <h3>📩 Yêu cầu gửi mã xác nhận qua Discord</h3>
-        <p class="control-desc">
-          Nhập ID tài khoản Roblox của bạn. Hệ thống sẽ kiểm tra tài khoản Discord đã liên kết và gửi tin nhắn (DM) chứa mã xác nhận qua Bot Discord.
-        </p>
-        <div class="input-wrapper">
-          <div class="input-row">
-            <input type="text" id="verifyRobloxId" placeholder="Nhập Roblox ID của bạn...">
-            <input type="text" id="newRobloxNameInput" placeholder="Tên hiển thị gợi nhớ (Tùy chọn)">
-            <input type="text" id="verifyDiscordId" placeholder="Nhập Discord ID của bạn...">
-            <button class="btn-action" onclick="requestVerificationCode()">Gửi mã về Discord</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="control-panel" id="verifyStep2" style="display: none;">
-        <h3>✅ Nhập mã xác nhận</h3>
-        <p class="control-desc">
-          Mã xác nhận đã được gửi vào tin nhắn riêng (DM) trên Discord của bạn. Vui lòng nhập mã và bấm xác nhận để thêm vào danh sách theo dõi.
-        </p>
-        <div class="input-wrapper">
-          <div class="input-row">
-            <input type="text" id="verifyCodeInput" placeholder="Nhập mã xác nhận (Ví dụ: 123456)...">
-            <button class="btn-action" onclick="confirmVerificationCode()">Xác nhận</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="verifyResultMsg" style="margin-bottom: 15px;"></div>
-
-      <div id="live-container" class="grid-container">
-        <p class='empty-msg'>Chưa có tài khoản nào được thêm.</p>
-      </div>
-    </div>
-
-    <div id="tab-history" class="tab-section">
-      <h1>📜 Lịch Sử Hoạt Động</h1>
-      <div class="filter-box" id="filterBox">
-        <label for="userFilter">👤 Lọc theo tài khoản:</label>
-        <select id="userFilter" onchange="renderHistoryLogs()">
-          <option value="ALL">✨ Tất cả tài khoản đang theo dõi</option>
-        </select>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-          <label style="margin: 0;">📅 Chọn ngày xem:</label>
-          <button type="button" id="toggleDateModeBtn" onclick="toggleDateMode()" style="background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: 0.2s;">⚙️ Tùy chỉnh lịch</button>
-        </div>
-
-        <!-- Chế độ 1: Chọn ngày tháng năm qua các bảng dropdown danh sách -->
-        <div id="dropdownDateMode" style="display: flex; gap: 8px; margin-top: 6px;">
-          <select id="filterDay" onchange="renderHistoryLogs()" style="flex: 1;">
-            <option value="">Ngày</option>
-          </select>
-          <select id="filterMonth" onchange="renderHistoryLogs()" style="flex: 1;">
-            <option value="">Tháng</option>
-          </select>
-          <select id="filterYear" onchange="renderHistoryLogs()" style="flex: 1;">
-            <option value="">Năm</option>
-          </select>
-        </div>
-
-        <!-- Chế độ 2: Tự nhập tay thủ công -->
-        <div id="inputDateMode" style="display: none; margin-top: 6px;">
-          <input type="text" id="dateFilter" placeholder="ngày/tháng/năm" oninput="renderHistoryLogs()">
-        </div>
-      </div>
-      <div id="logs">
-        <p class='empty-msg'>Đang tải lịch sử hoạt động...</p>
-      </div>
-    </div>
+  <!-- GIAO DIỆN CHÍNH CỦA ỨNG DỤNG -->
+  <div class="main-app" id="mainApp">
+    <h1>🎮 Roblox Tracker Dashboard</h1>
+    <p>Hệ thống giám sát đã khởi tạo thành công qua giao diện Terminal bảo mật.</p>
   </div>
 
   <script>
-    const BACKEND_URL = ""; 
+    // 1. Hiệu ứng chạy dòng lệnh terminal liên tục giống hệt video
+    const terminalLogs = document.getElementById('terminalLogs');
+    const logs = [
+      "Initializing eDEX-UI kernel v2.4.1...",
+      "Loading configuration files from /etc/edex/...",
+      "Mounting virtual file system...",
+      "Establishing secure WebSocket connection to Firebase...",
+      "Bypassing network firewalls [OK]",
+      "Loading Roblox API telemetry endpoints...",
+      "Decrypting user session tokens...",
+      "Memory allocation: 128MB stable.",
+      "Neural interface synced. Ready for execution."
+    ];
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const loggedInUserId = urlParams.get('user_id');
-    const loggedInName = urlParams.get('name');
-
-    const usernameCache = {};
-    if (loggedInUserId && loggedInName) {
-      usernameCache[loggedInUserId] = loggedInName;
+    let index = 0;
+    function printLogs() {
+      if (index < logs.length) {
+        terminalLogs.innerHTML += "> " + logs[index] + "<br>";
+        terminalLogs.scrollTop = terminalLogs.scrollHeight;
+        index++;
+        setTimeout(printLogs, 220); // Tốc độ chạy từng dòng lệnh
+      }
     }
+    printLogs();
 
-    window.addEventListener('load', () => {
+    // 2. Tự động tắt Intro, phóng to ẩn đi và kích hoạt giao diện chính mượt mà sau 4.8 giây
+    setTimeout(() => {
+      const intro = document.getElementById('e-intro');
+      const mainApp = document.getElementById('mainApp');
+
+      intro.classList.add('fade-out');
+      mainApp.classList.add('loaded');
+
+      // Gỡ bỏ hoàn toàn khỏi DOM sau khi animation hoàn tất để giải phóng RAM
       setTimeout(() => {
-        const loaderWrapper = document.getElementById('loader-wrapper');
-        loaderWrapper.classList.add('slowing');
-
-        setTimeout(() => {
-          loaderWrapper.style.opacity = '0';
-          loaderWrapper.style.visibility = 'hidden';
-          document.getElementById('mainContent').classList.add('loaded');
-        }, 800);
+        intro.style.display = 'none';
       }, 1000);
-      
-      initDateDropdowns();
-    });
 
-    function initDateDropdowns() {
-      const daySelect = document.getElementById("filterDay");
-      const monthSelect = document.getElementById("filterMonth");
-      const yearSelect = document.getElementById("filterYear");
-      
-      if (!daySelect || !monthSelect || !yearSelect) return;
-
-      if (daySelect.options.length <= 1) {
-        for (let i = 1; i <= 31; i++) {
-          const opt = document.createElement("option");
-          opt.value = i;
-          opt.textContent = `Ngày ${i}`;
-          daySelect.appendChild(opt);
-        }
-      }
-
-      if (monthSelect.options.length <= 1) {
-        for (let i = 1; i <= 12; i++) {
-          const opt = document.createElement("option");
-          opt.value = i;
-          opt.textContent = `Tháng ${i}`;
-          monthSelect.appendChild(opt);
-        }
-      }
-
-      if (yearSelect.options.length <= 1) {
-        const currentYear = new Date().getFullYear();
-        for (let y = currentYear + 1; y >= currentYear - 3; y--) {
-          const opt = document.createElement("option");
-          opt.value = y;
-          opt.textContent = `Năm ${y}`;
-          yearSelect.appendChild(opt);
-        }
-      }
-    }
-
-    function toggleDateMode() {
-      const dropdownMode = document.getElementById("dropdownDateMode");
-      const inputMode = document.getElementById("inputDateMode");
-      const toggleBtn = document.getElementById("toggleDateModeBtn");
-      
-      if (dropdownMode.style.display === "none") {
-        dropdownMode.style.display = "flex";
-        inputMode.style.display = "none";
-        toggleBtn.textContent = "⚙️ Tùy chỉnh lịch";
-      } else {
-        dropdownMode.style.display = "none";
-        inputMode.style.display = "block";
-        toggleBtn.textContent = "📋 Chọn theo danh sách";
-      }
-      renderHistoryLogs();
-    }
-
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const mainContent = document.getElementById('mainContent');
-      sidebar.classList.toggle('open');
-      if (window.innerWidth > 768) {
-        mainContent.classList.toggle('shifted');
-      }
-    }
-
-    window.onload = () => {
-      if (window.innerWidth > 768) {
-        toggleSidebar(); 
-      }
-    }
-
-    function showTab(tabName, btn) {
-      document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById('tab-' + tabName).classList.add('active');
-      btn.classList.add('active');
-      if (window.innerWidth <= 768) {
-        document.getElementById('sidebar').classList.remove('open');
-      }
-    }
-
-    let currentVerifyingRobloxId = "";
-    let currentVerifyingName = "";
-
-    async function requestVerificationCode() {
-      const robloxId = document.getElementById('verifyRobloxId').value.trim();
-      const nameInput = document.getElementById('newRobloxNameInput').value.trim();
-      const discordId = document.getElementById('verifyDiscordId').value.trim();
-      const msgDiv = document.getElementById('verifyResultMsg');
-
-      if (!isValidRobloxId(robloxId)) {
-        msgDiv.innerHTML = "<p style='color: #f87171;'>Vui lòng nhập Roblox ID hợp lệ (5-14 chữ số)!</p>";
-        return;
-      }
-
-      if (!discordId) {
-        msgDiv.innerHTML = "<p style='color: #f87171;'>Vui lòng nhập Discord ID của bạn!</p>";
-        return;
-      }
-
-      msgDiv.innerHTML = "<p style='color: #60a5fa;'>Đang gửi yêu cầu đến Bot Discord...</p>";
-
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/verify-roblox`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roblox_id: robloxId, discord_id: discordId })
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-          currentVerifyingRobloxId = robloxId;
-          currentVerifyingName = nameInput || `ID: ${robloxId}`;
-          msgDiv.innerHTML = `<p style='color: #4ade80;'>${data.message || 'Mã xác nhận đã được gửi vào Discord của bạn!'}</p>`;
-          document.getElementById('verifyStep2').style.display = 'block';
-        } else {
-          msgDiv.innerHTML = `<p style='color: #f87171;'>Lỗi: ${data.error || 'Không tìm thấy tài khoản Discord liên kết với Roblox ID này.'}</p>`;
-        }
-      } catch (err) {
-        msgDiv.innerHTML = "<p style='color: #f87171;'>Không thể kết nối tới server bot.</p>";
-      }
-    }
-
-    async function confirmVerificationCode() {
-      const code = document.getElementById('verifyCodeInput').value.trim();
-      const msgDiv = document.getElementById('verifyResultMsg');
-
-      if (!code) {
-        msgDiv.innerHTML = "<p style='color: #f87171;'>Vui lòng nhập mã xác nhận!</p>";
-        return;
-      }
-
-      msgDiv.innerHTML = "<p style='color: #60a5fa;'>Đang kiểm tra mã xác nhận...</p>";
-
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/confirm-code`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roblox_id: currentVerifyingRobloxId, code: code })
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-          msgDiv.innerHTML = `<p style='color: #4ade80; font-weight: bold;'>🎉 ${data.message || 'Xác thực tài khoản thành công!'}</p>`;
-          document.getElementById('verifyStep2').style.display = 'none';
-          document.getElementById('verifyRobloxId').value = '';
-          document.getElementById('newRobloxNameInput').value = '';
-
-          addTrackedAccountDirect(currentVerifyingRobloxId, currentVerifyingName);
-        } else {
-          msgDiv.innerHTML = `<p style='color: #f87171;'>Lỗi: ${data.error || 'Mã xác nhận không chính xác hoặc đã hết hạn.'}</p>`;
-        }
-      } catch (err) {
-        msgDiv.innerHTML = "<p style='color: #f87171;'>Không thể kết nối tới server bot.</p>";
-      }
-    }
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBYZE99y7JcqBXDQh7wHxFPdI0GVCCc_XE",
-      authDomain: "roblox-logs-406cd.firebaseapp.com",
-      projectId: "roblox-logs-406cd",
-      storageBucket: "roblox-logs-406cd.firebasestorage.app",
-      messagingSenderId: "678655678400",
-      appId: "1:678655678400:web:8e99a81d2b2e23ec355a25",
-      measurementId: "G-H7BS9DHD4C"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let rawLogsData = [];
-
-    function isValidRobloxId(id) {
-      if (!id) return false;
-      return /^\d{5,14}$/.test(String(id).trim());
-    }
-
-    function getTrackedAccounts() {
-      let customAccounts = [];
-      try {
-        customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
-      } catch(e) {}
-
-      const accountMap = new Map();
-
-      if (loggedInUserId && isValidRobloxId(loggedInUserId)) {
-        accountMap.set(loggedInUserId, loggedInName || `ID: ${loggedInUserId}`);
-      }
-
-      customAccounts.forEach(acc => {
-        if (isValidRobloxId(acc.id)) {
-          accountMap.set(acc.id, acc.name || `ID: ${acc.id}`);
-        }
-      });
-
-      return accountMap;
-    }
-
-    function addTrackedAccountDirect(id, name) {
-      let customAccounts = [];
-      try {
-        customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
-      } catch(e) {}
-
-      if (!customAccounts.some(acc => acc.id === id)) {
-        customAccounts.push({ id, name });
-        localStorage.setItem('custom_tracked_accounts', JSON.stringify(customAccounts));
-      }
-
-      usernameCache[id] = name;
-      updateUI();
-    }
-
-    function removeTrackedAccount(id) {
-      let customAccounts = [];
-      try {
-        customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
-      } catch(e) {}
-
-      customAccounts = customAccounts.filter(acc => acc.id !== id);
-      localStorage.setItem('custom_tracked_accounts', JSON.stringify(customAccounts));
-      updateUI();
-    }
-
-    function updateUI() {
-      const trackedMap = getTrackedAccounts();
-      const trackedIds = Array.from(trackedMap.keys());
-
-      const filterSelect = document.getElementById("userFilter");
-      if (filterSelect) {
-        const currentVal = filterSelect.value;
-        filterSelect.innerHTML = '<option value="ALL">✨ Tất cả tài khoản đang theo dõi</option>';
-        trackedIds.forEach(uid => {
-          const opt = document.createElement("option");
-          opt.value = uid;
-          opt.textContent = `${trackedMap.get(uid)} (ID: ${uid})`;
-          filterSelect.appendChild(opt);
-        });
-        if (filterSelect.querySelector(`option[value="${currentVal}"]`)) {
-          filterSelect.value = currentVal;
-        }
-      }
-
-      renderLiveView(trackedMap, trackedIds);
-      renderHistoryLogs();
-    }
-
-    function renderLiveView(trackedMap, trackedIds) {
-      const liveContainer = document.getElementById("live-container");
-      liveContainer.innerHTML = "";
-
-      if (trackedIds.length === 0) {
-        liveContainer.innerHTML = `
-          <div class='empty-msg'>
-            <p style="color:#fbbf24; font-weight:bold;">⚠️ Chưa có tài khoản nào được thêm.</p>
-            <p style="font-size:0.9rem; margin-top:5px; color:#9ca3af;">Hãy xác thực và thêm Roblox ID vào khung phía trên để bắt đầu theo dõi.</p>
-          </div>`;
-        return;
-      }
-
-      trackedIds.forEach(userId => {
-        const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId || item.robloxId) === String(userId));
-        const isOnline = userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1 || userLog.userStatus === 2) : false;
-        const playerName = trackedMap.get(userId) || `ID: ${userId}`;
-        
-        const rawGame = userLog ? (userLog.lastLocation || userLog.gameName || userLog.details?.gameName) : null;
-        let locationText = "";
-
-        if (isOnline) {
-          if (rawGame && rawGame !== 'Website' && rawGame !== 'Trang chủ / Website Roblox' && !rawGame.includes('Website')) {
-            locationText = `Đang trong trải nghiệm: <span style="color:#60a5fa; font-weight:600;">${rawGame}</span>`;
-          } else {
-            locationText = `<span style="color:#60a5fa; font-weight:600;">trang chủ</span>`;
-          }
-        } else {
-          locationText = `<span style="color:#9ca3af;">Chưa ghi nhận hoạt động mới</span>`;
-        }
-
-        const statusBadge = isOnline 
-          ? '<span class="status-badge status-1">🟢 Online</span>' 
-          : '<span class="status-badge status-0">🔴 Offline</span>';
-
-        const isCustomAdded = userId !== loggedInUserId;
-        const removeBtnHtml = isCustomAdded ? `<button class="btn-remove-acc" onclick="removeTrackedAccount('${userId}')">🗑️ Xóa</button>` : '';
-
-        const card = document.createElement("div");
-        card.className = "log-card";
-        card.innerHTML = `
-          <div class="log-top">
-            <div><span class="highlight">${playerName}</span></div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              ${statusBadge}
-              ${removeBtnHtml}
-            </div>
-          </div>
-          <div class="log-info" style="margin-top:8px;">
-            <p style="margin-bottom:6px;"><strong style="color:#9ca3af;">ID:</strong> ${userId}</p>
-            <p>${locationText}</p>
-          </div>
-        `;
-        liveContainer.appendChild(card);
-      });
-    }
-
-    function renderHistoryLogs() {
-      const logsContainer = document.getElementById("logs");
-      const filterSelect = document.getElementById("userFilter");
-      const selectedUserId = filterSelect ? filterSelect.value : "ALL";
-      
-      let selectedDate = "";
-      const isInputMode = document.getElementById("inputDateMode").style.display !== "none";
-      
-      if (isInputMode) {
-        const val = document.getElementById("dateFilter").value.trim();
-        if (val) {
-          const parts = val.split(/[\/\-\.]/);
-          if (parts.length === 3) {
-            if (parts[0].length === 4) {
-              selectedDate = `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
-            } else {
-              selectedDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-            }
-          }
-        }
-      } else {
-        const d = document.getElementById("filterDay").value;
-        const m = document.getElementById("filterMonth").value;
-        const y = document.getElementById("filterYear").value;
-        if (d && m && y) {
-          selectedDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        }
-      }
-      
-      const trackedMap = getTrackedAccounts();
-      const trackedIds = Array.from(trackedMap.keys());
-      
-      logsContainer.innerHTML = "";
-
-      const filteredLogs = rawLogsData.filter(data => {
-        const userId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
-        if (!trackedIds.includes(userId)) return false;
-        if (selectedUserId !== "ALL" && userId !== selectedUserId) return false;
-
-        if (selectedDate && data.timestamp && data.timestamp.seconds) {
-          const logDate = new Date(data.timestamp.seconds * 1000);
-          const yyyy = logDate.getFullYear();
-          const mm = String(logDate.getMonth() + 1).padStart(2, '0');
-          const dd = String(logDate.getDate()).padStart(2, '0');
-          const logDateStr = `${yyyy}-${mm}-${dd}`;
-          if (logDateStr !== selectedDate) return false;
-        } else if (selectedDate) {
-          return false;
-        }
-
-        return true;
-      });
-
-      if (filteredLogs.length === 0) {
-        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào cho bộ lọc này.</p>";
-        return;
-      }
-
-      const sortedAsc = [...filteredLogs].sort((a, b) => {
-        const tA = a.timestamp?.seconds || 0;
-        const tB = b.timestamp?.seconds || 0;
-        return tA - tB;
-      });
-
-      const dedupedAsc = [];
-      let lastStatusMap = {};
-      let lastActiveGameMap = {};
-      let lastGameProcessedMap = {};
-
-      sortedAsc.forEach(data => {
-        const userId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "unknown");
-        const status = data.userStatus ?? data.details?.userStatus;
-        
-        let rawGame = data.gameName || data.details?.gameName || data.lastLocation || data.placeName || "Trang chủ / Website Roblox";
-        
-        if (rawGame && rawGame !== "Website" && rawGame !== "Trang chủ / Website Roblox" && !rawGame.includes("Website")) {
-          lastActiveGameMap[userId] = rawGame;
-        } else if ((rawGame === "Website" || rawGame === "Trang chủ / Website Roblox") && lastActiveGameMap[userId]) {
-          rawGame = lastActiveGameMap[userId];
-          data.gameName = rawGame;
-        }
-
-        if (lastStatusMap[userId] !== status || lastGameProcessedMap[userId] !== rawGame) {
-          dedupedAsc.push(data);
-          lastStatusMap[userId] = status;
-          lastGameProcessedMap[userId] = rawGame;
-        }
-      });
-
-      const finalLogs = dedupedAsc.reverse();
-
-      if (finalLogs.length === 0) {
-        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào cho bộ lọc này.</p>";
-        return;
-      }
-
-      finalLogs.forEach((data) => {
-        let timeStr = "Vừa xong";
-        if (data.timestamp && data.timestamp.seconds) {
-          timeStr = new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN');
-        }
-
-        let statusHtml = '<span class="status-badge status-other">🔄 Hoạt động</span>';
-        if (data.userStatus === 1 || data.details?.userStatus === 1) statusHtml = '<span class="status-badge status-1">🟢 Đã vào game</span>';
-        else if (data.userStatus === 0 || data.details?.userStatus === 0) statusHtml = '<span class="status-badge status-0">🔴 Đã rời game</span>';
-
-        const userId = data.robloxUserId || data.details?.robloxUserId || data.robloxId || "Không rõ";
-        const playerName = trackedMap.get(userId) || data.playerName || `ID: ${userId}`;
-        const gameName = data.gameName || data.details?.gameName || data.lastLocation || data.placeName || 'Trang chủ / Website Roblox';
-
-        const card = document.createElement("div");
-        card.className = "log-card";
-        card.innerHTML = `
-          <div class="log-top">
-            <div>Người chơi: <span class="highlight">${playerName}</span> <span class="sub-id">(ID: ${userId})</span></div>
-            <div>${statusHtml}</div>
-          </div>
-          <div class="log-info">🎮 ${gameName}</div>
-          <div class="timestamp">⏰ ${timeStr}</div>
-        `;
-        logsContainer.appendChild(card);
-      });
-    }
-
-    db.collection("roblox_logs").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-      rawLogsData = [];
-      snapshot.forEach(doc => {
-        rawLogsData.push(doc.data());
-      });
-      updateUI();
-    }, (error) => {
-      console.error("Lỗi khi đồng bộ dữ liệu Firestore:", error);
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-      if (loggedInUserId && loggedInName) {
-        const buttons = document.querySelectorAll('button, a');
-        buttons.forEach(el => {
-          if (el.textContent.includes('Đăng nhập bằng Roblox')) {
-            el.innerHTML = `👤 ${loggedInName}`;
-            el.style.backgroundColor = '#2ecc71';
-            el.removeAttribute('href');
-            el.onclick = (e) => {
-              e.preventDefault();
-              alert(`Xin chào, ${loggedInName}! Bạn đã đăng nhập thành công.`);
-            };
-          }
-        });
-      }
-    });
+    }, 4800);
   </script>
 </body>
 </html>
