@@ -12,90 +12,62 @@
       background: #000000;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
-      padding: 24px;
+      justify-content: center;
+      align-items: center;
       z-index: 9999;
       overflow: hidden;
       transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s ease;
     }
 
-    .console-screen {
-      width: 100%;
-      height: 100%;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 12px;
-      line-height: 1.6;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      position: absolute;
-      top: 24px; left: 24px;
-      right: 24px; bottom: 24px;
-      z-index: 3;
-      box-sizing: border-box;
-      padding-bottom: 50px;
-    }
-
-    .terminal-line {
-      color: rgba(255, 77, 109, 0.85);
-      text-shadow: 0 0 4px rgba(255, 77, 109, 0.4);
-      margin-bottom: 4px;
-    }
-
-    /* Hiệu ứng lỗi chữ đỏ chuyên nghiệp: dùng RGB split và clip-path thay vì rung lắc */
-    .error-glitch-bar {
-      background: rgba(255, 31, 61, 0.15);
-      border-left: 3px solid #ff1f3d;
-      color: #ff1f3d;
-      padding: 4px 10px;
-      margin: 6px 0;
-      font-weight: bold;
-      text-shadow: 2px 0 #00ffff, -2px 0 #ff0055; /* Tách màu RGB cyberpunk */
-      animation: professionalGlitch 0.25s cubic-bezier(0.11, 0, 0.5, 1) forwards;
-      position: relative;
-      overflow: hidden;
-    }
-
-    @keyframes professionalGlitch {
-      0% {
-        clip-path: inset(40% 0 60% 0);
-        transform: skew(0.5deg);
-        filter: brightness(1.6);
-      }
-      50% {
-        clip-path: inset(10% 0 75% 0);
-        transform: skew(-0.8deg);
-      }
-      100% {
-        clip-path: inset(0% 0 0% 0);
-        transform: skew(0deg);
-        filter: brightness(1);
-      }
-    }
-
-    #glitchOverlay {
+    /* Khối code cuộn nhanh màu đỏ (Ảnh 1) với hiệu ứng mờ dần về phía dưới */
+    #codeScrollScreen {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
       background: #000000;
-      color: #ffffff;
+      padding: 24px;
+      overflow: hidden;
+      z-index: 3;
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+    }
+
+    #codeContent {
+      color: #ff1f3d;
+      text-shadow: 0 0 4px rgba(255, 31, 61, 0.4);
       font-family: 'Courier New', Courier, monospace;
       font-size: 11px;
-      line-height: 1.4;
-      padding: 20px;
+      line-height: 1.5;
       white-space: pre-wrap;
-      overflow: hidden;
+      animation: scrollCodeFast 6s linear infinite;
+    }
+
+    @keyframes scrollCodeFast {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-33.33%); }
+    }
+
+    /* Màn hình hiển thị hình đầu lâu ký tự đỏ (Ảnh 2) */
+    #skullScreen {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000000;
       display: none;
-      z-index: 5;
+      justify-content: center;
+      align-items: center;
+      z-index: 3;
+      padding: 20px;
     }
-    
-    .glitch-block-anim {
-      animation: digitalStaticFlicker 0.12s steps(3, end) infinite;
-    }
-    @keyframes digitalStaticFlicker {
-      0% { opacity: 0.85; filter: hue-rotate(0deg); }
-      50% { opacity: 0.45; filter: hue-rotate(45deg) contrast(180%); }
-      100% { opacity: 0.9; filter: hue-rotate(0deg); }
+
+    #skullContent {
+      color: #ff1f3d;
+      text-shadow: 0 0 8px rgba(255, 31, 61, 0.6);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: clamp(8px, 1.4vw, 12px);
+      line-height: 1.2;
+      white-space: pre;
+      text-align: center;
     }
 
     #matrixCanvas {
@@ -338,8 +310,12 @@
   <canvas id="persistentBgCanvas"></canvas>
 
   <div id="loader-wrapper">
-    <div class="console-screen" id="consoleScreen"></div>
-    <div id="glitchOverlay" class="glitch-block-anim"></div>
+    <div id="codeScrollScreen">
+      <pre id="codeContent"></pre>
+    </div>
+    <div id="skullScreen">
+      <pre id="skullContent"></pre>
+    </div>
     <canvas id="matrixCanvas"></canvas>
   </div>
 
@@ -464,107 +440,203 @@
       usernameCache[loggedInUserId] = loggedInName;
     }
 
-    const terminalLogsList = [
-      "Initializing system kernel v2.4.1...",
-      "Loading configuration files from /etc/edex/...",
-      "Mounting virtual file system...",
-      "Establishing secure WebSocket connection to Firebase...",
-      "Bypassing network firewalls [OK]",
-      "Loading Roblox API telemetry endpoints...",
-      "Decrypting user session tokens...",
-      "Memory allocation: 128MB stable.",
-      "Neural interface synced. Ready for execution."
-    ];
+    const redCodeBlock = `
+board: swap (pos p) {
+  if (p inside()) { data[p.x][p.y]=-data[p.x][p.y]; return 1; }
+  else return 0;
+}
+board: valid (pos p, int color) {
+  pos d=p;
+  pos dir(0,0);
+  int u=0; // booleans de validite
+  for (int i=0; i<8; i++) {
+    dir=a[i];
+    q=a[r];
+    if ((what(q)==-color) && (what(p)==blank)) {
+      m=dir;
+      while (what(q)==-color) m+=dir;
+      u=(|(what(q)==color));
+    }
+  }
+  return u;
+}
+board: play (pos m, int color) {
+  pos n=0;
+  Pos dir(0,0);
+  int u=0; // booleans de validite
+  for (int i=0; i<8; i++) {
+    u=0; // Position a priori invalide
+    dir=a[i];
+    q=a[r];
+    if ((what(n)==blank) && (what(q)==-color)) {
+      m+=dir;
+      while (what(q)==-color) m+=dir;
+      u=(|(what(q)==color));
+    }
+    if (u) {
+      n+=dir;
+      while (what(q)==-color) [swap(q); a=a+dir;]
+    }
+  }
+  if (u) {data[p.x][p.y]=color:number++;}
+  number_black=number_white=0;
+  for (int i=0; i<8; i++) for (int j=0; j<8; j++) {
+    if (data[i][j]==black) number_black++;
+    if (data[i][j]==white) number_white++;
+  }
+  return u;
+}
+board: done (int color) {
+  int i;
+  for (int i=0; i<8; i++) for (int j=0; j<8; j++) u=u && (valid(pos(i,j),color));
+  return u;
+}
+/*********************************************************/
+typedef int evalf[8][8];
+evalf e;
+void eval_a (int i, j) {
+  e[0][a]=100;
+  e[0][1]=-5;
+  e[1][1]=-2;
+  e[0][2]=-50;
+  e[0][3]=-7;
+  e[0][4]=+10;
+  e[1][3]=+30;
+  e[2][2]=+40;
+  e[2][3]=+35;
+}
+void def_a () {
+  int i, j;
+  e[0][a]=100;
+  e[0][1]=-5;
+  e[1][1]=-2;
+  e[0][2]=-50;
+  e[0][3]=-7;
+  e[0][4]=+10;
+  e[1][3]=+30;
+  e[2][2]=+40;
+  e[2][3]=+35;
+  for (int i=1; i<=3; i++) for (int j=0; j<3; j++) if (i>j) e[i][j]=e[7-i][j];
+  for (int i=0; i<7; i++) for (int j=4; j<7; j++) e[i][j]=e[i][7-j];
+}
+pos eval_pos(board b, int color) {
+  int ev,max=0;
+  Pos p(0,0).best(-1,-1);
+  for (int i=0; i<8; i++) for (int j=0; j<8; j++) {
+    ev=pos(i,j);
+    if ((b.valid(p,color)) && (ev>=me[i][j]))>max) {
+      best=e;
+      max=ev;
+    }
+  }
+  return best;
+}
+int eval_board(board b, int color) {
+  int tot=0;
+  for (int i=0; i<8; i++) for (int j=0; j<8; j++)
+    if (b.what(pos(i,j))==color) tot+=e[i][j];
+  return tot;
+}
+/*********************************************************/
+void main () {
+  d[0]=new Pos(1,0);
+  d[1]=new Pos(1,1);
+  d[2]=new Pos(0,1);
+  d[3]=new Pos(-1,1);
+  d[4]=new Pos(-1,0);
+  d[5]=new Pos(-1,-1);
+  d[6]=new Pos(0,-1);
+  d[7]=new Pos(1,-1);
+  board b;
+  int col=white,x,y;
+  char num[100];
+  Pos best(-1,-1);
+  def_a();
+  while ((!b.done(black)) || (!b.done(white))) {
+    b.draw();
+    best=eval_pos(b,col);
+    printf("black %i--- white %i\\n",n_black,n_white);
+    printf("Best pos is x=%i y=%i\\n",best.x,best.y);
+    if (col==black) {
+      printf("black plays ...\\n");
+      printf("Position evaled to %i\\n",eval_board(b,black));
+    }
+    else {
+      printf("white plays ...\\n");
+      printf("Position evaled to %i\\n",eval_board(b,white));
+    }
+    printf("x "); gets(num); sscanf(num,"%d",&x);
+    printf("y "); gets(num); sscanf(num,"%d",&y);
+  }
+}
+`;
 
-    const errorLogsList = [
-      "[ERROR] KERNEL EXCEPTION DETECTED AT 0x004FBA91",
-      "[CRITICAL] MEMORY LEAK IN TELEMETRY ENDPOINT",
-      "[WARNING] FIREWALL BYPASS OVERRIDE FAILED",
-      "[ERROR] SEGMENTATION FAULT: SESSION TOKEN CORRUPTED",
-      "[FATAL] ROBLOX API CONNECTION TIMEOUT - RETRYING...",
-      "[ERROR] UNABLE TO ALLOCATE 128MB STABLE BUFFER",
-      "[CRITICAL] SYSTEM OVERLOAD - FORCED RECOVERY TRIGGERED",
-      "[ERROR] UNKNOWN EXCEPTION IN NEURAL INTERFACE LINK",
-      "[FATAL] SYSTEM PANIC: CORRUPTED CORE DATA PACKETS",
-      "[CRITICAL] SYSTEM SHUTDOWN IMMINENT... REBOOTING NETWORKS..."
-    ];
+    const skullArt = `
+          uu$:$:$:$:$:$:$_uu
+      uu$$$$$$$$$$$$$$$$$$$$$$uu
+     u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u
+     u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u
+   u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u
+   u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u
+  u$$$$$$*        *$$$*         *$$$$$$u
+  *$$$$*           u$u           $$$$*
+   $$$u            u$u            u$$$
+   $$$u            u$$$u          u$$$
+    *$$$$$uu$$$   $$$uu$$$$*
+     *$$$$$$$*     *$$$$$$$*
+      u$$$$$$$$$u$$$$$$$$$u
+       u$*_*_*_*_*_*_*_*$u
+       $$$u   $   $   $ u$$$
+      u$$$u$u$u$u$u$u$u$u$$$u
+       *$$$$$$$$$*     *****    uuuuuuuuuuuu
+   u$$$$$$$$$uuuuuuu    uu$$$$$$$$$$$$$$$$$$$$$u
+  $$$***$$$$$$$$$$$$uuxx $$$$$$$$$$$$$$$$$****$$$*
+   ***      **$$$$$$$$$$$$uu **$***
+             uuuu  **$$$$$$$$$$$$uuu
+        u$$$uuuv$$$$$$$$$$$$u **$$$$$$$$$$$$uuu$$$$
+        $$$$$$$$****           **$$$$$$$$$$$$$*
+          *$$$$$*                  *$$$$*
+            $$$*    PRESS ANY KEY!  $$$*
+`;
 
     function runIntroSequence() {
-      const consoleScreen = document.getElementById('consoleScreen');
-      if (!consoleScreen) return;
+      const codeContent = document.getElementById('codeContent');
+      if (!codeContent) return;
 
-      let tIndex = 0;
-      function printTerminal() {
-        if (tIndex < terminalLogsList.length) {
-          const div = document.createElement('div');
-          div.className = 'terminal-line';
-          div.textContent = "> " + terminalLogsList[tIndex];
-          consoleScreen.appendChild(div);
-          consoleScreen.scrollTop = consoleScreen.scrollHeight;
-          tIndex++;
-          setTimeout(printTerminal, 220);
-        } else {
-          setTimeout(printErrors, 350);
-        }
-      }
+      // Lặp lại đoạn code để tạo hiệu ứng cuộn mượt mà
+      codeContent.textContent = redCodeBlock.repeat(3);
 
-      let eIndex = 0;
-      function printErrors() {
-        if (eIndex < errorLogsList.length) {
-          const div = document.createElement('div');
-          div.className = 'error-glitch-bar';
-          div.textContent = errorLogsList[eIndex];
-          consoleScreen.appendChild(div);
-          consoleScreen.scrollTop = consoleScreen.scrollHeight;
-          eIndex++;
-          setTimeout(printErrors, 200);
-        } else {
-          setTimeout(startHeavyGlitchEffect, 300);
-        }
-      }
-
-      printTerminal();
+      // Thời gian chạy đoạn code đỏ (lâu hơn theo yêu cầu)
+      setTimeout(() => {
+        document.getElementById('codeScrollScreen').style.display = 'none';
+        startSkullSequence();
+      }, 5500);
     }
 
-    function startHeavyGlitchEffect() {
-      const consoleScreen = document.getElementById('consoleScreen');
-      consoleScreen.style.display = 'none';
+    function startSkullSequence() {
+      const skullScreen = document.getElementById('skullScreen');
+      const skullContent = document.getElementById('skullContent');
+      skullScreen.style.display = 'flex';
 
-      const glitchOverlay = document.getElementById('glitchOverlay');
-      glitchOverlay.style.display = 'block';
-
-      let glitchTextContent = "";
-      const glitchChars = "ABCDEF0123456789X#@$%&*<>?/_\\|~";
-      for (let i = 0; i < 45; i++) {
-        let line = "";
-        for (let j = 0; j < 65; j++) {
-          line += glitchChars.charAt(Math.floor(Math.random() * glitchChars.length));
+      let charIndex = 0;
+      const speed = 3; // Tốc độ hiện ký tự đầu lâu
+      function typeSkull() {
+        if (charIndex < skullArt.length) {
+          charIndex += speed;
+          skullContent.textContent = skullArt.substring(0, charIndex);
+          setTimeout(typeSkull, 12);
+        } else {
+          // Giữ màn hình đầu lâu trong 1.8 giây trước khi chuyển sang hiệu ứng ma trận và vào trang chính
+          setTimeout(() => {
+            startRedMatrixRainSequence();
+          }, 1800);
         }
-        glitchTextContent += line + "\n";
       }
-      glitchOverlay.textContent = glitchTextContent;
-
-      let glitchInterval = setInterval(() => {
-        let dynamicContent = "";
-        for (let i = 0; i < 40; i++) {
-          let line = "";
-          for (let j = 0; j < 65; j++) {
-            line += glitchChars.charAt(Math.floor(Math.random() * glitchChars.length));
-          }
-          dynamicContent += line + "\n";
-        }
-        glitchOverlay.textContent = dynamicContent;
-      }, 120);
-
-      setTimeout(() => {
-        clearInterval(glitchInterval);
-        glitchOverlay.style.display = 'none';
-
-        setTimeout(startRedMatrixRainSequence, 300);
-      }, 1200);
+      typeSkull();
     }
 
     function startRedMatrixRainSequence() {
+      document.getElementById('skullScreen').style.display = 'none';
       const canvas = document.getElementById('matrixCanvas');
       canvas.style.display = 'block';
       const ctx = canvas.getContext('2d');
@@ -612,7 +684,7 @@
           clearInterval(matrixInterval);
           loaderWrapper.style.display = 'none';
         }, 1500);
-      }, 1800);
+      }, 1500);
     }
 
     function initPersistentBackground() {
