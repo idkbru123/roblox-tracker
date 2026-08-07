@@ -291,7 +291,6 @@
     <div id="tab-live" class="tab-section">
       <h1>🔴 Trạng Thái Trực Tiếp</h1>
       
-      <!-- Bảng thay thế: Yêu cầu gửi mã xác nhận qua Bot Discord -->
       <div class="control-panel" id="verifyStep1">
         <h3>📩 Yêu cầu gửi mã xác nhận qua Discord</h3>
         <p class="control-desc">
@@ -301,14 +300,12 @@
           <div class="input-row">
             <input type="text" id="verifyRobloxId" placeholder="Nhập Roblox ID của bạn...">
             <input type="text" id="newRobloxNameInput" placeholder="Tên hiển thị gợi nhớ (Tùy chọn)">
-            <!-- Thêm ô nhập Discord ID -->
             <input type="text" id="verifyDiscordId" placeholder="Nhập Discord ID của bạn...">
             <button class="btn-action" onclick="requestVerificationCode()">Gửi mã về Discord</button>
           </div>
         </div>
       </div>
 
-      <!-- Bước 2: Nhập mã xác nhận nhận được từ Bot (Sẽ hiện ra sau khi bấm gửi mã ở bước 1) -->
       <div class="control-panel" id="verifyStep2" style="display: none;">
         <h3>✅ Nhập mã xác nhận</h3>
         <p class="control-desc">
@@ -625,7 +622,50 @@
         return;
       }
 
-      filteredLogs.forEach((data) => {
+      // Sắp xếp theo thời gian tăng dần để xử lý trạng thái tuần tự và ghi nhớ tên game vừa chơi
+      const sortedAsc = [...filteredLogs].sort((a, b) => {
+        const tA = a.timestamp?.seconds || 0;
+        const tB = b.timestamp?.seconds || 0;
+        return tA - tB;
+      });
+
+      const dedupedAsc = [];
+      let lastStatusMap = {};
+      let lastActiveGameMap = {};
+      let lastGameProcessedMap = {};
+
+      sortedAsc.forEach(data => {
+        const userId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "unknown");
+        const status = data.userStatus ?? data.details?.userStatus;
+        
+        let rawGame = data.gameName || data.details?.gameName || data.lastLocation || data.placeName || "Trang chủ / Website Roblox";
+        
+        // Lưu lại tên game thực tế người chơi đang vào
+        if (rawGame && rawGame !== "Website" && rawGame !== "Trang chủ / Website Roblox" && !rawGame.includes("Website")) {
+          lastActiveGameMap[userId] = rawGame;
+        } else if ((rawGame === "Website" || rawGame === "Trang chủ / Website Roblox") && lastActiveGameMap[userId]) {
+          // Khi rời game, nếu log trả về "Website", tự động thay thế bằng tên game cuối cùng họ vừa chơi
+          rawGame = lastActiveGameMap[userId];
+          data.gameName = rawGame;
+        }
+
+        // Lọc bỏ các thông báo trạng thái lặp liên tiếp (chỉ ghi nhận khi đổi trạng thái hoặc đổi game)
+        if (lastStatusMap[userId] !== status || lastGameProcessedMap[userId] !== rawGame) {
+          dedupedAsc.push(data);
+          lastStatusMap[userId] = status;
+          lastGameProcessedMap[userId] = rawGame;
+        }
+      });
+
+      // Đảo ngược lại để hiển thị cái mới nhất lên trên đầu
+      const finalLogs = dedupedAsc.reverse();
+
+      if (finalLogs.length === 0) {
+        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào cho các tài khoản này.</p>";
+        return;
+      }
+
+      finalLogs.forEach((data) => {
         let timeStr = "Vừa xong";
         if (data.timestamp && data.timestamp.seconds) {
           timeStr = new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN');
@@ -637,7 +677,7 @@
 
         const userId = data.robloxUserId || data.details?.robloxUserId || data.robloxId || "Không rõ";
         const playerName = trackedMap.get(userId) || data.playerName || `ID: ${userId}`;
-        const gameName = data.gameName || data.details?.gameName || data.lastLocation || 'Trang chủ / Website Roblox';
+        const gameName = data.gameName || data.details?.gameName || data.lastLocation || data.placeName || 'Trang chủ / Website Roblox';
 
         const card = document.createElement("div");
         card.className = "log-card";
