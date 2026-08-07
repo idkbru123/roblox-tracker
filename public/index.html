@@ -104,19 +104,19 @@
     }
     .sidebar.open { left: 0; }
 
-    .sidebar-top { flex: 1; }
+    .sidebar-top { flex: 1; overflow-y: auto; }
     .brand-container {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 22px 20px;
+      padding: 16px 20px;
       border-bottom: 1px solid #27272a;
     }
     .brand { font-size: 1.1rem; font-weight: bold; color: #60a5fa; }
     .close-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #9ca3af; transition: 0.2s; }
     .close-btn:hover { color: #f87171; transform: rotate(90deg); }
 
-    .menu { list-style: none; margin-top: 15px; padding: 0 10px; }
+    .menu { list-style: none; margin-top: 10px; padding: 0 10px; }
     .menu-btn { 
-      width: 100%; padding: 14px 15px; margin-bottom: 5px;
+      width: 100%; padding: 12px 15px; margin-bottom: 4px;
       background: transparent; border: none; border-radius: 10px;
       color: #9ca3af; font-size: 1rem; font-weight: 600; text-align: left; 
       cursor: pointer; display: flex; align-items: center; gap: 12px; 
@@ -125,13 +125,14 @@
     .menu-btn:hover { background: rgba(255,255,255,0.05); color: #f3f4f6; transform: translateX(5px); }
     .menu-btn.active { background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-weight: 700; border-left: 4px solid #3b82f6; }
 
-    .user-profile-box { padding: 20px; border-top: 1px solid #27272a; background: #18181b; text-align: center; }
+    /* Đã tối ưu padding để vừa khít màn hình điện thoại không bị tràn */
+    .user-profile-box { padding: 12px 15px; border-top: 1px solid #27272a; background: #18181b; text-align: center; }
     
     .btn-roblox { 
       background: #000000; 
       color: #fff; 
       border: 1px solid #333338; 
-      padding: 12px 14px; 
+      padding: 10px 14px; 
       border-radius: 10px; 
       font-weight: bold; 
       cursor: pointer; 
@@ -207,7 +208,6 @@
     }
     .btn-action:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); transform: translateY(-1px); }
 
-    /* Đã tối ưu responsive cho phần bộ lọc trên điện thoại và máy tính */
     .filter-box { 
       margin-bottom: 25px; 
       display: flex; 
@@ -300,10 +300,10 @@
 
     <div class="user-profile-box" id="authBox">
       <a href="/auth/roblox" class="btn-roblox">🎮 Đăng nhập bằng Roblox</a>
-      <div style="margin-top: 12px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
-        <a href="https://roblox-tracker-g1vm.onrender.com/privacy.html" target="_blank" style="color: #9ca3af; font-size: 0.82rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">🔒 Bảo mật</a>
-        <span style="color: #4b5563; font-size: 0.8rem;">•</span>
-        <a href="https://roblox-tracker-g1vm.onrender.com/terms.html" target="_blank" style="color: #9ca3af; font-size: 0.82rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">📄 Điều khoản</a>
+      <div style="margin-top: 8px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <a href="https://roblox-tracker-g1vm.onrender.com/privacy.html" target="_blank" style="color: #9ca3af; font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">🔒 Bảo mật</a>
+        <span style="color: #4b5563; font-size: 0.75rem;">•</span>
+        <a href="https://roblox-tracker-g1vm.onrender.com/terms.html" target="_blank" style="color: #9ca3af; font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">📄 Điều khoản</a>
       </div>
     </div>
   </div>
