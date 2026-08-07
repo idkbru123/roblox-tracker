@@ -207,10 +207,37 @@
     }
     .btn-action:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); transform: translateY(-1px); }
 
-    .filter-box { margin-bottom: 25px; display: flex; align-items: center; gap: 12px; background: rgba(24, 24, 27, 0.85); padding: 15px 20px; border-radius: 14px; border: 1px solid #27272a; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-    .filter-box label { color: #d1d5db; font-size: 1rem; font-weight: 700; }
-    .filter-box select { background: #121212; color: #f3f4f6; border: 1px solid #3f3f46; padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; outline: none; cursor: pointer; transition: 0.2s; }
+    /* Đã tối ưu responsive cho phần bộ lọc trên điện thoại và máy tính */
+    .filter-box { 
+      margin-bottom: 25px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 10px; 
+      background: rgba(24, 24, 27, 0.85); 
+      padding: 15px 20px; 
+      border-radius: 14px; 
+      border: 1px solid #27272a; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+    }
+    .filter-box label { color: #d1d5db; font-size: 1rem; font-weight: 700; white-space: nowrap; }
+    .filter-box select { 
+      background: #121212; color: #f3f4f6; border: 1px solid #3f3f46; 
+      padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; 
+      outline: none; cursor: pointer; transition: 0.2s; width: 100%; 
+    }
     .filter-box select:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
+
+    @media (min-width: 768px) {
+      .filter-box {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+      }
+      .filter-box select {
+        width: auto;
+        flex: 1;
+      }
+    }
 
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
     .log-card { 
@@ -273,7 +300,6 @@
 
     <div class="user-profile-box" id="authBox">
       <a href="/auth/roblox" class="btn-roblox">🎮 Đăng nhập bằng Roblox</a>
-      <!-- Đã thêm phần link Chính sách bảo mật và Điều khoản dịch vụ ở đây -->
       <div style="margin-top: 12px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
         <a href="https://roblox-tracker-g1vm.onrender.com/privacy.html" target="_blank" style="color: #9ca3af; font-size: 0.82rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">🔒 Bảo mật</a>
         <span style="color: #4b5563; font-size: 0.8rem;">•</span>
