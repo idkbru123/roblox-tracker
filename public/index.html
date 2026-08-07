@@ -8,7 +8,7 @@
     #loader-wrapper {
       position: fixed;
       top: 0; left: 0;
-      width: 100vw; height: 100vh;
+      width: 100vw; height: 100vh; height: 100dvh;
       background: #121212;
       display: flex;
       flex-direction: column;
@@ -61,6 +61,7 @@
       color: #e5e7eb; 
       display: flex; 
       min-height: 100vh;
+      min-height: 100dvh;
       overflow-x: hidden;
       background-color: #161616;
     }
@@ -90,12 +91,14 @@
     }
     .menu-toggle-btn:hover { background: #2a2a2e; transform: scale(1.05); }
 
+    /* Dùng 100dvh để sidebar vừa khít màn hình điện thoại, không bị lẹm thanh công cụ */
     .sidebar { 
       width: 280px; 
       background: rgba(24, 24, 27, 0.95); 
       border-right: 1px solid #27272a; 
       position: fixed; 
       height: 100vh; 
+      height: 100dvh; 
       top: 0; left: -280px; 
       display: flex; flex-direction: column; justify-content: space-between; 
       z-index: 300; 
@@ -107,33 +110,32 @@
     .sidebar-top { flex: 1; overflow-y: auto; }
     .brand-container {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-bottom: 1px solid #27272a;
     }
-    .brand { font-size: 1.1rem; font-weight: bold; color: #60a5fa; }
+    .brand { font-size: 1.05rem; font-weight: bold; color: #60a5fa; }
     .close-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #9ca3af; transition: 0.2s; }
     .close-btn:hover { color: #f87171; transform: rotate(90deg); }
 
-    .menu { list-style: none; margin-top: 10px; padding: 0 10px; }
+    .menu { list-style: none; margin-top: 8px; padding: 0 10px; }
     .menu-btn { 
-      width: 100%; padding: 12px 15px; margin-bottom: 4px;
+      width: 100%; padding: 10px 14px; margin-bottom: 4px;
       background: transparent; border: none; border-radius: 10px;
-      color: #9ca3af; font-size: 1rem; font-weight: 600; text-align: left; 
+      color: #9ca3af; font-size: 0.95rem; font-weight: 600; text-align: left; 
       cursor: pointer; display: flex; align-items: center; gap: 12px; 
       transition: all 0.2s ease; 
     }
     .menu-btn:hover { background: rgba(255,255,255,0.05); color: #f3f4f6; transform: translateX(5px); }
     .menu-btn.active { background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-weight: 700; border-left: 4px solid #3b82f6; }
 
-    /* Đã tối ưu padding để vừa khít màn hình điện thoại không bị tràn */
-    .user-profile-box { padding: 12px 15px; border-top: 1px solid #27272a; background: #18181b; text-align: center; }
+    .user-profile-box { padding: 10px 14px; border-top: 1px solid #27272a; background: #18181b; text-align: center; }
     
     .btn-roblox { 
       background: #000000; 
       color: #fff; 
       border: 1px solid #333338; 
-      padding: 10px 14px; 
-      border-radius: 10px; 
+      padding: 9px 12px; 
+      border-radius: 9px; 
       font-weight: bold; 
       cursor: pointer; 
       width: 100%; 
@@ -144,6 +146,7 @@
       transition: 0.2s; 
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       text-decoration: none;
+      font-size: 0.92rem;
     }
     .btn-roblox:hover { background: #1f1f23; transform: translateY(-2px); border-color: #60a5fa; }
 
@@ -300,10 +303,10 @@
 
     <div class="user-profile-box" id="authBox">
       <a href="/auth/roblox" class="btn-roblox">🎮 Đăng nhập bằng Roblox</a>
-      <div style="margin-top: 8px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
-        <a href="https://roblox-tracker-g1vm.onrender.com/privacy.html" target="_blank" style="color: #9ca3af; font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">🔒 Bảo mật</a>
-        <span style="color: #4b5563; font-size: 0.75rem;">•</span>
-        <a href="https://roblox-tracker-g1vm.onrender.com/terms.html" target="_blank" style="color: #9ca3af; font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">📄 Điều khoản</a>
+      <div style="margin-top: 6px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <a href="https://roblox-tracker-g1vm.onrender.com/privacy.html" target="_blank" style="color: #9ca3af; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">🔒 Bảo mật</a>
+        <span style="color: #4b5563; font-size: 0.7rem;">•</span>
+        <a href="https://roblox-tracker-g1vm.onrender.com/terms.html" target="_blank" style="color: #9ca3af; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">📄 Điều khoản</a>
       </div>
     </div>
   </div>
