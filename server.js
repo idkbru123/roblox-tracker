@@ -53,7 +53,7 @@ app.post('/api/verify-roblox', async (req, res) => {
 
   // Kiểm tra xem discord_id có nằm trong danh sách cho phép (whitelist) không
   if (!allowedDiscordIds.includes(discord_id)) {
-    return res.status(403).json({ error: 'Discord ID này chưa được cấp quyền sử dụng hệ thống!' });
+    return res.status(403).json({ error: 'Discord ID này không có liên kết tài roblox đó!' });
   }
 
   try {
