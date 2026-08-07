@@ -76,12 +76,11 @@
       animation: heavyGlitchSeq 0.15s steps(2, end) infinite;
     }
     @keyframes heavyGlitchSeq {
-      0% { transform: translate(0, 0); filter: invert(0); }
-      20% { transform: translate(-8px, 4px); filter: invert(1); }
-      40% { transform: translate(6px, -6px); }
-      60% { transform: translate(-4px, -2px); filter: invert(0.5); }
-      80% { transform: translate(5px, 6px); }
-      100% { transform: translate(0, 0); filter: invert(0); }
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-6px, 3px); }
+      50% { transform: translate(5px, -4px); }
+      75% { transform: translate(-3px, -2px); }
+      100% { transform: translate(0, 0); }
     }
 
     #matrixCanvas {
@@ -505,7 +504,7 @@
           eIndex++;
           setTimeout(printErrors, 200);
         } else {
-          setTimeout(startHeavyGlitchEffect, 400);
+          setTimeout(startHeavyGlitchEffect, 300);
         }
       }
 
@@ -542,12 +541,13 @@
         glitchOverlay.textContent = dynamicContent;
       }, 120);
 
+      // Shorter glitch duration without flashing white/invert
       setTimeout(() => {
         clearInterval(glitchInterval);
         glitchOverlay.style.display = 'none';
 
-        setTimeout(startRedMatrixRainSequence, 600);
-      }, 3500);
+        setTimeout(startRedMatrixRainSequence, 300);
+      }, 1200);
     }
 
     function startRedMatrixRainSequence() {
@@ -589,16 +589,17 @@
 
       let matrixInterval = setInterval(drawMatrix, 35);
 
+      // Fade in homepage UI seamlessly while matrix rain is running, then fade out loader to reveal persistent background loop
       setTimeout(() => {
-        clearInterval(matrixInterval);
+        document.getElementById('mainContent').classList.add('loaded');
         const loaderWrapper = document.getElementById('loader-wrapper');
         loaderWrapper.classList.add('fade-out');
 
         setTimeout(() => {
+          clearInterval(matrixInterval);
           loaderWrapper.style.display = 'none';
-          document.getElementById('mainContent').classList.add('loaded');
         }, 1500);
-      }, 4200);
+      }, 1800);
     }
 
     function initPersistentBackground() {
