@@ -229,7 +229,6 @@
     }
     .filter-box select:focus, .filter-box input[type="date"]:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
     
-    /* Đồng bộ icon lịch trên date picker cho giao diện tối */
     .filter-box input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(1);
       cursor: pointer;
@@ -359,8 +358,28 @@
           <option value="ALL">✨ Tất cả tài khoản đang theo dõi</option>
         </select>
         
-        <label for="dateFilter" style="margin-top: 5px;">📅 Chọn ngày xem:</label>
-        <input type="date" id="dateFilter" onchange="renderHistoryLogs()">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+          <label style="margin: 0;">📅 Chọn ngày xem:</label>
+          <button type="button" id="toggleDateModeBtn" onclick="toggleDateMode()" style="background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: 0.2s;">⚙️ Tùy chỉnh lịch</button>
+        </div>
+
+        <!-- Chế độ 1: Chọn ngày tháng năm qua các bảng dropdown danh sách -->
+        <div id="dropdownDateMode" style="display: flex; gap: 8px; margin-top: 6px;">
+          <select id="filterDay" onchange="renderHistoryLogs()" style="flex: 1;">
+            <option value="">Ngày</option>
+          </select>
+          <select id="filterMonth" onchange="renderHistoryLogs()" style="flex: 1;">
+            <option value="">Tháng</option>
+          </select>
+          <select id="filterYear" onchange="renderHistoryLogs()" style="flex: 1;">
+            <option value="">Năm</option>
+          </select>
+        </div>
+
+        <!-- Chế độ 2: Chọn lịch hệ thống / Nhập tay thủ công -->
+        <div id="inputDateMode" style="display: none; margin-top: 6px;">
+          <input type="date" id="dateFilter" onchange="renderHistoryLogs()">
+        </div>
       </div>
       <div id="logs">
         <p class='empty-msg'>Đang tải lịch sử hoạt động...</p>
@@ -391,7 +410,65 @@
           document.getElementById('mainContent').classList.add('loaded');
         }, 800);
       }, 1000);
+      
+      initDateDropdowns();
     });
+
+    function initDateDropdowns() {
+      const daySelect = document.getElementById("filterDay");
+      const monthSelect = document.getElementById("filterMonth");
+      const yearSelect = document.getElementById("filterYear");
+      
+      if (!daySelect || !monthSelect || !yearSelect) return;
+
+      // Đổ danh sách ngày (1-31)
+      if (daySelect.options.length <= 1) {
+        for (let i = 1; i <= 31; i++) {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.textContent = `Ngày ${i}`;
+          daySelect.appendChild(opt);
+        }
+      }
+
+      // Đổ danh sách tháng (1-12)
+      if (monthSelect.options.length <= 1) {
+        for (let i = 1; i <= 12; i++) {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.textContent = `Tháng ${i}`;
+          monthSelect.appendChild(opt);
+        }
+      }
+
+      // Đổ danh sách năm (từ 2024 đến 2030)
+      if (yearSelect.options.length <= 1) {
+        const currentYear = new Date().getFullYear();
+        for (let y = currentYear + 1; y >= currentYear - 3; y--) {
+          const opt = document.createElement("option");
+          opt.value = y;
+          opt.textContent = `Năm ${y}`;
+          yearSelect.appendChild(opt);
+        }
+      }
+    }
+
+    function toggleDateMode() {
+      const dropdownMode = document.getElementById("dropdownDateMode");
+      const inputMode = document.getElementById("inputDateMode");
+      const toggleBtn = document.getElementById("toggleDateModeBtn");
+      
+      if (dropdownMode.style.display === "none") {
+        dropdownMode.style.display = "flex";
+        inputMode.style.display = "none";
+        toggleBtn.textContent = "⚙️ Tùy chỉnh lịch";
+      } else {
+        dropdownMode.style.display = "none";
+        inputMode.style.display = "block";
+        toggleBtn.textContent = "📋 Chọn theo danh sách";
+      }
+      renderHistoryLogs();
+    }
 
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
@@ -645,8 +722,21 @@
       const logsContainer = document.getElementById("logs");
       const filterSelect = document.getElementById("userFilter");
       const selectedUserId = filterSelect ? filterSelect.value : "ALL";
-      const dateFilterInput = document.getElementById("dateFilter");
-      const selectedDate = dateFilterInput ? dateFilterInput.value : ""; // Định dạng YYYY-MM-DD
+      
+      let selectedDate = "";
+      const isInputMode = document.getElementById("inputDateMode").style.display !== "none";
+      
+      if (isInputMode) {
+        const dateFilterInput = document.getElementById("dateFilter");
+        selectedDate = dateFilterInput ? dateFilterInput.value : "";
+      } else {
+        const d = document.getElementById("filterDay").value;
+        const m = document.getElementById("filterMonth").value;
+        const y = document.getElementById("filterYear").value;
+        if (d && m && y) {
+          selectedDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        }
+      }
       
       const trackedMap = getTrackedAccounts();
       const trackedIds = Array.from(trackedMap.keys());
