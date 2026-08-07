@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Roblox Personal Tracker</title>
   <style>
-    /* ------------------------------------
-       E-DEX UI INTRO LOADER ANIMATION
-    ------------------------------------ */
     #loader-wrapper {
       position: fixed;
       top: 0; left: 0;
@@ -122,9 +119,6 @@
       visibility: hidden;
     }
 
-    /* ------------------------------------
-       GIAO DIỆN CHÍNH & CSS KHÁC
-    ------------------------------------ */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -336,13 +330,13 @@
 </head>
 <body>
 
-  <!-- E-DEX UI INTRO SCREEN -->
+  
   <div id="loader-wrapper">
     <div class="terminal-screen" id="terminalLogs"></div>
 
     <div class="edex-window">
       <div class="edex-content">
-        <div class="edex-title">eDEX-UI // ROBLOX TRACKER</div>
+        <div class="edex-title">ROBLOX TRACKER</div>
         <div class="edex-sub" id="welcomeText">Welcome back, operator</div>
       </div>
     </div>
@@ -439,7 +433,6 @@
           <button type="button" id="toggleDateModeBtn" onclick="toggleDateMode()" style="background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: 0.2s;">⚙️ Tùy chỉnh lịch</button>
         </div>
 
-        <!-- Chế độ 1: Chọn ngày tháng năm qua các bảng dropdown danh sách -->
         <div id="dropdownDateMode" style="display: flex; gap: 8px; margin-top: 6px;">
           <select id="filterDay" onchange="renderHistoryLogs()" style="flex: 1;">
             <option value="">Ngày</option>
@@ -452,7 +445,6 @@
           </select>
         </div>
 
-        <!-- Chế độ 2: Tự nhập tay thủ công -->
         <div id="inputDateMode" style="display: none; margin-top: 6px;">
           <input type="text" id="dateFilter" placeholder="ngày/tháng/năm" oninput="renderHistoryLogs()">
         </div>
@@ -474,8 +466,6 @@
     if (loggedInUserId && loggedInName) {
       usernameCache[loggedInUserId] = loggedInName;
     }
-
-    // eDEX-UI Terminal Logs Animation Runner
     const logsList = [
       "Initializing eDEX-UI kernel v2.4.1...",
       "Loading configuration files from /etc/edex/...",
