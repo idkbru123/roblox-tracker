@@ -18,46 +18,22 @@
       transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .mask-container {
-      display: grid;
-      grid-template-columns: repeat(13, 14px);
-      gap: 2px;
-      margin: 0 auto;
-      position: relative;
-      justify-content: center;
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #60a5fa;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
     }
 
-    .particle {
-      width: 14px;
-      height: 14px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 2px;
-      transform: translate(0, 0);
-    }
-
-    .particle.white {
-      background: #ffffff;
-      animation: particle-glow 2s ease-in-out infinite alternate;
-    }
-
-    .particle:not(.white) {
-      transition: all 0.3s ease;
-      animation: particle-float 4s linear infinite;
-    }
-
-    @keyframes particle-glow {
-      0% { opacity: 0.85; transform: scale(0.96); }
-      100% { opacity: 1; transform: scale(1.04); filter: drop-shadow(0 0 6px rgba(255,255,255,0.7)); }
-    }
-
-    @keyframes particle-float {
-      0% { transform: translate(0, 0) rotate(0deg); opacity: 0.05; }
-      50% { transform: translate(25px, -35px) rotate(180deg); opacity: 0.3; }
-      100% { transform: translate(0, 0) rotate(360deg); opacity: 0.05; }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .loading-text {
-      margin-top: 35px;
+      margin-top: 25px;
       font-family: 'Courier New', Courier, monospace;
       font-weight: 700;
       letter-spacing: 6px;
@@ -67,7 +43,7 @@
       transition: opacity 0.4s ease;
     }
 
-    #loader-wrapper.slowing .mask-container {
+    #loader-wrapper.slowing .spinner {
       animation: mask-exit 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     #loader-wrapper.slowing .loading-text {
@@ -75,8 +51,8 @@
     }
 
     @keyframes mask-exit {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(1.2); opacity: 0; filter: blur(4px); }
+      0% { transform: scale(1) rotate(0deg); opacity: 1; }
+      100% { transform: scale(1.2) rotate(360deg); opacity: 0; filter: blur(4px); }
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -274,19 +250,7 @@
 <body>
 
   <div id="loader-wrapper">
-    <div class="mask-container" id="maskContainer">
-      <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-      <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
-      <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
-      <div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div>
-      <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
-      <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
-      <div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div>
-      <div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div>
-      <div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div>
-      <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-      <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle white"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-    </div>
+    <div class="spinner"></div>
     <div class="loading-text">LOADING SYSTEM...</div>
   </div>
 
@@ -309,7 +273,6 @@
 
     <div class="user-profile-box" id="authBox">
       <a href="/auth/roblox" class="btn-roblox">🎮 Đăng nhập bằng Roblox</a>
-      <!-- Thêm link Chính sách bảo mật dẫn tới https://roblox-tracker-g1vm.onrender.com/privacy.html-->
       <div style="margin-top: 12px; text-align: center;">
         <a href="https://roblox-tracker-g1vm.onrender.com/privacy.html" target="_blank" style="color: #9ca3af; font-size: 0.82rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#9ca3af'">🔒 Chính sách bảo mật</a>
       </div>
@@ -381,9 +344,6 @@
   </div>
 
   <script>
-    // ⚠️ QUAN TRỌNG: Thay đổi URL dưới đây thành link server backend/bot thực tế của bạn nếu cần
-    // Ví dụ: const BACKEND_URL = "https://ten-ung-dung-cua-ban.onrender.com";
-    // Nếu frontend và backend chạy chung 1 server Render, bạn có thể để trống hoặc điền link đầy đủ.
     const BACKEND_URL = ""; 
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -439,7 +399,7 @@
     async function requestVerificationCode() {
       const robloxId = document.getElementById('verifyRobloxId').value.trim();
       const nameInput = document.getElementById('newRobloxNameInput').value.trim();
-      const discordId = document.getElementById('verifyDiscordId').value.trim(); // Lấy Discord ID người dùng nhập
+      const discordId = document.getElementById('verifyDiscordId').value.trim();
       const msgDiv = document.getElementById('verifyResultMsg');
 
       if (!isValidRobloxId(robloxId)) {
@@ -458,7 +418,7 @@
         const response = await fetch(`${BACKEND_URL}/api/verify-roblox`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roblox_id: robloxId, discord_id: discordId }) // Gửi kèm discord_id lên server
+          body: JSON.stringify({ roblox_id: robloxId, discord_id: discordId })
         });
         const data = await response.json();
 
@@ -500,7 +460,6 @@
           document.getElementById('verifyRobloxId').value = '';
           document.getElementById('newRobloxNameInput').value = '';
 
-          // Thêm thành công vào danh sách theo dõi local storage giống tính năng cũ
           addTrackedAccountDirect(currentVerifyingRobloxId, currentVerifyingName);
         } else {
           msgDiv.innerHTML = `<p style='color: #f87171;'>Lỗi: ${data.error || 'Mã xác nhận không chính xác hoặc đã hết hạn.'}</p>`;
