@@ -91,7 +91,6 @@
     }
     .menu-toggle-btn:hover { background: #2a2a2e; transform: scale(1.05); }
 
-    /* Dùng 100dvh để sidebar vừa khít màn hình điện thoại, không bị lẹm thanh công cụ */
     .sidebar { 
       width: 280px; 
       background: rgba(24, 24, 27, 0.95); 
@@ -223,23 +222,17 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
     }
     .filter-box label { color: #d1d5db; font-size: 1rem; font-weight: 700; white-space: nowrap; }
-    .filter-box select { 
+    .filter-box select, .filter-box input[type="date"] { 
       background: #121212; color: #f3f4f6; border: 1px solid #3f3f46; 
       padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; 
       outline: none; cursor: pointer; transition: 0.2s; width: 100%; 
     }
-    .filter-box select:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
-
-    @media (min-width: 768px) {
-      .filter-box {
-        flex-direction: row;
-        align-items: center;
-        gap: 12px;
-      }
-      .filter-box select {
-        width: auto;
-        flex: 1;
-      }
+    .filter-box select:focus, .filter-box input[type="date"]:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
+    
+    /* Đồng bộ icon lịch trên date picker cho giao diện tối */
+    .filter-box input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      cursor: pointer;
     }
 
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
@@ -365,6 +358,9 @@
         <select id="userFilter" onchange="renderHistoryLogs()">
           <option value="ALL">✨ Tất cả tài khoản đang theo dõi</option>
         </select>
+        
+        <label for="dateFilter" style="margin-top: 5px;">📅 Chọn ngày xem:</label>
+        <input type="date" id="dateFilter" onchange="renderHistoryLogs()">
       </div>
       <div id="logs">
         <p class='empty-msg'>Đang tải lịch sử hoạt động...</p>
@@ -649,6 +645,9 @@
       const logsContainer = document.getElementById("logs");
       const filterSelect = document.getElementById("userFilter");
       const selectedUserId = filterSelect ? filterSelect.value : "ALL";
+      const dateFilterInput = document.getElementById("dateFilter");
+      const selectedDate = dateFilterInput ? dateFilterInput.value : ""; // Định dạng YYYY-MM-DD
+      
       const trackedMap = getTrackedAccounts();
       const trackedIds = Array.from(trackedMap.keys());
       
@@ -657,12 +656,25 @@
       const filteredLogs = rawLogsData.filter(data => {
         const userId = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
         if (!trackedIds.includes(userId)) return false;
-        if (selectedUserId === "ALL") return true;
-        return userId === selectedUserId;
+        if (selectedUserId !== "ALL" && userId !== selectedUserId) return false;
+
+        // Lọc theo ngày được chọn
+        if (selectedDate && data.timestamp && data.timestamp.seconds) {
+          const logDate = new Date(data.timestamp.seconds * 1000);
+          const yyyy = logDate.getFullYear();
+          const mm = String(logDate.getMonth() + 1).padStart(2, '0');
+          const dd = String(logDate.getDate()).padStart(2, '0');
+          const logDateStr = `${yyyy}-${mm}-${dd}`;
+          if (logDateStr !== selectedDate) return false;
+        } else if (selectedDate) {
+          return false;
+        }
+
+        return true;
       });
 
       if (filteredLogs.length === 0) {
-        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào cho các tài khoản này.</p>";
+        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào cho bộ lọc này.</p>";
         return;
       }
 
@@ -700,7 +712,7 @@
       const finalLogs = dedupedAsc.reverse();
 
       if (finalLogs.length === 0) {
-        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào cho các tài khoản này.</p>";
+        logsContainer.innerHTML = "<p class='empty-msg'>Không tìm thấy dữ liệu lịch sử nào cho bộ lọc này.</p>";
         return;
       }
 
