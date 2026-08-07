@@ -12,110 +12,72 @@
       background: #000000;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      padding: 30px;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 20px;
       z-index: 9999;
       overflow: hidden;
-      transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1), visibility 1s ease;
+      transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), visibility 1s ease;
     }
 
-    /* Phần dòng lệnh chạy phía trên */
+    /* 1. Phần dòng lệnh chạy phía trên */
     .terminal-screen {
       width: 100%;
-      max-width: 700px;
-      height: 45vh;
+      height: 100%;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.4);
-      line-height: 1.4;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.5;
       overflow: hidden;
       white-space: pre-wrap;
-      text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+      position: absolute;
+      top: 20px; left: 20px;
+      right: 20px; bottom: 20px;
+      z-index: 2;
     }
 
-    /* Khung cửa sổ trung tâm phóng to (Scale Up) */
-    .edex-window {
-      position: relative;
-      width: 380px;
-      height: 140px;
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      background: rgba(10, 10, 10, 0.9);
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transform: scale(0);
-      opacity: 0;
-      animation: edexZoomIn 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      animation-delay: 1.5s;
-    }
-
-    @keyframes edexZoomIn {
-      0% {
-        transform: scale(0.05);
-        opacity: 0;
-      }
-      60% {
-        transform: scale(1.05);
-        opacity: 0.9;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    .edex-content {
-      text-align: center;
-    }
-
-    .edex-title {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 3px;
-      color: #ffffff;
-      margin-bottom: 6px;
-      text-shadow: 0 0 8px rgba(255,255,255,0.4);
-    }
-
-    .edex-sub {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      font-size: 0.85rem;
-      color: #888888;
-    }
-
-    /* Mô phỏng ánh sáng bàn phím phát sáng bên dưới */
-    .keyboard-glow-area {
-      width: 100%;
-      max-width: 500px;
-      height: 80px;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.08) 0%, transparent 70%);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      animation: fadeInKb 1s ease forwards;
-      animation-delay: 0.5s;
-    }
-
-    @keyframes fadeInKb {
-      to { opacity: 1; }
-    }
-
-    .kb-simulation {
+    #glitchContainer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000000;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 10px;
-      color: rgba(255, 255, 255, 0.25);
-      letter-spacing: 6px;
-      text-transform: uppercase;
+      font-size: 11px;
+      color: #ff1f3d;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow: hidden;
+      white-space: pre-wrap;
+      display: none;
+      z-index: 3;
+      text-shadow: 0 0 6px rgba(255, 31, 61, 0.8);
     }
 
-    #loader-wrapper.slowing {
+    .error-glitch-bar {
+      background: rgba(255, 31, 61, 0.15);
+      border-left: 3px solid #ff1f3d;
+      padding: 2px 6px;
+      margin: 3px 0;
+      animation: glitchExpand 0.15s ease forwards;
+    }
+
+    @keyframes glitchExpand {
+      0% { transform: scaleY(0.1); opacity: 0; }
+      100% { transform: scaleY(1); opacity: 1; }
+    }
+
+    #matrixCanvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: none;
+      z-index: 4;
+      background: #000000;
+    }
+
+    #loader-wrapper.fade-out {
       opacity: 0;
-      transform: scale(1.15);
       visibility: hidden;
     }
 
@@ -330,20 +292,16 @@
 </head>
 <body>
 
-  
+  <!-- INTRO SCREEN -->
   <div id="loader-wrapper">
+    <!-- Bước 1: Terminal text -->
     <div class="terminal-screen" id="terminalLogs"></div>
 
-    <div class="edex-window">
-      <div class="edex-content">
-        <div class="edex-title">ROBLOX TRACKER</div>
-        <div class="edex-sub" id="welcomeText">Welcome back, operator</div>
-      </div>
-    </div>
+    <!-- Bước 2: Dòng chữ lỗi đỏ lan rộng mô phỏng GIF -->
+    <div id="glitchContainer"></div>
 
-    <div class="keyboard-glow-area">
-      <div class="kb-simulation">ctrl  alt  command  space  command  option</div>
-    </div>
+    <!-- Bước 3: Canvas hiệu ứng mưa Matrix giống video -->
+    <canvas id="matrixCanvas"></canvas>
   </div>
 
   <div class="bg-overlay"></div>
@@ -466,8 +424,10 @@
     if (loggedInUserId && loggedInName) {
       usernameCache[loggedInUserId] = loggedInName;
     }
+
+    // Sequence Animation Runner
     const logsList = [
-      "Initializing eDEX-UI kernel v2.4.1...",
+      "Initializing system kernel v2.4.1...",
       "Loading configuration files from /etc/edex/...",
       "Mounting virtual file system...",
       "Establishing secure WebSocket connection to Firebase...",
@@ -478,29 +438,118 @@
       "Neural interface synced. Ready for execution."
     ];
 
+    const errorLogsList = [
+      "[ERROR] KERNEL EXCEPTION DETECTED AT 0x004FBA91",
+      "[CRITICAL] MEMORY LEAK IN TELEMETRY ENDPOINT",
+      "[WARNING] FIREWALL BYPASS OVERRIDE FAILED",
+      "[ERROR] SEGMENTATION FAULT: SESSION TOKEN CORRUPTED",
+      "[FATAL] ROBLOX API CONNECTION TIMEOUT - RETRYING...",
+      "[ERROR] UNABLE TO ALLOCATE 128MB STABLE BUFFER",
+      "[CRITICAL] SYSTEM OVERLOAD - FORCED RECOVERY TRIGGERED",
+      "[ERROR] UNKNOWN EXCEPTION IN NEURAL INTERFACE LINK",
+      "[FATAL] SYSTEM PANIC: CORRUPTED CORE DATA PACKETS"
+    ];
+
     let logIndex = 0;
-    function printLogs() {
+    function printTerminalLogs(callback) {
       const terminalLogs = document.getElementById('terminalLogs');
       if (!terminalLogs) return;
       if (logIndex < logsList.length) {
         terminalLogs.innerHTML += "> " + logsList[logIndex] + "<br>";
         terminalLogs.scrollTop = terminalLogs.scrollHeight;
         logIndex++;
-        setTimeout(printLogs, 220);
+        setTimeout(() => printTerminalLogs(callback), 180);
+      } else {
+        setTimeout(callback, 400);
       }
     }
 
-    window.addEventListener('load', () => {
-      printLogs();
-      setTimeout(() => {
-        const loaderWrapper = document.getElementById('loader-wrapper');
-        loaderWrapper.classList.add('slowing');
+    // Chạy hiệu ứng lỗi đỏ lan rộng xuống (Mô phỏng GIF)
+    function runGlitchEffect(callback) {
+      const terminalLogs = document.getElementById('terminalLogs');
+      terminalLogs.style.display = 'none';
 
-        setTimeout(() => {
-          loaderWrapper.style.display = 'none';
-          document.getElementById('mainContent').classList.add('loaded');
-        }, 1000);
-      }, 4800);
+      const glitchContainer = document.getElementById('glitchContainer');
+      glitchContainer.style.display = 'block';
+
+      let errorIdx = 0;
+      let interval = setInterval(() => {
+        if (errorIdx < errorLogsList.length) {
+          const div = document.createElement('div');
+          div.className = 'error-glitch-bar';
+          div.textContent = errorLogsList[errorIdx];
+          glitchContainer.appendChild(div);
+          glitchContainer.scrollTop = glitchContainer.scrollHeight;
+          errorIdx++;
+        } else {
+          clearInterval(interval);
+          setTimeout(callback, 600);
+        }
+      }, 150);
+    }
+
+    // Chạy hiệu ứng mưa chữ Matrix (Mô phỏng video TikTok)
+    function runMatrixRain(callback) {
+      const glitchContainer = document.getElementById('glitchContainer');
+      glitchContainer.style.display = 'none';
+
+      const canvas = document.getElementById('matrixCanvas');
+      canvas.style.display = 'block';
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>/?ROBLOXTRACKER";
+      const fontSize = 14;
+      const columns = Math.floor(canvas.width / fontSize);
+      const drops = [];
+
+      for (let i = 0; i < columns; i++) {
+        drops[i] = 1;
+      }
+
+      function drawMatrix() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#00ff66";
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = characters.charAt(Math.floor(Math.random() * characters.length));
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+
+      let matrixInterval = setInterval(drawMatrix, 35);
+
+      // Chạy mưa Matrix trong 2.5 giây rồi ẩn đi để vào trang chủ
+      setTimeout(() => {
+        clearInterval(matrixInterval);
+        callback();
+      }, 2500);
+    }
+
+    window.addEventListener('load', () => {
+      printTerminalLogs(() => {
+        runGlitchEffect(() => {
+          runMatrixRain(() => {
+            const loaderWrapper = document.getElementById('loader-wrapper');
+            loaderWrapper.classList.add('fade-out');
+
+            setTimeout(() => {
+              loaderWrapper.style.display = 'none';
+              document.getElementById('mainContent').classList.add('loaded');
+            }, 1000);
+          });
+        });
+      });
       
       initDateDropdowns();
     });
