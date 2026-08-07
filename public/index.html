@@ -573,7 +573,19 @@
         const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId || item.robloxId) === String(userId));
         const isOnline = userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1 || userLog.userStatus === 2) : false;
         const playerName = trackedMap.get(userId) || `ID: ${userId}`;
-        const gameName = userLog ? (userLog.lastLocation || userLog.gameName || userLog.details?.gameName || 'Trang chủ / Website Roblox') : 'Chưa ghi nhận hoạt động mới';
+        
+        const rawGame = userLog ? (userLog.lastLocation || userLog.gameName || userLog.details?.gameName) : null;
+        let locationText = "";
+
+        if (isOnline) {
+          if (rawGame && rawGame !== 'Website' && rawGame !== 'Trang chủ / Website Roblox' && !rawGame.includes('Website')) {
+            locationText = `Đang trong trải nghiệm: <span style="color:#60a5fa; font-weight:600;">${rawGame}</span>`;
+          } else {
+            locationText = `<span style="color:#60a5fa; font-weight:600;">trang chủ</span>`;
+          }
+        } else {
+          locationText = `<span style="color:#9ca3af;">Chưa ghi nhận hoạt động mới</span>`;
+        }
 
         const statusBadge = isOnline 
           ? '<span class="status-badge status-1">🟢 Online</span>' 
@@ -594,7 +606,7 @@
           </div>
           <div class="log-info" style="margin-top:8px;">
             <p style="margin-bottom:6px;"><strong style="color:#9ca3af;">ID:</strong> ${userId}</p>
-            <p><strong style="color:#9ca3af;">Vị trí gần nhất:</strong> <span style="color:#60a5fa; font-weight:600;">${gameName}</span></p>
+            <p>${locationText}</p>
           </div>
         `;
         liveContainer.appendChild(card);
@@ -622,7 +634,6 @@
         return;
       }
 
-      // Sắp xếp theo thời gian tăng dần để xử lý trạng thái tuần tự và ghi nhớ tên game vừa chơi
       const sortedAsc = [...filteredLogs].sort((a, b) => {
         const tA = a.timestamp?.seconds || 0;
         const tB = b.timestamp?.seconds || 0;
@@ -640,16 +651,13 @@
         
         let rawGame = data.gameName || data.details?.gameName || data.lastLocation || data.placeName || "Trang chủ / Website Roblox";
         
-        // Lưu lại tên game thực tế người chơi đang vào
         if (rawGame && rawGame !== "Website" && rawGame !== "Trang chủ / Website Roblox" && !rawGame.includes("Website")) {
           lastActiveGameMap[userId] = rawGame;
         } else if ((rawGame === "Website" || rawGame === "Trang chủ / Website Roblox") && lastActiveGameMap[userId]) {
-          // Khi rời game, nếu log trả về "Website", tự động thay thế bằng tên game cuối cùng họ vừa chơi
           rawGame = lastActiveGameMap[userId];
           data.gameName = rawGame;
         }
 
-        // Lọc bỏ các thông báo trạng thái lặp liên tiếp (chỉ ghi nhận khi đổi trạng thái hoặc đổi game)
         if (lastStatusMap[userId] !== status || lastGameProcessedMap[userId] !== rawGame) {
           dedupedAsc.push(data);
           lastStatusMap[userId] = status;
@@ -657,7 +665,6 @@
         }
       });
 
-      // Đảo ngược lại để hiển thị cái mới nhất lên trên đầu
       const finalLogs = dedupedAsc.reverse();
 
       if (finalLogs.length === 0) {
