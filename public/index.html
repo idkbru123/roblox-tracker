@@ -14,52 +14,42 @@
       flex-direction: column;
       justify-content: flex-start;
       align-items: flex-start;
-      padding: 20px;
+      padding: 24px;
       z-index: 9999;
       overflow: hidden;
-      transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), visibility 1s ease;
+      transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s ease;
     }
 
-    /* 1. Phần dòng lệnh chạy phía trên */
-    .terminal-screen {
+    .console-screen {
       width: 100%;
       height: 100%;
       font-family: 'Courier New', Courier, monospace;
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 1.5;
-      overflow: hidden;
+      line-height: 1.6;
+      overflow-y: auto;
       white-space: pre-wrap;
-      text-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
       position: absolute;
-      top: 20px; left: 20px;
-      right: 20px; bottom: 20px;
-      z-index: 2;
+      top: 24px; left: 24px;
+      right: 24px; bottom: 24px;
+      z-index: 3;
+      box-sizing: border-box;
+      padding-bottom: 50px;
     }
 
-    #glitchContainer {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #000000;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 11px;
-      color: #ff1f3d;
-      padding: 20px;
-      box-sizing: border-box;
-      overflow: hidden;
-      white-space: pre-wrap;
-      display: none;
-      z-index: 3;
-      text-shadow: 0 0 6px rgba(255, 31, 61, 0.8);
+    .terminal-line {
+      color: rgba(255, 255, 255, 0.65);
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+      margin-bottom: 4px;
     }
 
     .error-glitch-bar {
       background: rgba(255, 31, 61, 0.15);
       border-left: 3px solid #ff1f3d;
-      padding: 2px 6px;
-      margin: 3px 0;
-      animation: glitchExpand 0.15s ease forwards;
+      color: #ff1f3d;
+      padding: 3px 8px;
+      margin: 5px 0;
+      text-shadow: 0 0 6px rgba(255, 31, 61, 0.8);
+      animation: glitchExpand 0.2s ease forwards;
     }
 
     @keyframes glitchExpand {
@@ -294,13 +284,10 @@
 
   <!-- INTRO SCREEN -->
   <div id="loader-wrapper">
-    <!-- Bước 1: Terminal text -->
-    <div class="terminal-screen" id="terminalLogs"></div>
+    <!-- Màn hình Console chứa cả chữ xám lẫn chữ lỗi đỏ tiếp nối bên dưới -->
+    <div class="console-screen" id="consoleScreen"></div>
 
-    <!-- Bước 2: Dòng chữ lỗi đỏ lan rộng mô phỏng GIF -->
-    <div id="glitchContainer"></div>
-
-    <!-- Bước 3: Canvas hiệu ứng mưa Matrix giống video -->
+    <!-- Canvas hiệu ứng mưa Matrix làm nền -->
     <canvas id="matrixCanvas"></canvas>
   </div>
 
@@ -425,8 +412,8 @@
       usernameCache[loggedInUserId] = loggedInName;
     }
 
-    // Sequence Animation Runner
-    const logsList = [
+    // Danh sách dòng lệnh xám và dòng lệnh lỗi đỏ
+    const terminalLogsList = [
       "Initializing system kernel v2.4.1...",
       "Loading configuration files from /etc/edex/...",
       "Mounting virtual file system...",
@@ -447,51 +434,53 @@
       "[ERROR] UNABLE TO ALLOCATE 128MB STABLE BUFFER",
       "[CRITICAL] SYSTEM OVERLOAD - FORCED RECOVERY TRIGGERED",
       "[ERROR] UNKNOWN EXCEPTION IN NEURAL INTERFACE LINK",
-      "[FATAL] SYSTEM PANIC: CORRUPTED CORE DATA PACKETS"
+      "[FATAL] SYSTEM PANIC: CORRUPTED CORE DATA PACKETS",
+      "[CRITICAL] SYSTEM SHUTDOWN IMMINENT... REBOOTING NETWORKS..."
     ];
 
-    let logIndex = 0;
-    function printTerminalLogs(callback) {
-      const terminalLogs = document.getElementById('terminalLogs');
-      if (!terminalLogs) return;
-      if (logIndex < logsList.length) {
-        terminalLogs.innerHTML += "> " + logsList[logIndex] + "<br>";
-        terminalLogs.scrollTop = terminalLogs.scrollHeight;
-        logIndex++;
-        setTimeout(() => printTerminalLogs(callback), 180);
-      } else {
-        setTimeout(callback, 400);
+    // Chạy tuần tự: Chạy chữ xám -> Tiếp tục chạy chữ đỏ nối ngay bên dưới -> Kéo dài đến cuối trang -> Chuyển sang Mưa Matrix
+    function runIntroSequence() {
+      const consoleScreen = document.getElementById('consoleScreen');
+      if (!consoleScreen) return;
+
+      let tIndex = 0;
+      function printTerminal() {
+        if (tIndex < terminalLogsList.length) {
+          const div = document.createElement('div');
+          div.className = 'terminal-line';
+          div.textContent = "> " + terminalLogsList[tIndex];
+          consoleScreen.appendChild(div);
+          consoleScreen.scrollTop = consoleScreen.scrollHeight;
+          tIndex++;
+          setTimeout(printTerminal, 250); // Tốc độ vừa phải, rõ ràng
+        } else {
+          // Xong chữ xám, đợi một nhịp nhỏ rồi chạy tiếp chữ đỏ ngay bên dưới
+          setTimeout(printErrors, 400);
+        }
       }
-    }
 
-    // Chạy hiệu ứng lỗi đỏ lan rộng xuống (Mô phỏng GIF)
-    function runGlitchEffect(callback) {
-      const terminalLogs = document.getElementById('terminalLogs');
-      terminalLogs.style.display = 'none';
-
-      const glitchContainer = document.getElementById('glitchContainer');
-      glitchContainer.style.display = 'block';
-
-      let errorIdx = 0;
-      let interval = setInterval(() => {
-        if (errorIdx < errorLogsList.length) {
+      let eIndex = 0;
+      function printErrors() {
+        if (eIndex < errorLogsList.length) {
           const div = document.createElement('div');
           div.className = 'error-glitch-bar';
-          div.textContent = errorLogsList[errorIdx];
-          glitchContainer.appendChild(div);
-          glitchContainer.scrollTop = glitchContainer.scrollHeight;
-          errorIdx++;
+          div.textContent = errorLogsList[eIndex];
+          consoleScreen.appendChild(div);
+          consoleScreen.scrollTop = consoleScreen.scrollHeight;
+          eIndex++;
+          setTimeout(printErrors, 220); // Chạy chậm, lan rộng dài xuống dưới trang
         } else {
-          clearInterval(interval);
-          setTimeout(callback, 600);
+          // Xong hết chữ lỗi đỏ, giữ lại màn hình đọc trong 800ms rồi bật hiệu ứng Mưa chữ Matrix
+          setTimeout(startMatrixRainBackground, 900);
         }
-      }, 150);
+      }
+
+      printTerminal();
     }
 
-    // Chạy hiệu ứng mưa chữ Matrix (Mô phỏng video TikTok)
-    function runMatrixRain(callback) {
-      const glitchContainer = document.getElementById('glitchContainer');
-      glitchContainer.style.display = 'none';
+    function startMatrixRainBackground() {
+      const consoleScreen = document.getElementById('consoleScreen');
+      consoleScreen.style.display = 'none'; // Ẩn khung chữ đi để chuyển sang nền Matrix
 
       const canvas = document.getElementById('matrixCanvas');
       canvas.style.display = 'block';
@@ -529,28 +518,21 @@
 
       let matrixInterval = setInterval(drawMatrix, 35);
 
-      // Chạy mưa Matrix trong 2.5 giây rồi ẩn đi để vào trang chủ
+      // Kéo dài thời gian hiển thị hiệu ứng mưa Matrix background (4.5 giây) cho đủ lâu rõ ràng
       setTimeout(() => {
         clearInterval(matrixInterval);
-        callback();
-      }, 2500);
+        const loaderWrapper = document.getElementById('loader-wrapper');
+        loaderWrapper.classList.add('fade-out');
+
+        setTimeout(() => {
+          loaderWrapper.style.display = 'none';
+          document.getElementById('mainContent').classList.add('loaded');
+        }, 1200);
+      }, 4500);
     }
 
     window.addEventListener('load', () => {
-      printTerminalLogs(() => {
-        runGlitchEffect(() => {
-          runMatrixRain(() => {
-            const loaderWrapper = document.getElementById('loader-wrapper');
-            loaderWrapper.classList.add('fade-out');
-
-            setTimeout(() => {
-              loaderWrapper.style.display = 'none';
-              document.getElementById('mainContent').classList.add('loaded');
-            }, 1000);
-          });
-        });
-      });
-      
+      runIntroSequence();
       initDateDropdowns();
     });
 
