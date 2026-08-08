@@ -18,7 +18,8 @@
       overflow: hidden;
       transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s ease;
     }
-    
+
+    /* Khối code cuộn siêu nhanh màu đỏ với hiệu ứng mờ dần về phía dưới */
     #codeScrollScreen {
       position: absolute;
       top: 0; left: 0;
@@ -44,30 +45,6 @@
     @keyframes scrollCodeFast {
       0% { transform: translateY(0); }
       100% { transform: translateY(-33.33%); }
-    }
-
-    #skullScreen {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #000000;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 3;
-      padding: 10px;
-      overflow: auto;
-    }
-
-    #skullContent {
-      color: #ff1f3d;
-      text-shadow: 0 0 8px rgba(255, 31, 61, 0.6);
-      font-family: 'Courier New', Courier, monospace;
-      font-size: clamp(7px, 1.3vw, 11px);
-      line-height: 1.15;
-      white-space: pre;
-      display: inline-block;
-      text-align: left;
     }
 
     #matrixCanvas {
@@ -312,9 +289,6 @@
   <div id="loader-wrapper">
     <div id="codeScrollScreen">
       <pre id="codeContent"></pre>
-    </div>
-    <div id="skullScreen">
-      <pre id="skullContent"></pre>
     </div>
     <canvas id="matrixCanvas"></canvas>
   </div>
@@ -571,32 +545,6 @@ void main () {
 }
 `;
 
-    const skullArt = `          uu$:$:$:$:$:$:$_uu
-      uu$$$$$$$$$$$$$$$$$$$$$$uu
-     u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u
-     u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u
-   u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u
-   u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u
-  u$$$$$$*        *$$$*         *$$$$$$u
-  *$$$$*           u$u           $$$$*
-   $$$u            u$u            u$$$
-   $$$u            u$$$u          u$$$
-    *$$$$$uu$$$   $$$uu$$$$*
-     *$$$$$$$*     *$$$$$$$*
-      u$$$$$$$$$u$$$$$$$$$u
-       u$*_*_*_*_*_*_*_*$u
-       $$$u   $   $   $ u$$$
-      u$$$u$u$u$u$u$u$u$u$$$u
-       *$$$$$$$$$*     *****    uuuuuuuuuuuu
-   u$$$$$$$$$uuuuuuu    uu$$$$$$$$$$$$$$$$$$$$$u
-  $$$***$$$$$$$$$$$$uuxx $$$$$$$$$$$$$$$$$****$$$*
-   ***      **$$$$$$$$$$$$uu **$***
-             uuuu  **$$$$$$$$$$$$uuu
-        u$$$uuuv$$$$$$$$$$$$u **$$$$$$$$$$$$uuu$$$$
-        $$$$$$$$****           **$$$$$$$$$$$$$*
-          *$$$$$*                  *$$$$*
-            $$$*    PRESS ANY KEY!  $$$*`;
-
     function runIntroSequence() {
       const codeContent = document.getElementById('codeContent');
       if (!codeContent) return;
@@ -605,33 +553,11 @@ void main () {
 
       setTimeout(() => {
         document.getElementById('codeScrollScreen').style.display = 'none';
-        startSkullSequence();
+        startRedMatrixRainSequence();
       }, 5500);
     }
 
-    function startSkullSequence() {
-      const skullScreen = document.getElementById('skullScreen');
-      const skullContent = document.getElementById('skullContent');
-      skullScreen.style.display = 'flex';
-
-      let charIndex = 0;
-      const speed = 4; 
-      function typeSkull() {
-        if (charIndex < skullArt.length) {
-          charIndex += speed;
-          skullContent.textContent = skullArt.substring(0, charIndex);
-          setTimeout(typeSkull, 10);
-        } else {
-          setTimeout(() => {
-            startRedMatrixRainSequence();
-          }, 1800);
-        }
-      }
-      typeSkull();
-    }
-
     function startRedMatrixRainSequence() {
-      document.getElementById('skullScreen').style.display = 'none';
       const canvas = document.getElementById('matrixCanvas');
       canvas.style.display = 'block';
       const ctx = canvas.getContext('2d');
