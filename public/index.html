@@ -19,7 +19,6 @@
       transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s ease;
     }
 
-    /* Khối code cuộn siêu nhanh màu đỏ với hiệu ứng mờ dần về phía dưới */
     #codeScrollScreen {
       position: absolute;
       top: 0; left: 0;
@@ -79,7 +78,7 @@
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       z-index: -1;
-      opacity: 0.35;
+      opacity: 0.75;
       pointer-events: none;
     }
 
@@ -87,7 +86,7 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(11, 11, 14, 0.82);
+      background: rgba(11, 11, 14, 0.5);
       z-index: -1;
     }
 
@@ -634,7 +633,7 @@ void main () {
         bgCtx.fillStyle = "rgba(11, 11, 14, 0.08)";
         bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
 
-        bgCtx.fillStyle = "rgba(255, 49, 77, 0.9)";
+        bgCtx.fillStyle = "rgba(255, 49, 77, 0.95)";
         bgCtx.font = fontSize + "px monospace";
 
         for (let i = 0; i < drops.length; i++) {
