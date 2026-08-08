@@ -964,15 +964,13 @@
     const usernameCache = {};
     if (loggedInUserId && loggedInName) usernameCache[loggedInUserId] = loggedInName;
 
-    // Hàm an toàn để lấy ảnh avatar (có cơ chế dự phòng CDN Roblox)
+    // Hàm an toàn để lấy ảnh avatar người chơi
     function loadRobloxAvatar(userId, imgElementId) {
       const imgEl = document.getElementById(imgElementId);
       if (!imgEl) return;
 
-      // 1. Đặt ảnh mặc định (default avatar) của Roblox làm fallback ban đầu thay vì link cũ
       imgEl.src = 'https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default';
 
-      // 2. Sử dụng roproxy.com thay cho roblox.com để vượt qua lỗi CORS
       fetch(`https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`)
         .then(res => {
           if (!res.ok) throw new Error('Mạng lỗi');
@@ -985,8 +983,38 @@
         })
         .catch((error) => {
           console.error("Lỗi khi tải avatar Roblox:", error);
-          // Giữ nguyên ảnh mặc định nếu vẫn lỗi
         });
+    }
+
+    // Hàm tải avatar/icon game Roblox
+    function loadGameIcon(placeId, customIconUrl, imgElementId) {
+      const imgEl = document.getElementById(imgElementId);
+      if (!imgEl) return;
+
+      const fallbackIcon = 'https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png';
+
+      if (customIconUrl) {
+        imgEl.src = customIconUrl;
+        return;
+      }
+
+      imgEl.src = fallbackIcon;
+
+      if (placeId) {
+        fetch(`https://thumbnails.roproxy.com/v1/places/gameicons?placeIds=${placeId}&size=150x150&format=Png&isCircular=false`)
+          .then(res => {
+            if (!res.ok) throw new Error('CORS/API Error');
+            return res.json();
+          })
+          .then(data => {
+            if (data && data.data && data.data.length > 0 && data.data[0].imageUrl) {
+              imgEl.src = data.data[0].imageUrl;
+            }
+          })
+          .catch(err => {
+            console.error("Lỗi khi tải avatar game Roblox:", err);
+          });
+      }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -1177,7 +1205,6 @@
           <div class="log-info" style="margin-top:8px;"><p style="margin-bottom:6px; font-size: 0.88rem; color: var(--desc-color);">ID: ${userId}</p><p>${locationText}</p></div>`;
         liveContainer.appendChild(card);
 
-        // Gọi hàm tải avatar an toàn cho từng thẻ Live
         loadRobloxAvatar(userId, imgId);
       });
     }
@@ -1222,6 +1249,9 @@
 
         sortedLogs.forEach((log) => {
           const game = log.gameName || log.placeName || log.lastLocation || log.details?.gameName || "";
+          const placeId = log.placeId || log.details?.placeId || log.rootPlaceId || null;
+          const iconUrl = log.gameIcon || log.icon || log.details?.gameIcon || log.details?.icon || null;
+          
           const isGame = game && !game.includes("Website") && !game.includes("Offline") && game.trim() !== "";
           const time = log.timestamp?.seconds ? new Date(log.timestamp.seconds * 1000) : now;
 
@@ -1230,9 +1260,12 @@
                currentSession.endTime = time;
                currentSession.durationMs = currentSession.endTime - currentSession.startTime;
                processedSessions.push(currentSession);
-               currentSession = { game: game, startTime: time, uid: uid };
+               currentSession = { game: game, startTime: time, uid: uid, placeId: placeId, iconUrl: iconUrl };
             } else if (!currentSession) {
-               currentSession = { game: game, startTime: time, uid: uid };
+               currentSession = { game: game, startTime: time, uid: uid, placeId: placeId, iconUrl: iconUrl };
+            } else {
+               if (!currentSession.placeId && placeId) currentSession.placeId = placeId;
+               if (!currentSession.iconUrl && iconUrl) currentSession.iconUrl = iconUrl;
             }
           } else {
             if (currentSession) {
@@ -1293,6 +1326,8 @@
              ? '<span class="status-badge status-1">🟢 Đang chơi game</span>'
              : '<span class="status-badge status-other">🎮 Đã chơi game</span>';
 
+        const gameImgId = `game-icon-${session.uid}-${index}`;
+
         const card = document.createElement("div");
         card.className = "log-card glass-panel";
         card.style.opacity = "0"; 
@@ -1303,11 +1338,18 @@
             <div>Người chơi: <span class="highlight">${name}</span></div>
             ${badgeHtml}
           </div>
-          <div class="log-info" style="margin-top: 5px;">🕹️ ${session.game}</div>
-          <div style="font-size: 0.95rem; color: #cbd5e1; margin-top: 8px;">⏳ Đã chơi được: <strong style="color: #ff4d6d;">${durationStr}</strong></div>
+          <div class="log-info" style="margin-top: 10px; display: flex; align-items: center; gap: 12px;">
+            <img id="${gameImgId}" src="" alt="Game Avatar" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255, 77, 109, 0.3); background: rgba(255,255,255,0.05); flex-shrink: 0;" onerror="this.onerror=null; this.src='https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png'">
+            <div style="font-weight: 700; color: var(--text-color); font-size: 1.05rem; word-break: break-word;">
+              ${session.game}
+            </div>
+          </div>
+          <div style="font-size: 0.95rem; color: #cbd5e1; margin-top: 10px;">⏳ Đã chơi được: <strong style="color: #ff4d6d;">${durationStr}</strong></div>
           <div class="timestamp" style="margin-top: 8px;">⏰ Bắt đầu lúc: ${timeStr}</div>`;
           
         container.appendChild(card);
+
+        loadGameIcon(session.placeId, session.iconUrl, gameImgId);
       });
     }
 
