@@ -75,7 +75,6 @@
     }
     .menu-toggle-btn:hover { background: rgba(255, 255, 255, 0.12); transform: scale(1.05); }
 
-    /* Nút Cài đặt góc phải trên */
     .settings-toggle-btn {
       position: fixed;
       top: 20px; right: 20px;
@@ -188,7 +187,7 @@
     .tab-section { display: none; }
     .tab-section.active { display: block; }
 
-    /* Tiêu đề trang (Dashboard, Trạng Thái Trực Tiếp, Lịch Sử Hoạt Động) màu trắng nổi bật */
+    /* Tiêu đề trang */
     h1 { 
       color: #ffffff !important; 
       margin-bottom: 25px; 
@@ -303,7 +302,7 @@
     /* Giao diện Light Theme */
     body.light-theme {
       --text-color: #0f172a;
-      --desc-color: #0f172a; /* Chỉnh chữ mô tả tối đậm rõ nét giống tiêu đề */
+      --desc-color: #0f172a; /* Chỉnh chữ mô tả tối đậm rõ nét */
     }
     body.light-theme .glass-panel {
       background: rgba(255, 255, 255, 0.35);
@@ -337,11 +336,15 @@
       background: rgba(255, 255, 255, 0.6);
       border-color: #ff4d6d;
     }
+    /* Đồng bộ chữ Bảo mật, Điều khoản và dấu chấm phân cách sang màu tối đậm rõ nét */
     body.light-theme .user-profile-box a {
-      color: #475569 !important;
+      color: #0f172a !important;
     }
     body.light-theme .user-profile-box a:hover {
       color: #ff4d6d !important;
+    }
+    body.light-theme .user-profile-box span {
+      color: #0f172a !important;
     }
     body.light-theme .input-wrapper input, 
     body.light-theme .filter-box select, 
