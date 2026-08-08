@@ -18,7 +18,7 @@
       --desc-color: #94a3b8;
     }
 
-    /* 1. HIỆU ỨNG LƯỚI NỀN KHÔNG GIAN MẠNG (CYBER GRID) */
+
     body::before {
       content: "";
       position: fixed;
@@ -124,7 +124,7 @@
     input:checked + .slider { background-color: #ff4d6d; border-color: #ff4d6d; }
     input:checked + .slider:before { transform: translateX(24px); }
 
-    /* 4. TRANG TRÍ MENU SIDEBAR KIỂU HUD TRONG SUỐT */
+  
     .sidebar { 
       width: 295px; 
       background: rgba(10, 10, 18, 0.55); 
@@ -141,7 +141,7 @@
     }
     .sidebar.open { left: 0; }
 
-    /* Góc trang trí công nghệ trên sidebar */
+    
     .sidebar::before {
       content: '';
       position: absolute;
@@ -267,7 +267,7 @@
     .tab-section { display: none; }
     .tab-section.active { display: block; }
 
-    /* 3. THANH TIÊU ĐỀ PHONG CÁCH HUD */
+ 
     h1 { 
       color: #ffffff !important; 
       margin-bottom: 25px; 
@@ -288,7 +288,7 @@
       background: linear-gradient(90deg, #ff4d6d, rgba(255, 77, 109, 0.1), transparent);
     }
 
-    /* 2. KHUNG GIAO DIỆN KIỂU CÔNG NGHỆ (TECH CORNERS) */
+    
     .glass-panel {
       position: relative;
       border: 1px solid rgba(255, 77, 109, 0.25);
@@ -298,7 +298,7 @@
       border-radius: 16px;
     }
 
-    /* Góc trên bên trái */
+    
     .glass-panel::before {
       content: '';
       position: absolute;
@@ -310,7 +310,7 @@
       z-index: 2;
     }
 
-    /* Góc dưới bên phải */
+    
     .glass-panel::after {
       content: '';
       position: absolute;
@@ -979,9 +979,20 @@
       if (loggedInUserId) {
         const robloxAuthBtn = document.getElementById('robloxAuthBtn');
         if (robloxAuthBtn) {
-          robloxAuthBtn.innerHTML = `✅ ${loggedInName || ('ID: ' + loggedInUserId)}`;
+          // Giao diện nút đăng nhập được trang trí nổi bật hơn hẳn các UI khác khi đã đăng nhập
+          robloxAuthBtn.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%;">
+              <img src="https://www.roblox.com/headshot-thumbnail/image?userId=${loggedInUserId}&width=150&height=150&format=png" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #4ade80; object-fit: cover; flex-shrink: 0;" onerror="this.style.display='none'">
+              <div style="text-align: left; overflow: hidden; flex: 1;">
+                <div style="font-size: 0.7rem; color: #4ade80; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">✓ ĐÃ KẾT NỐI</div>
+                <div style="font-size: 0.92rem; color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${loggedInName || ('ID: ' + loggedInUserId)}</div>
+              </div>
+            </div>
+          `;
+          robloxAuthBtn.style.background = 'linear-gradient(135deg, rgba(74, 222, 128, 0.18), rgba(16, 185, 129, 0.32))';
           robloxAuthBtn.style.borderColor = '#4ade80';
-          robloxAuthBtn.style.color = '#4ade80';
+          robloxAuthBtn.style.boxShadow = '0 0 20px rgba(74, 222, 128, 0.3), inset 0 0 12px rgba(74, 222, 128, 0.15)';
+          robloxAuthBtn.style.padding = '10px 14px';
         }
       }
     });
@@ -1101,6 +1112,9 @@
           robloxAuthBtn.innerHTML = `🎮 Đăng nhập bằng Roblox`;
           robloxAuthBtn.style.borderColor = '';
           robloxAuthBtn.style.color = '';
+          robloxAuthBtn.style.background = '';
+          robloxAuthBtn.style.boxShadow = '';
+          robloxAuthBtn.style.padding = '';
         }
       }
       let customAccounts = [];
@@ -1126,16 +1140,28 @@
         let locationText = isOnline ? (rawGame && !rawGame.includes('Website') ? `Đang trải nghiệm: <span style="color:#ff4d6d;">${rawGame}</span>` : `<span style="color:#ff4d6d;">Trang chủ</span>`) : `<span style="color:var(--desc-color);">Chưa có hoạt động</span>`;
         const badge = isOnline ? '<span class="status-badge status-1">🟢 Online</span>' : '<span class="status-badge status-0">🔴 Offline</span>';
         
+        // Link avatar roblox với kích thước vừa vặn (42x42px)
+        const avatarUrl = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150&format=png`;
+
         const card = document.createElement("div");
         card.className = "log-card glass-panel";
         card.style.opacity = "0"; 
         card.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.12}s forwards`; 
         card.innerHTML = `
           <div class="log-top">
-            <div><span class="highlight">${playerName}</span> ${userId === loggedInUserId ? '<span style="font-size:0.75rem; background:rgba(74,222,128,0.2); color:#4ade80; padding:2px 6px; border-radius:4px; margin-left:6px;">Tài khoản chính</span>' : ''}</div>
-            <div style="display:flex;gap:8px;">${badge} <button class="btn-remove-acc" onclick="removeTrackedAccount('${userId}')">🗑️ Xóa</button></div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="position: relative; width: 42px; height: 42px; flex-shrink: 0;">
+                <img src="${avatarUrl}" alt="Avatar" style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid ${isOnline ? '#4ade80' : '#ff4d6d'}; object-fit: cover; background: rgba(255,255,255,0.05);" onerror="this.src='https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default';">
+                <div style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: ${isOnline ? '#23a559' : '#f87171'}; border-radius: 50%; border: 2px solid #0f172a;"></div>
+              </div>
+              <div>
+                <span class="highlight">${playerName}</span> 
+                ${userId === loggedInUserId ? '<span style="font-size:0.7rem; background:rgba(74,222,128,0.2); color:#4ade80; padding:1px 5px; border-radius:4px; display:inline-block; margin-top:2px;">Tài khoản chính</span>' : ''}
+              </div>
+            </div>
+            <div style="display:flex;gap:8px; align-items:center;">${badge} <button class="btn-remove-acc" onclick="removeTrackedAccount('${userId}')">🗑️ Xóa</button></div>
           </div>
-          <div class="log-info" style="margin-top:8px;"><p style="margin-bottom:6px;">ID: ${userId}</p><p>${locationText}</p></div>`;
+          <div class="log-info" style="margin-top:8px;"><p style="margin-bottom:6px; font-size: 0.88rem; color: var(--desc-color);">ID: ${userId}</p><p>${locationText}</p></div>`;
         liveContainer.appendChild(card);
       });
     }
