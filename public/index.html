@@ -620,7 +620,27 @@
 
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const menuToggleBtn = document.getElementById('menuToggleBtn');
+      
       sidebar.classList.toggle('open');
+      const isOpen = sidebar.classList.contains('open');
+
+      if (window.innerWidth > 768) {
+        if (isOpen) {
+          mainContent.classList.add('shifted');
+          menuToggleBtn.classList.remove('show');
+        } else {
+          mainContent.classList.remove('shifted');
+          menuToggleBtn.classList.add('show'); // Luôn hiện nút khi đóng sidebar
+        }
+      } else {
+        if (isOpen) {
+          menuToggleBtn.classList.remove('show');
+        } else {
+          menuToggleBtn.classList.add('show');
+        }
+      }
     }
 
     function handleThemeToggle(checkbox) {
