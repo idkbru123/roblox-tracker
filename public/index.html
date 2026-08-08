@@ -18,6 +18,7 @@
       --desc-color: #94a3b8;
     }
 
+   
     body::before {
       content: "";
       position: fixed;
@@ -43,7 +44,7 @@
       inset: 0;
       background: rgba(0, 0, 0, 0.35);
       z-index: 2;
-      opacity: 1;
+      opacity: 0;
       transition: opacity 1.5s ease;
       pointer-events: none;
     }
@@ -123,6 +124,7 @@
     input:checked + .slider { background-color: #ff4d6d; border-color: #ff4d6d; }
     input:checked + .slider:before { transform: translateX(24px); }
 
+   
     .sidebar { 
       width: 295px; 
       background: rgba(10, 10, 18, 0.55); 
@@ -264,6 +266,7 @@
     .tab-section { display: none; }
     .tab-section.active { display: block; }
 
+    /* 3. THANH TIÊU ĐỀ PHONG CÁCH HUD */
     h1 { 
       color: #ffffff !important; 
       margin-bottom: 25px; 
@@ -284,6 +287,7 @@
       background: linear-gradient(90deg, #ff4d6d, rgba(255, 77, 109, 0.1), transparent);
     }
 
+    /* 2. KHUNG GIAO DIỆN KIỂU CÔNG NGHỆ (TECH CORNERS) */
     .glass-panel {
       position: relative;
       border: 1px solid rgba(255, 77, 109, 0.25);
@@ -531,9 +535,8 @@
     body.light-theme .bot-stats strong { color: #0f172a; }
   </style>
 
-  <!-- Đã thêm defer để không bị nghẽn mạng/load hoài -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -904,52 +907,30 @@
       });
     }
 
-    // Sử dụng DOMContentLoaded để không bị kẹt màn hình load
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('load', () => {
       initMatrix();
       initDateDropdowns();
       fetchRealtimeStats();
       setInterval(fetchRealtimeStats, 30000);
 
-      const sidebar = document.getElementById('sidebar');
-      const mainContent = document.getElementById('mainContent');
-      const menuToggleBtn = document.getElementById('menuToggleBtn');
+      setTimeout(() => {
+        document.getElementById('bgOverlay').style.opacity = '1';
+        document.getElementById('ui-container').classList.add('visible');
 
-      if (window.innerWidth > 768) {
-        sidebar.classList.add('open');
-        mainContent.classList.add('shifted');
-        menuToggleBtn.classList.remove('show');
-      } else {
-        menuToggleBtn.classList.add('show');
-      }
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const menuToggleBtn = document.getElementById('menuToggleBtn');
 
-      animateStaggeredElements('home');
-
-      // Khởi tạo Firebase an toàn
-      try {
-        const firebaseConfig = {
-          apiKey: "AIzaSyBYZE99y7JcqBXDQh7wHxFPdI0GVCCc_XE",
-          authDomain: "roblox-logs-406cd.firebaseapp.com",
-          projectId: "roblox-logs-406cd",
-          storageBucket: "roblox-logs-406cd.firebasestorage.app",
-          messagingSenderId: "678655678400",
-          appId: "1:678655678400:web:8e99a81d2b2e23ec355a25",
-          measurementId: "G-H7BS9DHD4C"
-        };
-
-        if (typeof firebase !== 'undefined') {
-          firebase.initializeApp(firebaseConfig);
-          const db = firebase.firestore();
-          
-          db.collection("roblox_logs").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-            rawLogsData = [];
-            snapshot.forEach(doc => rawLogsData.push(doc.data()));
-            updateUI();
-          });
+        if (window.innerWidth > 768) {
+          sidebar.classList.add('open');
+          mainContent.classList.add('shifted');
+          menuToggleBtn.classList.remove('show');
+        } else {
+          menuToggleBtn.classList.add('show');
         }
-      } catch (e) {
-        console.error("Firebase init error:", e);
-      }
+
+        animateStaggeredElements('home');
+      }, 1000); 
     });
 
     function showTab(tabName, btn) {
@@ -983,21 +964,29 @@
     const usernameCache = {};
     if (loggedInUserId && loggedInName) usernameCache[loggedInUserId] = loggedInName;
 
+    // Hàm an toàn để lấy ảnh avatar (có cơ chế dự phòng CDN Roblox)
     function loadRobloxAvatar(userId, imgElementId) {
       const imgEl = document.getElementById(imgElementId);
       if (!imgEl) return;
 
-      const fallbackUrl = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150&format=png`;
-      imgEl.src = fallbackUrl;
+      // 1. Đặt ảnh mặc định (default avatar) của Roblox làm fallback ban đầu thay vì link cũ
+      imgEl.src = 'https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default';
 
-      fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`)
-        .then(res => res.json())
+      // 2. Sử dụng roproxy.com thay cho roblox.com để vượt qua lỗi CORS
+      fetch(`https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`)
+        .then(res => {
+          if (!res.ok) throw new Error('Mạng lỗi');
+          return res.json();
+        })
         .then(data => {
           if (data && data.data && data.data.length > 0 && data.data[0].imageUrl) {
             imgEl.src = data.data[0].imageUrl;
           }
         })
-        .catch(() => {});
+        .catch((error) => {
+          console.error("Lỗi khi tải avatar Roblox:", error);
+          // Giữ nguyên ảnh mặc định nếu vẫn lỗi
+        });
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -1023,6 +1012,18 @@
       }
     });
 
+    const firebaseConfig = {
+      apiKey: "AIzaSyBYZE99y7JcqBXDQh7wHxFPdI0GVCCc_XE",
+      authDomain: "roblox-logs-406cd.firebaseapp.com",
+      projectId: "roblox-logs-406cd",
+      storageBucket: "roblox-logs-406cd.firebasestorage.app",
+      messagingSenderId: "678655678400",
+      appId: "1:678655678400:web:8e99a81d2b2e23ec355a25",
+      measurementId: "G-H7BS9DHD4C"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
     let rawLogsData = [];
 
     async function fetchRealtimeStats() {
@@ -1038,6 +1039,18 @@
               document.getElementById('statUptime').textContent = data.uptime;
             }
           }
+        } else {
+          db.collection("system_stats").doc("main").get().then(doc => {
+            if (doc.exists) {
+              const data = doc.data();
+              if (data.serverCount !== undefined) {
+                document.getElementById('statServerCount').textContent = data.serverCount;
+              }
+              if (data.uptime !== undefined) {
+                document.getElementById('statUptime').textContent = data.uptime;
+              }
+            }
+          }).catch(() => {});
         }
       } catch (err) {
         console.error("Không thể lấy thống kê thời gian thực từ backend:", err);
@@ -1164,6 +1177,7 @@
           <div class="log-info" style="margin-top:8px;"><p style="margin-bottom:6px; font-size: 0.88rem; color: var(--desc-color);">ID: ${userId}</p><p>${locationText}</p></div>`;
         liveContainer.appendChild(card);
 
+        // Gọi hàm tải avatar an toàn cho từng thẻ Live
         loadRobloxAvatar(userId, imgId);
       });
     }
@@ -1296,6 +1310,12 @@
         container.appendChild(card);
       });
     }
+
+    db.collection("roblox_logs").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+      rawLogsData = [];
+      snapshot.forEach(doc => rawLogsData.push(doc.data()));
+      updateUI();
+    });
   </script>
 </body>
 </html>
