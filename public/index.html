@@ -16,6 +16,7 @@
       min-height: 100dvh;
     }
 
+    /* Lớp nền chữ đỏ Matrix rơi liên tục */
     #matrixCanvas {
       position: fixed;
       top: 0; left: 0;
@@ -24,6 +25,7 @@
       pointer-events: none;
     }
 
+    /* Lớp phủ để UI dễ nhìn hơn nhưng vẫn thấy rõ chữ đỏ chạy phía sau */
     .bg-overlay {
       position: fixed;
       inset: 0;
@@ -240,7 +242,7 @@
 </head>
 <body>
 
-  <!-- Lớp nền Matrix đỏ rơi liên tục -->
+  <!-- Lớp nền Matrix đỏ Error ngẫu nhiên -->
   <canvas id="matrixCanvas"></canvas>
   
   <!-- Lớp phủ mờ dần khi UI xuất hiện -->
@@ -352,50 +354,75 @@
   </div>
 
   <script>
-    // --- 1. HIỆU ỨNG CHỮ ĐỎ MATRIX (Chạy liên tục, không tắt) ---
+    // --- 1. HIỆU ỨNG CHỮ ĐỎ LỖI / GLITCH (Rơi ngẫu nhiên, không bị thành hàng đều nhau) ---
     function initMatrix() {
       const canvas = document.getElementById('matrixCanvas');
       const ctx = canvas.getContext('2d');
 
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
 
-      // Ký tự ngẫu nhiên giống mẫu hacker/matrix
-      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>/?ROBLOXTRACKER".split("");
+      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>/?ROBLOX".split("");
       const fontSize = 16;
+      
+      // Tạo các luồng chữ (glitches) chạy độc lập với nhau
+      const glitches = [];
       const columns = Math.floor(canvas.width / fontSize);
-      const drops = [];
+      
+      // Giới hạn số lượng luồng chữ rơi để tạo khoảng trống (khoảng 35% độ dày của màn hình)
+      const numGlitches = Math.floor(columns * 0.35); 
 
-      // Khởi tạo các giọt rơi ngẫu nhiên ngoài màn hình (tạo cảm giác rơi tự nhiên từ trên xuống khi mới vào web)
-      for (let i = 0; i < columns; i++) {
-        drops[i] = Math.floor(Math.random() * -100); 
+      for (let i = 0; i < numGlitches; i++) {
+        glitches.push({
+          x: Math.floor(Math.random() * columns) * fontSize, // Vị trí X ngẫu nhiên
+          y: Math.random() * -canvas.height * 2, // Phân tán vị trí Y cực rộng (không bị thành hàng ngang)
+          speed: Math.floor(Math.random() * 4) + 1, // Tốc độ delay frame (1 đến 4 frame mới nhảy 1 dòng)
+          counter: 0
+        });
       }
 
       function drawMatrix() {
         // Tạo vệt mờ phía sau chữ (trail effect)
-        ctx.fillStyle = "rgba(0, 0, 0, 0.1)"; 
+        ctx.fillStyle = "rgba(0, 0, 0, 0.15)"; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Màu đỏ sáng chói
-        ctx.fillStyle = "#ff1f3d"; 
+        
         ctx.font = fontSize + "px monospace";
 
-        for (let i = 0; i < drops.length; i++) {
-          const text = characters[Math.floor(Math.random() * characters.length)];
+        for (let i = 0; i < glitches.length; i++) {
+          const g = glitches[i];
+          g.counter++;
           
-          // Chỉ vẽ nếu giọt đã vào trong tầm nhìn màn hình
-          if (drops[i] * fontSize > -20) {
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+          // Chờ đủ số frame (dựa vào speed) thì mới cho rơi xuống 1 dòng -> tạo tốc độ khác nhau
+          if (g.counter >= g.speed) {
+            const text = characters[Math.floor(Math.random() * characters.length)];
+            
+            // Lâu lâu cho chớp 1 ký tự màu trắng để ra hiệu ứng lỗi Error/Glitch, còn lại là đỏ
+            if (Math.random() > 0.95) {
+              ctx.fillStyle = "#ffffff";
+            } else {
+              ctx.fillStyle = "#ff1f3d"; 
+            }
+            
+            ctx.fillText(text, g.x, g.y);
+            
+            // Di chuyển xuống
+            g.y += fontSize;
+            g.counter = 0;
+            
+            // Nếu rơi khỏi đáy màn hình thì reset lại (tọa độ ngẫu nhiên mới, tốc độ ngẫu nhiên mới)
+            if (g.y > canvas.height && Math.random() > 0.85) {
+              g.y = Math.random() * -100;
+              g.x = Math.floor(Math.random() * Math.floor(canvas.width / fontSize)) * fontSize;
+              g.speed = Math.floor(Math.random() * 4) + 1; 
+            }
           }
-
-          // Reset ngẫu nhiên khi chạm đáy
-          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-            drops[i] = 0;
-          }
-          drops[i]++;
         }
       }
-      setInterval(drawMatrix, 45); // Tốc độ rơi
+      setInterval(drawMatrix, 35); // Vòng lặp cập nhật
     }
 
     // --- 2. LOGIC HIỂN THỊ UI TỪNG BỐ CỤC (STAGGERED REVEAL) ---
@@ -407,25 +434,24 @@
         item.style.animation = 'none'; // Reset
         item.offsetHeight; // Kích hoạt reflow
         
-        // Hiện lần lượt từng thẻ một, mỗi thẻ cách nhau 0.15s (rất mượt)
+        // Hiện lần lượt từng thẻ một, mỗi thẻ cách nhau 0.12s
         item.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.12}s forwards`;
       });
     }
 
     // --- 3. KHỞI CHẠY HỆ THỐNG KHI LOAD TRANG ---
     window.addEventListener('load', () => {
-      // Bật Matrix ngay lập tức
+      // Bật Matrix ngẫu nhiên ngay lập tức
       initMatrix();
       initDateDropdowns();
 
-      // Đợi 2 giây cho chữ rơi kín màn hình rồi mới từ từ hé lộ UI
+      // Đợi 2 giây cho chữ chạy rồi hé lộ UI
       setTimeout(() => {
-        // Bật lớp phủ tối nhẹ để chữ nổi nhưng UI dễ đọc
         document.getElementById('bgOverlay').style.opacity = '1';
         document.getElementById('ui-container').classList.add('visible');
         document.getElementById('menuToggleBtn').classList.add('show');
 
-        // Mở mượt Sidebar từ trái qua nếu là máy tính
+        // Mở mượt Sidebar nếu là máy tính
         if (window.innerWidth > 768) {
           document.getElementById('sidebar').classList.add('open');
           document.getElementById('mainContent').classList.add('shifted');
@@ -433,7 +459,7 @@
 
         // Chạy hiệu ứng xuất hiện cho tab Home
         animateStaggeredElements('home');
-      }, 2000); // <-- 2 giây ngắm chữ rơi
+      }, 2000); 
     });
 
     // Xử lý chuyển Tab
@@ -462,7 +488,7 @@
     }
 
 
-    /* --- PHẦN LOGIC FIREBASE & DỮ LIỆU CŨ GIỮ NGUYÊN (Không ảnh hưởng UI) --- */
+    /* --- PHẦN LOGIC FIREBASE & DỮ LIỆU CŨ GIỮ NGUYÊN --- */
     const BACKEND_URL = ""; 
     const urlParams = new URLSearchParams(window.location.search);
     const loggedInUserId = urlParams.get('user_id');
@@ -558,7 +584,7 @@
         
         const card = document.createElement("div");
         card.className = "log-card glass-panel stagger-item";
-        card.style.animationDelay = `${index * 0.12}s`; // Animation mượt mà từng card
+        card.style.animationDelay = `${index * 0.12}s`; 
         card.innerHTML = `
           <div class="log-top">
             <div><span class="highlight">${playerName}</span></div>
@@ -575,8 +601,6 @@
       const trackedIds = Array.from(trackedMap.keys());
       const selectedUser = document.getElementById("userFilter")?.value || "ALL";
       
-      let dateSelected = ""; // Giữ nguyên logic xử lý lọc date của bạn ở đây...
-      
       const filtered = rawLogsData.filter(d => {
         const uid = String(d.robloxUserId || d.details?.robloxUserId || d.robloxId || "");
         if (!trackedIds.includes(uid)) return false;
@@ -590,7 +614,6 @@
         return;
       }
 
-      // Rút gọn quá trình render để UI trực quan
       filtered.slice(0, 20).forEach((data, index) => {
         let timeStr = data.timestamp?.seconds ? new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN') : "Vừa xong";
         const uid = data.robloxUserId || data.robloxId;
