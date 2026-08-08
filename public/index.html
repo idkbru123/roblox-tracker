@@ -514,12 +514,10 @@
       }
     });
 
-    // --- MỚI: Xử lý Logic Xác Thực ---
     function requestVerificationCode() {
         const rId = document.getElementById('verifyRobloxId').value.trim();
         const dId = document.getElementById('verifyDiscordId').value.trim();
         if(!rId || !dId) { alert("Vui lòng điền đủ Roblox ID và Discord ID!"); return; }
-        // Placeholder cho API call
         alert("Đã gửi mã xác nhận đến Discord của bạn!");
         document.getElementById('verifyStep1').style.display = 'none';
         document.getElementById('verifyStep2').style.display = 'block';
@@ -528,7 +526,6 @@
     function confirmVerificationCode() {
         const code = document.getElementById('verifyCodeInput').value.trim();
         if(!code) { alert("Vui lòng nhập mã xác nhận!"); return; }
-        // Placeholder cho API call
         alert("Xác thực tài khoản thành công!");
         document.getElementById('verifyStep2').style.display = 'none';
         document.getElementById('verifyStep1').style.display = 'block';
@@ -671,7 +668,6 @@
     let loggedInUserId = urlParams.get('user_id');
     let loggedInName = urlParams.get('name');
 
-    // Lưu thông tin đăng nhập Roblox vào localStorage
     if (loggedInUserId && /^\d{5,14}$/.test(String(loggedInUserId).trim())) {
       localStorage.setItem('logged_in_roblox_id', loggedInUserId);
       localStorage.setItem('logged_in_roblox_name', loggedInName || `ID: ${loggedInUserId}`);
@@ -683,7 +679,6 @@
     const usernameCache = {};
     if (loggedInUserId && loggedInName) usernameCache[loggedInUserId] = loggedInName;
 
-    // Cập nhật giao diện nút đăng nhập nếu đã có session
     window.addEventListener('DOMContentLoaded', () => {
       if (loggedInUserId) {
         const robloxAuthBtn = document.getElementById('robloxAuthBtn');
@@ -810,30 +805,52 @@
       });
     }
 
+    // --- ĐÃ SỬA: Bổ sung logic lọc theo Ngày/Tháng/Năm và hiển thị an toàn khi chưa cấu hình trackedIds ---
     function renderHistoryLogs() {
       const container = document.getElementById("logs");
       const trackedMap = getTrackedAccounts();
       const trackedIds = Array.from(trackedMap.keys());
       const selectedUser = document.getElementById("userFilter")?.value || "ALL";
       
+      const selectedDay = document.getElementById("filterDay")?.value;
+      const selectedMonth = document.getElementById("filterMonth")?.value;
+      const selectedYear = document.getElementById("filterYear")?.value;
+      
       const filtered = rawLogsData.filter(d => {
         const uid = String(d.robloxUserId || d.details?.robloxUserId || d.robloxId || "");
-        if (!trackedIds.includes(uid)) return false;
+        
+        // Nếu chọn tài khoản cụ thể
         if (selectedUser !== "ALL" && uid !== selectedUser) return false;
+        
+        // Nếu đã có danh sách theo dõi, chỉ hiện log của các tài khoản đó (trừ khi chưa add gì thì cho phép hiển thị tất cả để tránh bị trắng khung)
+        if (trackedIds.length > 0 && !trackedIds.includes(uid) && selectedUser === "ALL") {
+          return false;
+        }
+
+        // Xử lý lọc theo ngày, tháng, năm từ dropdown
+        if (d.timestamp && d.timestamp.seconds) {
+          const logDate = new Date(d.timestamp.seconds * 1000);
+          if (selectedDay && logDate.getDate() !== parseInt(selectedDay)) return false;
+          if (selectedMonth && (logDate.getMonth() + 1) !== parseInt(selectedMonth)) return false;
+          if (selectedYear && logDate.getFullYear() !== parseInt(selectedYear)) return false;
+        } else if (selectedDay || selectedMonth || selectedYear) {
+          return false;
+        }
+
         return true; 
       });
 
       container.innerHTML = "";
       if (filtered.length === 0) {
-        container.innerHTML = "<p class='empty-msg glass-panel'>Không tìm thấy dữ liệu lịch sử nào.</p>";
+        container.innerHTML = "<p class='empty-msg glass-panel'>Không tìm thấy dữ liệu lịch sử nào phù hợp.</p>";
         return;
       }
 
       filtered.slice(0, 20).forEach((data, index) => {
         let timeStr = data.timestamp?.seconds ? new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN') : "Vừa xong";
-        const uid = data.robloxUserId || data.robloxId;
-        const name = trackedMap.get(uid) || data.playerName || uid;
-        const game = data.gameName || data.placeName || "Website";
+        const uid = data.robloxUserId || data.robloxId || data.details?.robloxUserId;
+        const name = trackedMap.get(uid) || data.playerName || data.details?.playerName || uid || "Không rõ";
+        const game = data.gameName || data.placeName || data.details?.gameName || "Website";
 
         const card = document.createElement("div");
         card.className = "log-card glass-panel stagger-item";
