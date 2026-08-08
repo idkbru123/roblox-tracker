@@ -93,7 +93,6 @@
     }
     .settings-toggle-btn:hover { background: rgba(255, 255, 255, 0.12); transform: scale(1.05); }
 
-    /* Modal Cài đặt */
     .settings-modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
       z-index: 1000; display: flex; align-items: center; justify-content: center;
@@ -110,7 +109,6 @@
     .setting-title { font-weight: 700; font-size: 1.05rem; color: var(--text-color); display: block; margin-bottom: 4px; }
     .setting-desc { font-size: 0.85rem; color: var(--desc-color); line-height: 1.4; }
 
-    /* Toggle switch CSS */
     .switch { position: relative; display: inline-block; width: 50px; height: 26px; flex-shrink: 0; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .3s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.3); }
@@ -187,7 +185,6 @@
     .tab-section { display: none; }
     .tab-section.active { display: block; }
 
-    /* Tiêu đề trang */
     h1 { 
       color: #ffffff !important; 
       margin-bottom: 25px; 
@@ -299,10 +296,9 @@
       100% { opacity: 1; transform: translateY(0); }
     }
 
-    /* Giao diện Light Theme */
     body.light-theme {
       --text-color: #0f172a;
-      --desc-color: #0f172a; /* Chỉnh chữ mô tả tối đậm rõ nét */
+      --desc-color: #0f172a;
     }
     body.light-theme .glass-panel {
       background: rgba(255, 255, 255, 0.35);
@@ -336,7 +332,6 @@
       background: rgba(255, 255, 255, 0.6);
       border-color: #ff4d6d;
     }
-    /* Đồng bộ chữ Bảo mật, Điều khoản và dấu chấm phân cách sang màu tối đậm rõ nét */
     body.light-theme .user-profile-box a {
       color: #0f172a !important;
     }
@@ -374,7 +369,6 @@
   <button class="menu-toggle-btn" id="menuToggleBtn" onclick="toggleSidebar()">☰</button>
   <button class="settings-toggle-btn" id="settingsToggleBtn" onclick="toggleSettingsModal()">⚙️</button>
 
-  <!-- Modal Cài đặt -->
   <div class="settings-modal-overlay" id="settingsModalOverlay" onclick="toggleSettingsModal()">
     <div class="settings-modal glass-panel" onclick="event.stopPropagation()">
       <div class="settings-header">
@@ -411,7 +405,7 @@
       </div>
 
       <div class="user-profile-box" id="authBox">
-        <a href="/auth/roblox" class="btn-roblox">🎮 Đăng nhập bằng Roblox</a>
+        <a href="/auth/roblox" class="btn-roblox" id="robloxAuthBtn">🎮 Đăng nhập bằng Roblox</a>
         <div style="margin-top: 10px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
           <a href="#" style="color: var(--desc-color); font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff4d6d'" onmouseout="this.style.color='var(--desc-color)'">🔒 Bảo mật</a>
           <span style="color: #4b5563; font-size: 0.7rem;">•</span>
@@ -653,10 +647,32 @@
 
     const BACKEND_URL = ""; 
     const urlParams = new URLSearchParams(window.location.search);
-    const loggedInUserId = urlParams.get('user_id');
-    const loggedInName = urlParams.get('name');
+    let loggedInUserId = urlParams.get('user_id');
+    let loggedInName = urlParams.get('name');
+
+    // Lưu thông tin đăng nhập Roblox vào localStorage để giữ lại khi reload hoặc chuyển trang
+    if (loggedInUserId && /^\d{5,14}$/.test(String(loggedInUserId).trim())) {
+      localStorage.setItem('logged_in_roblox_id', loggedInUserId);
+      localStorage.setItem('logged_in_roblox_name', loggedInName || `ID: ${loggedInUserId}`);
+    } else {
+      loggedInUserId = localStorage.getItem('logged_in_roblox_id');
+      loggedInName = localStorage.getItem('logged_in_roblox_name');
+    }
+
     const usernameCache = {};
     if (loggedInUserId && loggedInName) usernameCache[loggedInUserId] = loggedInName;
+
+    // Cập nhật giao diện nút đăng nhập nếu đã có session
+    window.addEventListener('DOMContentLoaded', () => {
+      if (loggedInUserId) {
+        const robloxAuthBtn = document.getElementById('robloxAuthBtn');
+        if (robloxAuthBtn) {
+          robloxAuthBtn.innerHTML = `✅ ${loggedInName || ('ID: ' + loggedInUserId)}`;
+          robloxAuthBtn.style.borderColor = '#4ade80';
+          robloxAuthBtn.style.color = '#4ade80';
+        }
+      }
+    });
 
     const firebaseConfig = {
       apiKey: "AIzaSyBYZE99y7JcqBXDQh7wHxFPdI0GVCCc_XE",
@@ -701,7 +717,12 @@
       let customAccounts = [];
       try { customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]'); } catch(e) {}
       const accountMap = new Map();
-      if (loggedInUserId && isValidRobloxId(loggedInUserId)) accountMap.set(loggedInUserId, loggedInName || `ID: ${loggedInUserId}`);
+      
+      // Thêm tài khoản đăng nhập qua Roblox (đã lưu vào localStorage)
+      if (loggedInUserId && isValidRobloxId(loggedInUserId)) {
+        accountMap.set(loggedInUserId, loggedInName || `ID: ${loggedInUserId}`);
+      }
+      
       customAccounts.forEach(acc => { if (isValidRobloxId(acc.id)) accountMap.set(acc.id, acc.name || `ID: ${acc.id}`); });
       return accountMap;
     }
@@ -721,6 +742,18 @@
     }
 
     function removeTrackedAccount(id) {
+      if (id === loggedInUserId) {
+        localStorage.removeItem('logged_in_roblox_id');
+        localStorage.removeItem('logged_in_roblox_name');
+        loggedInUserId = null;
+        loggedInName = null;
+        const robloxAuthBtn = document.getElementById('robloxAuthBtn');
+        if (robloxAuthBtn) {
+          robloxAuthBtn.innerHTML = `🎮 Đăng nhập bằng Roblox`;
+          robloxAuthBtn.style.borderColor = '';
+          robloxAuthBtn.style.color = '';
+        }
+      }
       let customAccounts = [];
       try { customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]'); } catch(e) {}
       customAccounts = customAccounts.filter(acc => acc.id !== id);
@@ -732,7 +765,7 @@
       const liveContainer = document.getElementById("live-container");
       liveContainer.innerHTML = "";
       if (trackedIds.length === 0) {
-        liveContainer.innerHTML = `<div class='empty-msg glass-panel'>⚠️ Chưa có tài khoản nào được thêm.</div>`;
+        liveContainer.innerHTML = `<div class='empty-msg glass-panel'>⚠️ Chưa có tài khoản nào được thêm hoặc đăng nhập.</div>`;
         return;
       }
 
@@ -749,8 +782,8 @@
         card.style.animationDelay = `${index * 0.12}s`; 
         card.innerHTML = `
           <div class="log-top">
-            <div><span class="highlight">${playerName}</span></div>
-            <div style="display:flex;gap:8px;">${badge} ${userId !== loggedInUserId ? `<button class="btn-remove-acc" onclick="removeTrackedAccount('${userId}')">🗑️ Xóa</button>` : ''}</div>
+            <div><span class="highlight">${playerName}</span> ${userId === loggedInUserId ? '<span style="font-size:0.75rem; background:rgba(74,222,128,0.2); color:#4ade80; padding:2px 6px; border-radius:4px; margin-left:6px;">Tài khoản chính</span>' : ''}</div>
+            <div style="display:flex;gap:8px;">${badge} <button class="btn-remove-acc" onclick="removeTrackedAccount('${userId}')">🗑️ Xóa</button></div>
           </div>
           <div class="log-info" style="margin-top:8px;"><p style="margin-bottom:6px;">ID: ${userId}</p><p>${locationText}</p></div>`;
         liveContainer.appendChild(card);
