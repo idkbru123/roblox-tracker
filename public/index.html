@@ -42,17 +42,13 @@
       display: flex;
       width: 100%;
       min-height: 100vh;
-      pointer-events: none; 
-    }
-
-    #ui-container.visible {
-      pointer-events: auto;
+      /* Đã xóa pointer-events: none ở đây để tránh làm mất sự kiện bấm các nút bên trong */
     }
 
     .menu-toggle-btn {
       position: fixed;
       top: 20px; left: 20px;
-      z-index: 200;
+      z-index: 400; /* Tăng z-index lên cao hơn sidebar và overlay để luôn bấm được */
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
@@ -78,7 +74,7 @@
     .settings-toggle-btn {
       position: fixed;
       top: 20px; right: 20px;
-      z-index: 200;
+      z-index: 400;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
@@ -495,6 +491,11 @@
       modal.classList.toggle('open');
     }
 
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
     function handleThemeToggle(checkbox) {
       if (checkbox.checked) {
         document.body.classList.add('light-theme');
@@ -623,7 +624,6 @@
       initMatrix();
       initDateDropdowns();
 
-      // Giảm thời gian chờ từ 4500ms xuống 1000ms để tránh giao diện bị đơ lâu
       setTimeout(() => {
         document.getElementById('bgOverlay').style.opacity = '1';
         document.getElementById('ui-container').classList.add('visible');
@@ -789,9 +789,9 @@
         const badge = isOnline ? '<span class="status-badge status-1">🟢 Online</span>' : '<span class="status-badge status-0">🔴 Offline</span>';
         
         const card = document.createElement("div");
-        card.className = "log-card glass-panel"; // Đã bỏ class stagger-item
-        card.style.opacity = "0"; // Ép ẩn
-        card.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.12}s forwards`; // Kích hoạt animation độc lập
+        card.className = "log-card glass-panel";
+        card.style.opacity = "0"; 
+        card.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.12}s forwards`; 
         card.innerHTML = `
           <div class="log-top">
             <div><span class="highlight">${playerName}</span> ${userId === loggedInUserId ? '<span style="font-size:0.75rem; background:rgba(74,222,128,0.2); color:#4ade80; padding:2px 6px; border-radius:4px; margin-left:6px;">Tài khoản chính</span>' : ''}</div>
@@ -846,9 +846,9 @@
         const game = data.gameName || data.placeName || "Website";
 
         const card = document.createElement("div");
-        card.className = "log-card glass-panel"; // Đã bỏ class stagger-item
-        card.style.opacity = "0"; // Đặt opacity ban đầu là 0
-        card.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.08}s forwards`; // Ép CSS animation chạy ngay lập tức
+        card.className = "log-card glass-panel";
+        card.style.opacity = "0"; 
+        card.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.08}s forwards`; 
         card.innerHTML = `
           <div class="log-top">
             <div>Người chơi: <span class="highlight">${name}</span></div>
