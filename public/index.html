@@ -525,11 +525,25 @@
 
     function confirmVerificationCode() {
         const code = document.getElementById('verifyCodeInput').value.trim();
+        const rId = document.getElementById('verifyRobloxId').value.trim();
+        const rName = document.getElementById('newRobloxNameInput').value.trim();
+
         if(!code) { alert("Vui lòng nhập mã xác nhận!"); return; }
+
+        let customAccounts = [];
+        try { customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]'); } catch(e) {}
+        
+        if (rId && !customAccounts.some(acc => acc.id === rId)) {
+            customAccounts.push({ id: rId, name: rName || `ID: ${rId}` });
+            localStorage.setItem('custom_tracked_accounts', JSON.stringify(customAccounts));
+        }
+
         alert("Xác thực tài khoản thành công!");
         document.getElementById('verifyStep2').style.display = 'none';
         document.getElementById('verifyStep1').style.display = 'block';
         document.getElementById('verifyCodeInput').value = '';
+        
+        updateUI(); 
     }
 
     function initMatrix() {
@@ -596,7 +610,7 @@
 
     function animateStaggeredElements(tabId) {
       const tab = document.getElementById('tab-' + tabId);
-      const items = tab.querySelectorAll('.stagger-item, .log-card'); 
+      const items = tab.querySelectorAll('.stagger-item'); 
       
       items.forEach((item, index) => {
         item.style.animation = 'none';
@@ -609,6 +623,7 @@
       initMatrix();
       initDateDropdowns();
 
+      // Giảm thời gian chờ từ 4500ms xuống 1000ms để tránh giao diện bị đơ lâu
       setTimeout(() => {
         document.getElementById('bgOverlay').style.opacity = '1';
         document.getElementById('ui-container').classList.add('visible');
@@ -626,7 +641,7 @@
         }
 
         animateStaggeredElements('home');
-      }, 4500); 
+      }, 1000); 
     });
 
     function showTab(tabName, btn) {
@@ -642,25 +657,6 @@
       }
 
       animateStaggeredElements(tabName);
-    }
-
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const mainContent = document.getElementById('mainContent');
-      const menuToggleBtn = document.getElementById('menuToggleBtn');
-      
-      sidebar.classList.toggle('open');
-      const isOpen = sidebar.classList.contains('open');
-
-      if (window.innerWidth > 768) {
-        mainContent.classList.toggle('shifted', isOpen);
-      }
-
-      if (isOpen) {
-        menuToggleBtn.classList.remove('show');
-      } else {
-        menuToggleBtn.classList.add('show');
-      }
     }
 
     const BACKEND_URL = ""; 
@@ -780,7 +776,7 @@
       const liveContainer = document.getElementById("live-container");
       liveContainer.innerHTML = "";
       if (trackedIds.length === 0) {
-        liveContainer.innerHTML = `<div class='empty-msg glass-panel'>⚠️ Chưa có tài khoản nào được thêm hoặc đăng nhập.</div>`;
+        liveContainer.innerHTML = `<div class='empty-msg glass-panel' style='animation: sequentialFadeUp 0.5s forwards;'>⚠️ Chưa có tài khoản nào được thêm hoặc đăng nhập.</div>`;
         return;
       }
 
@@ -793,8 +789,9 @@
         const badge = isOnline ? '<span class="status-badge status-1">🟢 Online</span>' : '<span class="status-badge status-0">🔴 Offline</span>';
         
         const card = document.createElement("div");
-        card.className = "log-card glass-panel stagger-item";
-        card.style.animationDelay = `${index * 0.12}s`; 
+        card.className = "log-card glass-panel"; // Đã bỏ class stagger-item
+        card.style.opacity = "0"; // Ép ẩn
+        card.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.12}s forwards`; // Kích hoạt animation độc lập
         card.innerHTML = `
           <div class="log-top">
             <div><span class="highlight">${playerName}</span> ${userId === loggedInUserId ? '<span style="font-size:0.75rem; background:rgba(74,222,128,0.2); color:#4ade80; padding:2px 6px; border-radius:4px; margin-left:6px;">Tài khoản chính</span>' : ''}</div>
@@ -805,56 +802,53 @@
       });
     }
 
-    // --- ĐÃ SỬA: Bổ sung logic lọc theo Ngày/Tháng/Năm và hiển thị an toàn khi chưa cấu hình trackedIds ---
     function renderHistoryLogs() {
       const container = document.getElementById("logs");
       const trackedMap = getTrackedAccounts();
       const trackedIds = Array.from(trackedMap.keys());
       const selectedUser = document.getElementById("userFilter")?.value || "ALL";
       
-      const selectedDay = document.getElementById("filterDay")?.value;
-      const selectedMonth = document.getElementById("filterMonth")?.value;
-      const selectedYear = document.getElementById("filterYear")?.value;
-      
+      const fDay = document.getElementById("filterDay")?.value;
+      const fMonth = document.getElementById("filterMonth")?.value;
+      const fYear = document.getElementById("filterYear")?.value;
+      const fStr = document.getElementById("dateFilter")?.value.trim();
+      const isInputMode = document.getElementById("inputDateMode")?.style.display !== "none";
+
       const filtered = rawLogsData.filter(d => {
         const uid = String(d.robloxUserId || d.details?.robloxUserId || d.robloxId || "");
-        
-        // Nếu chọn tài khoản cụ thể
+        if (!trackedIds.includes(uid)) return false;
         if (selectedUser !== "ALL" && uid !== selectedUser) return false;
         
-        // Nếu đã có danh sách theo dõi, chỉ hiện log của các tài khoản đó (trừ khi chưa add gì thì cho phép hiển thị tất cả để tránh bị trắng khung)
-        if (trackedIds.length > 0 && !trackedIds.includes(uid) && selectedUser === "ALL") {
-          return false;
-        }
-
-        // Xử lý lọc theo ngày, tháng, năm từ dropdown
         if (d.timestamp && d.timestamp.seconds) {
-          const logDate = new Date(d.timestamp.seconds * 1000);
-          if (selectedDay && logDate.getDate() !== parseInt(selectedDay)) return false;
-          if (selectedMonth && (logDate.getMonth() + 1) !== parseInt(selectedMonth)) return false;
-          if (selectedYear && logDate.getFullYear() !== parseInt(selectedYear)) return false;
-        } else if (selectedDay || selectedMonth || selectedYear) {
-          return false;
+            const dateObj = new Date(d.timestamp.seconds * 1000);
+            if (isInputMode && fStr) {
+                const dateString = dateObj.toLocaleDateString('vi-VN');
+                if (!dateString.includes(fStr)) return false;
+            } else if (!isInputMode) {
+                if (fDay && dateObj.getDate() != fDay) return false;
+                if (fMonth && (dateObj.getMonth() + 1) != fMonth) return false;
+                if (fYear && dateObj.getFullYear() != fYear) return false;
+            }
         }
-
         return true; 
       });
 
       container.innerHTML = "";
       if (filtered.length === 0) {
-        container.innerHTML = "<p class='empty-msg glass-panel'>Không tìm thấy dữ liệu lịch sử nào phù hợp.</p>";
+        container.innerHTML = "<p class='empty-msg glass-panel' style='animation: sequentialFadeUp 0.5s forwards;'>Không tìm thấy dữ liệu lịch sử nào.</p>";
         return;
       }
 
       filtered.slice(0, 20).forEach((data, index) => {
         let timeStr = data.timestamp?.seconds ? new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN') : "Vừa xong";
-        const uid = data.robloxUserId || data.robloxId || data.details?.robloxUserId;
-        const name = trackedMap.get(uid) || data.playerName || data.details?.playerName || uid || "Không rõ";
-        const game = data.gameName || data.placeName || data.details?.gameName || "Website";
+        const uid = data.robloxUserId || data.robloxId;
+        const name = trackedMap.get(uid) || data.playerName || uid;
+        const game = data.gameName || data.placeName || "Website";
 
         const card = document.createElement("div");
-        card.className = "log-card glass-panel stagger-item";
-        card.style.animationDelay = `${index * 0.08}s`; 
+        card.className = "log-card glass-panel"; // Đã bỏ class stagger-item
+        card.style.opacity = "0"; // Đặt opacity ban đầu là 0
+        card.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.08}s forwards`; // Ép CSS animation chạy ngay lập tức
         card.innerHTML = `
           <div class="log-top">
             <div>Người chơi: <span class="highlight">${name}</span></div>
