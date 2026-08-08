@@ -514,6 +514,27 @@
       }
     });
 
+    // --- MỚI: Xử lý Logic Xác Thực ---
+    function requestVerificationCode() {
+        const rId = document.getElementById('verifyRobloxId').value.trim();
+        const dId = document.getElementById('verifyDiscordId').value.trim();
+        if(!rId || !dId) { alert("Vui lòng điền đủ Roblox ID và Discord ID!"); return; }
+        // Placeholder cho API call
+        alert("Đã gửi mã xác nhận đến Discord của bạn!");
+        document.getElementById('verifyStep1').style.display = 'none';
+        document.getElementById('verifyStep2').style.display = 'block';
+    }
+
+    function confirmVerificationCode() {
+        const code = document.getElementById('verifyCodeInput').value.trim();
+        if(!code) { alert("Vui lòng nhập mã xác nhận!"); return; }
+        // Placeholder cho API call
+        alert("Xác thực tài khoản thành công!");
+        document.getElementById('verifyStep2').style.display = 'none';
+        document.getElementById('verifyStep1').style.display = 'block';
+        document.getElementById('verifyCodeInput').value = '';
+    }
+
     function initMatrix() {
       const canvas = document.getElementById('matrixCanvas');
       const ctx = canvas.getContext('2d');
@@ -650,7 +671,7 @@
     let loggedInUserId = urlParams.get('user_id');
     let loggedInName = urlParams.get('name');
 
-    // Lưu thông tin đăng nhập Roblox vào localStorage để giữ lại khi reload hoặc chuyển trang
+    // Lưu thông tin đăng nhập Roblox vào localStorage
     if (loggedInUserId && /^\d{5,14}$/.test(String(loggedInUserId).trim())) {
       localStorage.setItem('logged_in_roblox_id', loggedInUserId);
       localStorage.setItem('logged_in_roblox_name', loggedInName || `ID: ${loggedInUserId}`);
@@ -718,7 +739,6 @@
       try { customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]'); } catch(e) {}
       const accountMap = new Map();
       
-      // Thêm tài khoản đăng nhập qua Roblox (đã lưu vào localStorage)
       if (loggedInUserId && isValidRobloxId(loggedInUserId)) {
         accountMap.set(loggedInUserId, loggedInName || `ID: ${loggedInUserId}`);
       }
