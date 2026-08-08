@@ -291,45 +291,63 @@
       100% { opacity: 1; transform: translateY(0); }
     }
 
-    /* Giao diện Light Theme (UI trắng không chói) */
+    /* Giao diện Light Theme (UI trắng trong suốt dịu mắt, chữ hiển thị rõ) */
     body.light-theme {
       --text-color: #0f172a;
-      --desc-color: #475569;
+      --desc-color: #334155;
     }
     body.light-theme .glass-panel {
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+      background: rgba(255, 255, 255, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
       color: #0f172a;
     }
     body.light-theme .sidebar {
-      background: rgba(255, 255, 255, 0.82);
-      border-right: 1px solid rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.35);
+      border-right: 1px solid rgba(255, 255, 255, 0.6);
       box-shadow: 4px 0 30px rgba(0,0,0,0.1);
     }
+    body.light-theme .menu-btn {
+      color: #1e293b;
+    }
     body.light-theme .menu-btn:hover {
-      background: rgba(0, 0, 0, 0.05);
-      color: #000;
+      background: rgba(0, 0, 0, 0.08);
+      color: #0f172a;
     }
     body.light-theme .menu-btn.active {
-      background: rgba(255, 77, 109, 0.15);
+      background: rgba(255, 77, 109, 0.2);
       color: #d90429;
       border-left: 4px solid #d90429;
+    }
+    body.light-theme .btn-roblox {
+      background: rgba(255, 255, 255, 0.4);
+      color: #0f172a;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+    }
+    body.light-theme .btn-roblox:hover {
+      background: rgba(255, 255, 255, 0.6);
+      border-color: #ff4d6d;
+    }
+    body.light-theme .user-profile-box a {
+      color: #475569 !important;
+    }
+    body.light-theme .user-profile-box a:hover {
+      color: #ff4d6d !important;
     }
     body.light-theme .input-wrapper input, 
     body.light-theme .filter-box select, 
     body.light-theme .filter-box input[type="text"] {
-      background: rgba(0, 0, 0, 0.04);
+      background: rgba(255, 255, 255, 0.3);
       color: #0f172a;
-      border: 1px solid rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.2);
     }
     body.light-theme .filter-box select option {
-      background-color: #f1f5f9;
+      background-color: #ffffff;
       color: #0f172a;
     }
     body.light-theme .settings-modal {
-      background: rgba(255, 255, 255, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.7);
     }
   </style>
 
