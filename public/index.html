@@ -18,7 +18,7 @@
       --desc-color: #94a3b8;
     }
 
-
+    /* 1. HIỆU ỨNG LƯỚI NỀN KHÔNG GIAN MẠNG (CYBER GRID) */
     body::before {
       content: "";
       position: fixed;
@@ -124,7 +124,7 @@
     input:checked + .slider { background-color: #ff4d6d; border-color: #ff4d6d; }
     input:checked + .slider:before { transform: translateX(24px); }
 
-  
+    /* 4. TRANG TRÍ MENU SIDEBAR KIỂU HUD TRONG SUỐT */
     .sidebar { 
       width: 295px; 
       background: rgba(10, 10, 18, 0.55); 
@@ -141,7 +141,6 @@
     }
     .sidebar.open { left: 0; }
 
-    
     .sidebar::before {
       content: '';
       position: absolute;
@@ -267,7 +266,7 @@
     .tab-section { display: none; }
     .tab-section.active { display: block; }
 
- 
+    /* 3. THANH TIÊU ĐỀ PHONG CÁCH HUD */
     h1 { 
       color: #ffffff !important; 
       margin-bottom: 25px; 
@@ -288,7 +287,7 @@
       background: linear-gradient(90deg, #ff4d6d, rgba(255, 77, 109, 0.1), transparent);
     }
 
-    
+    /* 2. KHUNG GIAO DIỆN KIỂU CÔNG NGHỆ (TECH CORNERS) */
     .glass-panel {
       position: relative;
       border: 1px solid rgba(255, 77, 109, 0.25);
@@ -298,7 +297,6 @@
       border-radius: 16px;
     }
 
-    
     .glass-panel::before {
       content: '';
       position: absolute;
@@ -310,7 +308,6 @@
       z-index: 2;
     }
 
-    
     .glass-panel::after {
       content: '';
       position: absolute;
@@ -336,7 +333,6 @@
       50% { transform: rotate(10deg); }
       60%, 100% { transform: rotate(0deg); }
     }
-
 
     .bot-profile-card {
       padding: 25px;
@@ -531,8 +527,6 @@
     }
     body.light-theme .filter-box select option { background-color: #ffffff; color: #0f172a; }
     body.light-theme .settings-modal { background: rgba(255, 255, 255, 0.45); border: 1px solid rgba(255, 255, 255, 0.7); }
-    
-
     body.light-theme .bot-profile-card { background: rgba(255, 255, 255, 0.5); border-color: rgba(88, 101, 242, 0.4); }
     body.light-theme .bot-name { color: #0f172a; }
     body.light-theme .bot-avatar, body.light-theme .bot-status { border-color: #fff; }
@@ -629,7 +623,6 @@
           <p>Hệ thống giúp bạn giám sát trạng thái trực tiếp của các tài khoản Roblox, cập nhật dữ liệu theo thời gian thực.</p>
         </div>
 
-
         <div class="bot-profile-card glass-panel stagger-item" style="margin-top: 30px;">
           <div class="bot-card-inner">
             <div class="bot-avatar-wrapper">
@@ -661,8 +654,6 @@
           </div>
         </div>
 
-
-
         <div class="stats-grid stagger-item" style="margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
           <div class="glass-panel" style="padding: 25px; text-align: center; border-radius: 16px;">
             <div style="font-size: 2rem; margin-bottom: 8px;">🌐</div>
@@ -681,7 +672,6 @@
           </div>
         </div>
 
-
         <div class="faq-section stagger-item" style="margin-top: 30px; margin-bottom: 20px;">
           <h3 style="color: var(--text-color); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">❓ Câu Hỏi Thường Gặp</h3>
           <div style="display: flex; flex-direction: column; gap: 15px;">
@@ -695,7 +685,6 @@
             </div>
           </div>
         </div>
-
       </div>
 
       <div id="tab-live" class="tab-section">
@@ -979,10 +968,9 @@
       if (loggedInUserId) {
         const robloxAuthBtn = document.getElementById('robloxAuthBtn');
         if (robloxAuthBtn) {
-          // Giao diện nút đăng nhập được trang trí nổi bật hơn hẳn các UI khác khi đã đăng nhập
           robloxAuthBtn.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%;">
-              <img src="https://www.roblox.com/headshot-thumbnail/image?userId=${loggedInUserId}&width=150&height=150&format=png" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #4ade80; object-fit: cover; flex-shrink: 0;" onerror="this.style.display='none'">
+              <img id="sidebar-avatar-img" src="" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #4ade80; object-fit: cover; flex-shrink: 0;" onerror="this.style.display='none'">
               <div style="text-align: left; overflow: hidden; flex: 1;">
                 <div style="font-size: 0.7rem; color: #4ade80; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">✓ ĐÃ KẾT NỐI</div>
                 <div style="font-size: 0.92rem; color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${loggedInName || ('ID: ' + loggedInUserId)}</div>
@@ -993,6 +981,16 @@
           robloxAuthBtn.style.borderColor = '#4ade80';
           robloxAuthBtn.style.boxShadow = '0 0 20px rgba(74, 222, 128, 0.3), inset 0 0 12px rgba(74, 222, 128, 0.15)';
           robloxAuthBtn.style.padding = '10px 14px';
+
+          // Tải avatar cho sidebar qua Roblox Thumbnails API
+          fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${loggedInUserId}&size=150x150&format=Png&isCircular=false`)
+            .then(res => res.json())
+            .then(data => {
+              const sbImg = document.getElementById('sidebar-avatar-img');
+              if (sbImg && data && data.data && data.data.length > 0 && data.data[0].imageUrl) {
+                sbImg.src = data.data[0].imageUrl;
+              }
+            }).catch(() => {});
         }
       }
     });
@@ -1084,7 +1082,6 @@
       const trackedMap = getTrackedAccounts();
       const trackedIds = Array.from(trackedMap.keys());
       
-
       const statCountEl = document.getElementById("statMonitoredCount");
       if (statCountEl) {
         statCountEl.textContent = trackedIds.length;
@@ -1140,8 +1137,7 @@
         let locationText = isOnline ? (rawGame && !rawGame.includes('Website') ? `Đang trải nghiệm: <span style="color:#ff4d6d;">${rawGame}</span>` : `<span style="color:#ff4d6d;">Trang chủ</span>`) : `<span style="color:var(--desc-color);">Chưa có hoạt động</span>`;
         const badge = isOnline ? '<span class="status-badge status-1">🟢 Online</span>' : '<span class="status-badge status-0">🔴 Offline</span>';
         
-        // Link avatar roblox với kích thước vừa vặn (42x42px)
-        const avatarUrl = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150&format=png`;
+        const imgId = `live-avatar-${userId}`;
 
         const card = document.createElement("div");
         card.className = "log-card glass-panel";
@@ -1151,7 +1147,7 @@
           <div class="log-top">
             <div style="display: flex; align-items: center; gap: 10px;">
               <div style="position: relative; width: 42px; height: 42px; flex-shrink: 0;">
-                <img src="${avatarUrl}" alt="Avatar" style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid ${isOnline ? '#4ade80' : '#ff4d6d'}; object-fit: cover; background: rgba(255,255,255,0.05);" onerror="this.src='https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default';">
+                <img id="${imgId}" src="" alt="Avatar" style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid ${isOnline ? '#4ade80' : '#ff4d6d'}; object-fit: cover; background: rgba(255,255,255,0.05);" onerror="this.src='https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default';">
                 <div style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: ${isOnline ? '#23a559' : '#f87171'}; border-radius: 50%; border: 2px solid #0f172a;"></div>
               </div>
               <div>
@@ -1163,6 +1159,16 @@
           </div>
           <div class="log-info" style="margin-top:8px;"><p style="margin-bottom:6px; font-size: 0.88rem; color: var(--desc-color);">ID: ${userId}</p><p>${locationText}</p></div>`;
         liveContainer.appendChild(card);
+
+        // Lấy chuẩn ảnh đại diện từ Roblox Thumbnails API
+        fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`)
+          .then(res => res.json())
+          .then(data => {
+            const imgEl = document.getElementById(imgId);
+            if (imgEl && data && data.data && data.data.length > 0 && data.data[0].imageUrl) {
+              imgEl.src = data.data[0].imageUrl;
+            }
+          }).catch(() => {});
       });
     }
 
