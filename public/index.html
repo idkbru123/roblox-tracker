@@ -213,6 +213,7 @@
       60%, 100% { transform: rotate(0deg); }
     }
 
+
     .bot-profile-card {
       padding: 30px;
       border-radius: 20px;
@@ -403,6 +404,7 @@
     body.light-theme .filter-box select option { background-color: #ffffff; color: #0f172a; }
     body.light-theme .settings-modal { background: rgba(255, 255, 255, 0.45); border: 1px solid rgba(255, 255, 255, 0.7); }
     
+
     body.light-theme .bot-profile-card { background: rgba(255, 255, 255, 0.5); border-color: rgba(88, 101, 242, 0.4); }
     body.light-theme .bot-name { color: #0f172a; }
     body.light-theme .bot-avatar, body.light-theme .bot-status { border-color: #fff; }
@@ -473,8 +475,9 @@
         <div class="welcome-card glass-panel stagger-item">
           <div class="welcome-icon">👋</div>
           <h2>Xin chào! Chào mừng đến với Roblox Tracker</h2>
-          <p>Hệ thống giúp bạn giám sát trạng thái trực tiếp của các tài khoản Roblox.<br>Dữ liệu được cập nhật theo thời gian thực.</p>
+          <p>Hệ thống giúp bạn giám sát trạng thái trực tiếp<br>của các tài khoản Roblox, cập nhật dữ liệu<br>theo thời gian thực.</p>
         </div>
+
 
         <div class="bot-profile-card glass-panel stagger-item" style="margin-top: 30px;">
           <div class="bot-card-inner">
@@ -489,7 +492,7 @@
                 <span class="bot-badge">APP</span>
               </div>
               <p class="bot-desc">
-                Nhận thông báo trực tiếp về server Discord của bạn ngay khi có tài khoản theo dõi Online/Offline. Hỗ trợ liên kết tài khoản và kiểm tra trạng thái cực nhanh chỉ với 1 lệnh gạch chéo (/) và (.).
+                Nhận thông báo trực tiếp về server Discord của bạn<br>ngay khi có tài khoản theo dõi Online/Offline.<br>Hỗ trợ liên kết tài khoản và kiểm tra trạng thái cực<br>nhanh chỉ với 1 lệnh gạch chéo (/) và dấu chấm (.).
               </p>
               
               <div class="bot-action-row">
@@ -506,6 +509,8 @@
             </div>
           </div>
         </div>
+
+
 
         <div class="stats-grid stagger-item" style="margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
           <div class="glass-panel" style="padding: 25px; text-align: center; border-radius: 16px;">
@@ -525,6 +530,7 @@
           </div>
         </div>
 
+
         <div class="faq-section stagger-item" style="margin-top: 30px; margin-bottom: 20px;">
           <h3 style="color: var(--text-color); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">❓ Câu Hỏi Thường Gặp</h3>
           <div style="display: flex; flex-direction: column; gap: 15px;">
@@ -538,6 +544,7 @@
             </div>
           </div>
         </div>
+
       </div>
 
       <div id="tab-live" class="tab-section">
@@ -895,6 +902,7 @@
       const trackedMap = getTrackedAccounts();
       const trackedIds = Array.from(trackedMap.keys());
       
+
       const statCountEl = document.getElementById("statMonitoredCount");
       if (statCountEl) {
         statCountEl.textContent = trackedIds.length;
