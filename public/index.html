@@ -188,7 +188,16 @@
     .tab-section { display: none; }
     .tab-section.active { display: block; }
 
-    h1 { color: var(--text-color); margin-bottom: 25px; font-size: 1.8rem; font-weight: 800; border-bottom: 1px solid rgba(255, 255, 255, 0.12); padding-bottom: 15px; }
+    /* Tiêu đề trang (Dashboard, Trạng Thái Trực Tiếp, Lịch Sử Hoạt Động) màu trắng nổi bật */
+    h1 { 
+      color: #ffffff !important; 
+      margin-bottom: 25px; 
+      font-size: 1.8rem; 
+      font-weight: 800; 
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15); 
+      padding-bottom: 15px; 
+      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    }
 
     .glass-panel {
       background: rgba(255, 255, 255, 0.035);
@@ -291,7 +300,7 @@
       100% { opacity: 1; transform: translateY(0); }
     }
 
-    /* Giao diện Light Theme (UI trắng trong suốt dịu mắt, chữ hiển thị rõ) */
+    /* Giao diện Light Theme */
     body.light-theme {
       --text-color: #0f172a;
       --desc-color: #334155;
