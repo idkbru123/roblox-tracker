@@ -40,7 +40,7 @@
       display: flex;
       width: 100%;
       min-height: 100vh;
-      pointer-events: none;
+      pointer-events: none; 
     }
 
     #ui-container.visible {
@@ -63,11 +63,13 @@
       display: flex; align-items: center; justify-content: center;
       opacity: 0;
       transform: scale(0.8);
+      pointer-events: none;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .menu-toggle-btn.show {
       opacity: 1;
       transform: scale(1);
+      pointer-events: auto;
     }
     .menu-toggle-btn:hover { background: #222228; transform: scale(1.05); }
 
@@ -220,7 +222,6 @@
 
     .empty-msg { text-align: center; color: #9ca3af; padding: 40px; border-radius: 14px; border: 2px dashed rgba(39, 39, 42, 0.8); font-size: 1.05rem; }
 
-    /* --- ANIMATION TỪNG BỐ CỤC DẦN DẦN (STAGGERED REVEAL) --- */
     .stagger-item {
       opacity: 0;
       transform: translateY(25px);
@@ -232,19 +233,13 @@
     }
   </style>
 
-  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-  <!-- Lớp nền Matrix đỏ Error ngẫu nhiên -->
   <canvas id="matrixCanvas"></canvas>
-  
-  <!-- Lớp phủ mờ dần khi UI xuất hiện -->
   <div class="bg-overlay" id="bgOverlay"></div>
-
-  <!-- Nút mở menu (Mobile) -->
   <button class="menu-toggle-btn" id="menuToggleBtn" onclick="toggleSidebar()">☰</button>
 
   <div id="ui-container">
@@ -272,7 +267,6 @@
     </div>
 
     <div class="main-content" id="mainContent">
-      <!-- Trang Chủ -->
       <div id="tab-home" class="tab-section active">
         <h1 class="stagger-item">Dashboard</h1>
         <div class="welcome-card glass-panel stagger-item">
@@ -282,7 +276,6 @@
         </div>
       </div>
 
-      <!-- Roblox Live -->
       <div id="tab-live" class="tab-section">
         <h1 class="stagger-item">🔴 Trạng Thái Trực Tiếp</h1>
         
@@ -317,7 +310,6 @@
         </div>
       </div>
 
-      <!-- Lịch sử hoạt động -->
       <div id="tab-history" class="tab-section">
         <h1 class="stagger-item">📜 Lịch Sử Hoạt Động</h1>
         <div class="filter-box glass-panel stagger-item" id="filterBox">
@@ -350,7 +342,6 @@
   </div>
 
   <script>
-    // --- 1. HIỆU ỨNG CHỮ ĐỎ LỖI / GLITCH (Rơi ngẫu nhiên, dày dặn hơn) ---
     function initMatrix() {
       const canvas = document.getElementById('matrixCanvas');
       const ctx = canvas.getContext('2d');
@@ -367,8 +358,6 @@
       
       const glitches = [];
       const columns = Math.floor(canvas.width / fontSize);
-      
-      // Tăng mật độ luồng chữ lên 60% màn hình để chữ hiển thị nhiều và dày hơn
       const numGlitches = Math.floor(columns * 0.60); 
 
       for (let i = 0; i < numGlitches; i++) {
@@ -394,7 +383,7 @@
             const text = characters[Math.floor(Math.random() * characters.length)];
             
             if (Math.random() > 0.95) {
-              ctx.fillStyle = "#ffffff"; // Hiệu ứng glitch trắng
+              ctx.fillStyle = "#ffffff"; 
             } else {
               ctx.fillStyle = "#ff1f3d"; 
             }
@@ -415,7 +404,6 @@
       setInterval(drawMatrix, 35);
     }
 
-    // --- 2. LOGIC HIỂN THỊ UI TỪNG BỐ CỤC (STAGGERED REVEAL) ---
     function animateStaggeredElements(tabId) {
       const tab = document.getElementById('tab-' + tabId);
       const items = tab.querySelectorAll('.stagger-item, .log-card'); 
@@ -427,27 +415,30 @@
       });
     }
 
-    // --- 3. KHỞI CHẠY HỆ THỐNG KHI LOAD TRANG ---
     window.addEventListener('load', () => {
       initMatrix();
       initDateDropdowns();
 
-      // Kéo dài thời gian ngắm chữ rơi ở khúc đầu lên 4.5 giây trước khi hé lộ UI
       setTimeout(() => {
         document.getElementById('bgOverlay').style.opacity = '1';
         document.getElementById('ui-container').classList.add('visible');
-        document.getElementById('menuToggleBtn').classList.add('show');
+
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const menuToggleBtn = document.getElementById('menuToggleBtn');
 
         if (window.innerWidth > 768) {
-          document.getElementById('sidebar').classList.add('open');
-          document.getElementById('mainContent').classList.add('shifted');
+          sidebar.classList.add('open');
+          mainContent.classList.add('shifted');
+          menuToggleBtn.classList.remove('show');
+        } else {
+          menuToggleBtn.classList.add('show');
         }
 
         animateStaggeredElements('home');
-      }, 4500); // <-- 4.5 giây ngắm chữ rơi ngẫu nhiên
+      }, 4500); 
     });
 
-    // Xử lý chuyển Tab
     function showTab(tabName, btn) {
       document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
@@ -457,6 +448,7 @@
       
       if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('menuToggleBtn').classList.add('show');
       }
 
       animateStaggeredElements(tabName);
@@ -465,14 +457,22 @@
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const mainContent = document.getElementById('mainContent');
+      const menuToggleBtn = document.getElementById('menuToggleBtn');
+      
       sidebar.classList.toggle('open');
+      const isOpen = sidebar.classList.contains('open');
+
       if (window.innerWidth > 768) {
-        mainContent.classList.toggle('shifted');
+        mainContent.classList.toggle('shifted', isOpen);
+      }
+
+      if (isOpen) {
+        menuToggleBtn.classList.remove('show');
+      } else {
+        menuToggleBtn.classList.add('show');
       }
     }
 
-
-    /* --- PHẦN LOGIC FIREBASE & DỮ LIỆU CŨ --- */
     const BACKEND_URL = ""; 
     const urlParams = new URLSearchParams(window.location.search);
     const loggedInUserId = urlParams.get('user_id');
