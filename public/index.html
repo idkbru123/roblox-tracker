@@ -491,7 +491,7 @@
                   Thêm vào Máy chủ
                 </a>
                 <div class="bot-stats">
-                  <span>Đang trong quá trình thử nghiệm <strong>>:)!</strong>
+                  <span>Đang trong quá trình thử nghiệm <strong>>:)!</strong></span>
                 </div>
               </div>
             </div>
@@ -503,7 +503,7 @@
         <div class="stats-grid stagger-item" style="margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
           <div class="glass-panel" style="padding: 25px; text-align: center; border-radius: 16px;">
             <div style="font-size: 2rem; margin-bottom: 8px;">🌐</div>
-            <div style="font-size: 1.8rem; font-weight: 800; color: #ff4d6d;">2</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #ff4d6d;" id="statServerCount">2</div>
             <div style="font-size: 0.9rem; color: var(--desc-color); margin-top: 4px; font-weight: 600;">Máy chủ đang dùng</div>
           </div>
           <div class="glass-panel" style="padding: 25px; text-align: center; border-radius: 16px;">
@@ -513,7 +513,7 @@
           </div>
           <div class="glass-panel" style="padding: 25px; text-align: center; border-radius: 16px;">
             <div style="font-size: 2rem; margin-bottom: 8px;">⚡</div>
-            <div style="font-size: 1.8rem; font-weight: 800; color: #60a5fa;">99.9%</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #60a5fa;" id="statUptime">99.9%</div>
             <div style="font-size: 0.9rem; color: var(--desc-color); margin-top: 4px; font-weight: 600;">Trạng thái hoạt động</div>
           </div>
         </div>
@@ -738,6 +738,8 @@
     window.addEventListener('load', () => {
       initMatrix();
       initDateDropdowns();
+      fetchRealtimeStats();
+      setInterval(fetchRealtimeStats, 30000); // Tự động cập nhật số liệu định kỳ mỗi 30 giây
 
       setTimeout(() => {
         document.getElementById('bgOverlay').style.opacity = '1';
@@ -814,6 +816,39 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     let rawLogsData = [];
+
+    // Hàm gọi API backend / Firestore để tự động cập nhật thời gian thực các chỉ số hệ thống
+    async function fetchRealtimeStats() {
+      try {
+        if (BACKEND_URL) {
+          const res = await fetch(`${BACKEND_URL}/api/stats`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.serverCount !== undefined) {
+              document.getElementById('statServerCount').textContent = data.serverCount;
+            }
+            if (data.uptime !== undefined) {
+              document.getElementById('statUptime').textContent = data.uptime;
+            }
+          }
+        } else {
+          // Lấy thông tin trạng thái trực tiếp từ Firestore nếu có collection system_stats
+          db.collection("system_stats").doc("main").get().then(doc => {
+            if (doc.exists) {
+              const data = doc.data();
+              if (data.serverCount !== undefined) {
+                document.getElementById('statServerCount').textContent = data.serverCount;
+              }
+              if (data.uptime !== undefined) {
+                document.getElementById('statUptime').textContent = data.uptime;
+              }
+            }
+          }).catch(() => {});
+        }
+      } catch (err) {
+        console.error("Không thể lấy thống kê thời gian thực từ backend:", err);
+      }
+    }
 
     function initDateDropdowns() {
       const daySelect = document.getElementById("filterDay");
