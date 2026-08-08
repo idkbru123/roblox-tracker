@@ -42,13 +42,12 @@
       display: flex;
       width: 100%;
       min-height: 100vh;
-      /* Đã xóa pointer-events: none ở đây để tránh làm mất sự kiện bấm các nút bên trong */
     }
 
     .menu-toggle-btn {
       position: fixed;
       top: 20px; left: 20px;
-      z-index: 400; /* Tăng z-index lên cao hơn sidebar và overlay để luôn bấm được */
+      z-index: 400;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
@@ -814,48 +813,133 @@
       const fStr = document.getElementById("dateFilter")?.value.trim();
       const isInputMode = document.getElementById("inputDateMode")?.style.display !== "none";
 
-      const filtered = rawLogsData.filter(d => {
+      // 1. Lọc lấy các bản ghi thô của tài khoản cần theo dõi
+      let userLogs = rawLogsData.filter(d => {
         const uid = String(d.robloxUserId || d.details?.robloxUserId || d.robloxId || "");
         if (!trackedIds.includes(uid)) return false;
         if (selectedUser !== "ALL" && uid !== selectedUser) return false;
-        
-        if (d.timestamp && d.timestamp.seconds) {
-            const dateObj = new Date(d.timestamp.seconds * 1000);
-            if (isInputMode && fStr) {
-                const dateString = dateObj.toLocaleDateString('vi-VN');
-                if (!dateString.includes(fStr)) return false;
-            } else if (!isInputMode) {
-                if (fDay && dateObj.getDate() != fDay) return false;
-                if (fMonth && (dateObj.getMonth() + 1) != fMonth) return false;
-                if (fYear && dateObj.getFullYear() != fYear) return false;
-            }
-        }
-        return true; 
+        return true;
       });
 
+      // 2. Nhóm log theo người chơi (uid) để tính toán phiên chơi (session)
+      const logsByUid = {};
+      userLogs.forEach(log => {
+        const uid = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
+        if (!logsByUid[uid]) logsByUid[uid] = [];
+        logsByUid[uid].push(log);
+      });
+
+      const processedSessions = [];
+      const now = new Date(); // Dùng thời gian hiện tại cho người đang onl
+
+      // 3. Xử lý khoảng thời gian (duration) cho từng người chơi
+      for (const uid in logsByUid) {
+        // Sắp xếp log từ cũ nhất đến mới nhất để đối chiếu thời gian
+        const sortedLogs = logsByUid[uid].sort((a, b) => {
+          const tA = a.timestamp?.seconds || 0;
+          const tB = b.timestamp?.seconds || 0;
+          return tA - tB;
+        });
+
+        let currentSession = null;
+
+        sortedLogs.forEach((log) => {
+          const game = log.gameName || log.placeName || log.lastLocation || log.details?.gameName || "";
+          // Định nghĩa điều kiện "đang chơi game": có tên game và không chứa chữ Website hoặc Offline
+          const isGame = game && !game.includes("Website") && !game.includes("Offline") && game.trim() !== "";
+          const time = log.timestamp?.seconds ? new Date(log.timestamp.seconds * 1000) : now;
+
+          if (isGame) {
+            // Nếu đang trong 1 game nhưng nhảy sang game khác
+            if (currentSession && currentSession.game !== game) {
+               currentSession.endTime = time;
+               currentSession.durationMs = currentSession.endTime - currentSession.startTime;
+               processedSessions.push(currentSession);
+               // Bắt đầu tính giờ cho game mới
+               currentSession = { game: game, startTime: time, uid: uid };
+            } else if (!currentSession) {
+               // Bắt đầu vào game lần đầu tiên
+               currentSession = { game: game, startTime: time, uid: uid };
+            }
+          } else {
+            // Người chơi thoát game (Trở về Website hoặc Offline)
+            if (currentSession) {
+               currentSession.endTime = time;
+               currentSession.durationMs = currentSession.endTime - currentSession.startTime;
+               processedSessions.push(currentSession);
+               currentSession = null; // Reset lại phiên chơi
+            }
+          }
+        });
+
+        // Nếu duyệt hết dữ liệu mà vẫn còn session (họ hiện tại vẫn ĐANG trong game chưa thoát)
+        if (currentSession) {
+           currentSession.endTime = now;
+           currentSession.durationMs = currentSession.endTime - currentSession.startTime;
+           currentSession.isOngoing = true; // Đánh dấu là đang chơi hiện tại
+           processedSessions.push(currentSession);
+        }
+      }
+
+      // 4. Lọc theo cấu hình Ngày/Tháng/Năm của UI
+      const filteredSessions = processedSessions.filter(session => {
+         const dateObj = session.startTime;
+         if (isInputMode && fStr) {
+             const dateString = dateObj.toLocaleDateString('vi-VN');
+             if (!dateString.includes(fStr)) return false;
+         } else if (!isInputMode) {
+             if (fDay && dateObj.getDate() != fDay) return false;
+             if (fMonth && (dateObj.getMonth() + 1) != fMonth) return false;
+             if (fYear && dateObj.getFullYear() != fYear) return false;
+         }
+         return true;
+      });
+
+      // 5. Sắp xếp lại để phiên chơi mới nhất nằm trên cùng
+      filteredSessions.sort((a, b) => b.startTime - a.startTime);
+
+      // 6. Hiển thị UI
       container.innerHTML = "";
-      if (filtered.length === 0) {
-        container.innerHTML = "<p class='empty-msg glass-panel' style='animation: sequentialFadeUp 0.5s forwards;'>Không tìm thấy dữ liệu lịch sử nào.</p>";
+      if (filteredSessions.length === 0) {
+        container.innerHTML = "<p class='empty-msg glass-panel' style='animation: sequentialFadeUp 0.5s forwards;'>Không có hoạt động chơi game nào được ghi nhận.</p>";
         return;
       }
 
-      filtered.slice(0, 20).forEach((data, index) => {
-        let timeStr = data.timestamp?.seconds ? new Date(data.timestamp.seconds * 1000).toLocaleString('vi-VN') : "Vừa xong";
-        const uid = data.robloxUserId || data.robloxId;
-        const name = trackedMap.get(uid) || data.playerName || uid;
-        const game = data.gameName || data.placeName || "Website";
+      filteredSessions.slice(0, 20).forEach((session, index) => {
+        const timeStr = session.startTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + session.startTime.toLocaleDateString('vi-VN');
+        const name = trackedMap.get(session.uid) || session.uid;
+
+        // Xử lý hiển thị khoảng thời gian 
+        let durationMinutes = Math.floor(session.durationMs / 60000);
+        let durationStr = "";
+        if (durationMinutes < 1) {
+            durationStr = "Dưới 1 phút";
+        } else if (durationMinutes < 60) {
+            durationStr = durationMinutes + " phút";
+        } else {
+            const hours = Math.floor(durationMinutes / 60);
+            const mins = durationMinutes % 60;
+            durationStr = hours + " giờ " + (mins > 0 ? mins + " phút" : "");
+        }
+
+        const badgeHtml = session.isOngoing
+             ? '<span class="status-badge status-1">🟢 Đang chơi game</span>'
+             : '<span class="status-badge status-other">🎮 Đã chơi game</span>';
 
         const card = document.createElement("div");
         card.className = "log-card glass-panel";
         card.style.opacity = "0"; 
         card.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.08}s forwards`; 
+        
         card.innerHTML = `
           <div class="log-top">
             <div>Người chơi: <span class="highlight">${name}</span></div>
-            <span class="status-badge status-other">Hoạt động</span>
+            ${badgeHtml}
           </div>
-          <div class="log-info">🎮 ${game}</div>
-          <div class="timestamp">⏰ ${timeStr}</div>`;
+          <div class="log-info" style="margin-top: 5px;">🕹️ ${session.game}</div>
+          <div style="font-size: 0.95rem; color: #cbd5e1; margin-top: 8px;">⏳ Đã chơi được: <strong style="color: #ff4d6d;">${durationStr}</strong></div>
+          <div class="timestamp" style="margin-top: 8px;">⏰ Bắt đầu lúc: ${timeStr}</div>`;
+          
         container.appendChild(card);
       });
     }
