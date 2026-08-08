@@ -9,7 +9,7 @@
     
     body { 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      color: #e5e7eb; 
+      color: #e2e8f0; 
       background-color: #000;
       overflow-x: hidden;
       min-height: 100vh;
@@ -24,11 +24,10 @@
       pointer-events: none;
     }
 
-    /* Đã giảm độ tối của lớp phủ để nền trong suốt rõ hơn */
     .bg-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(11, 11, 14, 0.25);
+      background: rgba(0, 0, 0, 0.35);
       z-index: 2;
       opacity: 0;
       transition: opacity 1.5s ease;
@@ -48,14 +47,13 @@
       pointer-events: auto;
     }
 
-    /* Nút mở menu trong suốt hơn */
     .menu-toggle-btn {
       position: fixed;
       top: 20px; left: 20px;
       z-index: 200;
-      background: rgba(24, 24, 27, 0.5);
-      border: 1px solid rgba(39, 39, 42, 0.5);
-      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
       color: #ff4d6d;
       font-size: 1.5rem;
       width: 45px; height: 45px;
@@ -73,13 +71,12 @@
       transform: scale(1);
       pointer-events: auto;
     }
-    .menu-toggle-btn:hover { background: rgba(34, 34, 40, 0.7); transform: scale(1.05); }
+    .menu-toggle-btn:hover { background: rgba(255, 255, 255, 0.12); transform: scale(1.05); }
 
-    /* Menu sidebar tăng độ trong suốt */
     .sidebar { 
       width: 280px; 
-      background: rgba(18, 18, 22, 0.45); 
-      border-right: 1px solid rgba(39, 39, 42, 0.3); 
+      background: rgba(255, 255, 255, 0.035); 
+      border-right: 1px solid rgba(255, 255, 255, 0.1); 
       position: fixed; 
       height: 100vh; 
       height: 100dvh; 
@@ -87,7 +84,7 @@
       display: flex; flex-direction: column; justify-content: space-between; 
       z-index: 300; 
       box-shadow: 4px 0 30px rgba(0,0,0,0.5);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(15px);
       transition: left 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .sidebar.open { left: 0; }
@@ -96,7 +93,7 @@
     .brand-container {
       display: flex; align-items: center; justify-content: space-between;
       padding: 18px;
-      border-bottom: 1px solid rgba(39, 39, 42, 0.3);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     .brand { font-size: 1.05rem; font-weight: bold; color: #ff4d6d; text-shadow: 0 0 8px rgba(255,77,109,0.4); }
     .close-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #9ca3af; transition: 0.2s; }
@@ -106,18 +103,18 @@
     .menu-btn { 
       width: 100%; padding: 12px 14px; margin-bottom: 6px;
       background: transparent; border: none; border-radius: 10px;
-      color: #9ca3af; font-size: 0.95rem; font-weight: 600; text-align: left; 
+      color: #cbd5e1; font-size: 0.95rem; font-weight: 600; text-align: left; 
       cursor: pointer; display: flex; align-items: center; gap: 12px; 
       transition: all 0.2s ease; 
     }
-    .menu-btn:hover { background: rgba(255,77,109,0.1); color: #f3f4f6; transform: translateX(5px); }
-    .menu-btn.active { background: rgba(255, 77, 109, 0.2); color: #ff4d6d; font-weight: 700; border-left: 4px solid #ff4d6d; }
+    .menu-btn:hover { background: rgba(255, 255, 255, 0.07); color: #f8fafc; transform: translateX(5px); }
+    .menu-btn.active { background: rgba(255, 77, 109, 0.18); color: #ff4d6d; font-weight: 700; border-left: 4px solid #ff4d6d; }
 
-    .user-profile-box { padding: 15px; border-top: 1px solid rgba(39, 39, 42, 0.3); background: rgba(18, 18, 22, 0.25); text-align: center; }
+    .user-profile-box { padding: 15px; border-top: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.02); text-align: center; }
     .btn-roblox { 
-      background: rgba(0, 0, 0, 0.4); 
-      color: #fff; 
-      border: 1px solid rgba(39, 39, 42, 0.6); 
+      background: rgba(255, 255, 255, 0.05); 
+      color: #f1f5f9; 
+      border: 1px solid rgba(255, 255, 255, 0.12); 
       padding: 10px; 
       border-radius: 9px; 
       font-weight: bold; 
@@ -131,7 +128,7 @@
       text-decoration: none;
       font-size: 0.92rem;
     }
-    .btn-roblox:hover { background: rgba(26, 26, 32, 0.6); border-color: #ff4d6d; }
+    .btn-roblox:hover { background: rgba(255, 255, 255, 0.1); border-color: #ff4d6d; }
 
     .main-content { 
       flex: 1; 
@@ -145,20 +142,19 @@
     .tab-section { display: none; }
     .tab-section.active { display: block; }
 
-    h1 { color: #f3f4f6; margin-bottom: 25px; font-size: 1.8rem; font-weight: 800; border-bottom: 1px solid rgba(39, 39, 42, 0.4); padding-bottom: 15px; }
+    h1 { color: #f8fafc; margin-bottom: 25px; font-size: 1.8rem; font-weight: 800; border-bottom: 1px solid rgba(255, 255, 255, 0.12); padding-bottom: 15px; }
 
-    /* Các khung layout/card kính mờ với độ trong suốt cao hơn */
     .glass-panel {
-      background: rgba(18, 18, 22, 0.35);
-      border: 1px solid rgba(39, 39, 42, 0.35);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
       border-radius: 16px;
     }
 
     .welcome-card { padding: 45px; text-align: center; border-radius: 20px; }
     .welcome-card h2 { color: #ff4d6d; font-size: 2.2rem; margin-bottom: 15px; text-shadow: 0 0 10px rgba(255,77,109,0.3); }
-    .welcome-card p { font-size: 1.05rem; color: #d1d5db; line-height: 1.6; }
+    .welcome-card p { font-size: 1.05rem; color: #cbd5e1; line-height: 1.6; }
     .welcome-icon { font-size: 4.5rem; margin-bottom: 15px; display: inline-block; animation: wave 2.5s infinite; transform-origin: 70% 70%; }
     
     @keyframes wave {
@@ -172,27 +168,27 @@
     }
 
     .control-panel { padding: 24px; margin-bottom: 25px; }
-    .control-panel h3 { color: #f3f4f6; font-size: 1.15rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-    .control-desc { font-size: 0.9rem; color: #9ca3af; margin-bottom: 16px; line-height: 1.5; }
+    .control-panel h3 { color: #f8fafc; font-size: 1.15rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .control-desc { font-size: 0.9rem; color: #94a3b8; margin-bottom: 16px; line-height: 1.5; }
     
     .input-wrapper { display: flex; flex-direction: column; gap: 12px; }
     .input-row { display: flex; gap: 12px; flex-wrap: wrap; }
     .input-wrapper input {
-      background: rgba(13, 13, 16, 0.35); color: #f3f4f6; border: 1px solid rgba(39, 39, 42, 0.5);
+      background: rgba(255, 255, 255, 0.04); color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.15);
       padding: 12px 16px; border-radius: 10px; font-size: 0.95rem; outline: none; flex: 1; min-width: 220px;
       transition: 0.2s;
     }
-    .input-wrapper input:focus { border-color: #ff4d6d; box-shadow: 0 0 0 3px rgba(255,77,109,0.2); background: rgba(13, 13, 16, 0.6); }
+    .input-wrapper input:focus { border-color: #ff4d6d; box-shadow: 0 0 0 3px rgba(255,77,109,0.2); background: rgba(255, 255, 255, 0.08); }
     .btn-action {
-      background: linear-gradient(135deg, rgba(255,77,109,0.9), rgba(217,4,41,0.9)); color: white; border: none; padding: 12px 24px;
-      border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(255,77,109,0.3);
+      background: linear-gradient(135deg, #ff4d6d, #d90429); color: white; border: none; padding: 12px 24px;
+      border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(255,77,109,0.4);
     }
-    .btn-action:hover { box-shadow: 0 6px 20px rgba(255,77,109,0.5); transform: translateY(-2px); }
+    .btn-action:hover { box-shadow: 0 6px 20px rgba(255,77,109,0.6); transform: translateY(-2px); }
 
     .filter-box { margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px; padding: 18px 22px; }
-    .filter-box label { color: #d1d5db; font-size: 1rem; font-weight: 700; white-space: nowrap; }
+    .filter-box label { color: #cbd5e1; font-size: 1rem; font-weight: 700; white-space: nowrap; }
     .filter-box select, .filter-box input[type="text"] { 
-      background: rgba(13, 13, 16, 0.35); color: #f3f4f6; border: 1px solid rgba(39, 39, 42, 0.5); 
+      background: rgba(255, 255, 255, 0.04); color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.15); 
       padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; 
       outline: none; transition: 0.2s; width: 100%; 
     }
@@ -206,25 +202,25 @@
       transition: transform 0.3s ease, border-color 0.3s ease;
     }
     .log-card:hover { transform: translateY(-5px); border-color: rgba(255, 77, 109, 0.5); }
-    .log-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(39, 39, 42, 0.5); padding-bottom: 12px; color: #d1d5db; }
+    .log-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255, 255, 255, 0.15); padding-bottom: 12px; color: #cbd5e1; }
     
     .status-badge { padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.85em; display: inline-block; }
-    .status-1 { background: rgba(22, 101, 52, 0.3); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
-    .status-0 { background: rgba(153, 27, 27, 0.3); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
-    .status-other { background: rgba(30, 64, 175, 0.3); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
+    .status-1 { background: rgba(22, 101, 52, 0.4); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+    .status-0 { background: rgba(153, 27, 27, 0.4); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+    .status-other { background: rgba(30, 64, 175, 0.4); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
 
-    .log-info { font-size: 1rem; color: #e5e7eb; font-weight: 500; }
+    .log-info { font-size: 1rem; color: #e2e8f0; font-weight: 500; }
     .highlight { color: #ff4d6d; font-weight: 800; font-size: 1.1rem; }
-    .sub-id { font-size: 0.85em; color: #9ca3af; margin-left: 6px; font-weight: normal; }
-    .timestamp { font-size: 0.85em; color: #9ca3af; text-align: right; font-style: italic; }
+    .sub-id { font-size: 0.85em; color: #94a3b8; margin-left: 6px; font-weight: normal; }
+    .timestamp { font-size: 0.85em; color: #94a3b8; text-align: right; font-style: italic; }
     
     .btn-remove-acc {
-      background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);
       padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: 0.2s;
     }
-    .btn-remove-acc:hover { background: rgba(239, 68, 68, 0.4); color: #fff; }
+    .btn-remove-acc:hover { background: rgba(239, 68, 68, 0.5); color: #fff; }
 
-    .empty-msg { text-align: center; color: #9ca3af; padding: 40px; border-radius: 14px; border: 2px dashed rgba(39, 39, 42, 0.5); font-size: 1.05rem; }
+    .empty-msg { text-align: center; color: #94a3b8; padding: 40px; border-radius: 14px; border: 2px dashed rgba(255, 255, 255, 0.15); font-size: 1.05rem; }
 
     .stagger-item {
       opacity: 0;
@@ -263,9 +259,9 @@
       <div class="user-profile-box" id="authBox">
         <a href="/auth/roblox" class="btn-roblox">🎮 Đăng nhập bằng Roblox</a>
         <div style="margin-top: 10px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <a href="#" style="color: #9ca3af; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff4d6d'" onmouseout="this.style.color='#9ca3af'">🔒 Bảo mật</a>
+          <a href="#" style="color: #94a3b8; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff4d6d'" onmouseout="this.style.color='#94a3b8'">🔒 Bảo mật</a>
           <span style="color: #4b5563; font-size: 0.7rem;">•</span>
-          <a href="#" style="color: #9ca3af; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff4d6d'" onmouseout="this.style.color='#9ca3af'">📄 Điều khoản</a>
+          <a href="#" style="color: #94a3b8; font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff4d6d'" onmouseout="this.style.color='#94a3b8'">📄 Điều khoản</a>
         </div>
       </div>
     </div>
@@ -567,7 +563,7 @@
         const isOnline = userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1 || userLog.userStatus === 2) : false;
         const playerName = trackedMap.get(userId) || `ID: ${userId}`;
         const rawGame = userLog ? (userLog.lastLocation || userLog.gameName || userLog.details?.gameName) : null;
-        let locationText = isOnline ? (rawGame && !rawGame.includes('Website') ? `Đang trải nghiệm: <span style="color:#ff4d6d;">${rawGame}</span>` : `<span style="color:#ff4d6d;">Trang chủ</span>`) : `<span style="color:#9ca3af;">Chưa có hoạt động</span>`;
+        let locationText = isOnline ? (rawGame && !rawGame.includes('Website') ? `Đang trải nghiệm: <span style="color:#ff4d6d;">${rawGame}</span>` : `<span style="color:#ff4d6d;">Trang chủ</span>`) : `<span style="color:#94a3b8;">Chưa có hoạt động</span>`;
         const badge = isOnline ? '<span class="status-badge status-1">🟢 Online</span>' : '<span class="status-badge status-0">🔴 Offline</span>';
         
         const card = document.createElement("div");
