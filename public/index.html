@@ -960,11 +960,7 @@
     // --- BỔ SUNG: LOGIC THÔNG BÁO HOẠT ĐỘNG BẤT THƯỜNG ---
     function toggleNoPlayingMode(checkbox) {
         localStorage.setItem('no_playing_mode', checkbox.checked ? 'true' : 'false');
-        if (checkbox.checked) {
-            alert("✅ Đã BẬT chế độ No-Playing. Hệ thống sẽ cảnh báo nếu tài khoản vào game khi bạn vắng mặt.");
-        } else {
-            alert("❌ Đã TẮT chế độ No-Playing.");
-        }
+        // Đã xóa alert theo yêu cầu
     }
 
     function addAlert(uid, name, location, timeSeconds) {
