@@ -1179,7 +1179,7 @@
         });
     }
 
-    // Hàm lấy icon/thumbnail tựa game chơi
+
     function loadGameThumbnail(placeId, universeId, imgElementId) {
       const imgEl = document.getElementById(imgElementId);
       if (!imgEl) return;
@@ -1404,7 +1404,7 @@
       let filteredLogs = rawLogsData.filter(log => {
         const uid = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || log.details?.robloxId || log.userId || log.details?.userId || "").trim();
         
-        // Sửa lỗi lọc tài khoản bằng cách so sánh chính xác UID (loại bỏ lỗi ẩn lịch sử)
+
         if (selectedUserId !== "ALL" && uid !== String(selectedUserId).trim()) return false;
 
         const rawStatus = log.userStatus !== undefined ? log.userStatus : (log.details?.userStatus || 0);
