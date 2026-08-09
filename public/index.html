@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Roblox Personal Tracker</title>
   <style>
-    /* CSS giữ nguyên form thiết kế ban đầu của bạn */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body { 
@@ -57,13 +56,41 @@
       min-height: 100vh;
     }
 
-    .menu-toggle-btn, .settings-toggle-btn {
+    .menu-toggle-btn {
       position: fixed;
+      top: 20px; left: 20px;
       z-index: 400;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
       color: #ff4d6d;
+      font-size: 1.5rem;
+      width: 45px; height: 45px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transform: scale(0.8);
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .menu-toggle-btn.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+    .menu-toggle-btn:hover { background: rgba(255, 255, 255, 0.12); transform: scale(1.05); }
+
+    .settings-toggle-btn {
+      position: fixed;
+      top: 20px; right: 20px;
+      z-index: 400;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      color: #ff4d6d;
+      font-size: 1.3rem;
       width: 45px; height: 45px;
       border-radius: 12px;
       cursor: pointer;
@@ -71,15 +98,7 @@
       display: flex; align-items: center; justify-content: center;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
-    .menu-toggle-btn {
-      top: 20px; left: 20px; font-size: 1.5rem;
-      opacity: 0; transform: scale(0.8); pointer-events: none;
-    }
-    .menu-toggle-btn.show { opacity: 1; transform: scale(1); pointer-events: auto; }
-    .settings-toggle-btn { top: 20px; right: 20px; font-size: 1.3rem; }
-    
-    .menu-toggle-btn:hover, .settings-toggle-btn:hover { background: rgba(255, 255, 255, 0.12); transform: scale(1.05); }
+    .settings-toggle-btn:hover { background: rgba(255, 255, 255, 0.12); transform: scale(1.05); }
 
     .settings-modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
@@ -144,19 +163,32 @@
       color: #ff4d6d; 
       text-shadow: 0 0 10px rgba(255,77,109,0.5); 
       letter-spacing: 1px;
-      display: flex; align-items: center; gap: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .close-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #9ca3af; transition: 0.2s; }
     .close-btn:hover { color: #ff4d6d; transform: rotate(90deg); }
 
     .menu { list-style: none; margin-top: 18px; padding: 0 14px; }
-    .menu-item-wrapper { position: relative; margin-bottom: 8px; }
+    
+    .menu-item-wrapper {
+      position: relative;
+      margin-bottom: 8px;
+    }
 
     .alert-badge {
-      background: #d90429; color: #fff; font-size: 0.7rem; font-weight: bold;
-      padding: 2px 7px; border-radius: 12px; margin-left: auto; box-shadow: 0 0 8px rgba(217, 4, 41, 0.6);
+      background: #d90429;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 2px 7px;
+      border-radius: 12px;
+      margin-left: auto;
+      box-shadow: 0 0 8px rgba(217, 4, 41, 0.6);
       transition: all 0.2s;
     }
+
 
     .menu-btn { 
       width: 100%; padding: 13px 16px;
@@ -166,45 +198,113 @@
       color: #cbd5e1; font-size: 0.92rem; font-weight: 600; text-align: left; 
       cursor: pointer; display: flex; align-items: center; justify-content: space-between; 
       transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1); 
-      position: relative; overflow: hidden; 
+      position: relative; 
+      overflow: hidden; 
     }
-    .menu-btn-content { display: flex; align-items: center; gap: 12px; position: relative; z-index: 2; width: 100%; }
+
+    .menu-btn-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+      width: 100%;
+    }
+
     .menu-tag {
-      font-size: 0.72rem; font-family: monospace; color: #64748b; background: rgba(255, 255, 255, 0.04);
-      padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.06);
-      transition: all 0.15s; position: relative; z-index: 2;
+      font-size: 0.72rem;
+      font-family: monospace;
+      color: #64748b;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.15s;
+      position: relative;
+      z-index: 2;
     }
+
     .menu-btn:hover { 
-      background: rgba(255, 77, 109, 0.05); border-color: #ff4d6d; color: #f8fafc; 
+      background: rgba(255, 77, 109, 0.05); 
+      border-color: #ff4d6d;
+      color: #f8fafc; 
       transform: translateX(4px);
       box-shadow: 0 0 10px rgba(255, 77, 109, 0.5), inset 0 0 5px rgba(255, 77, 109, 0.3);
       text-shadow: 2px 0px 2px rgba(255, 77, 109, 0.8), -2px 0px 2px rgba(0, 255, 255, 0.8);
     }
-    .menu-btn:hover .menu-tag { color: #fff; border-color: #ff4d6d; background: rgba(255, 77, 109, 0.2); box-shadow: 0 0 5px #ff4d6d; }
+
+    .menu-btn:hover .menu-tag {
+      color: #fff;
+      border-color: #ff4d6d;
+      background: rgba(255, 77, 109, 0.2);
+      box-shadow: 0 0 5px #ff4d6d;
+    }
+
     .menu-btn.active { 
-      background: #ff4d6d; color: #fff; font-weight: 700; border: 1px solid #ff4d6d;
-      box-shadow: 0 0 15px #ff4d6d, inset 0 0 10px rgba(0,0,0,0.5); text-shadow: none;
+      background: #ff4d6d; 
+      color: #fff; 
+      font-weight: 700; 
+      border: 1px solid #ff4d6d;
+      box-shadow: 0 0 15px #ff4d6d, inset 0 0 10px rgba(0,0,0,0.5);
+      text-shadow: none;
     }
-    .menu-btn.active .menu-tag { color: #ff4d6d; background: #fff; border-color: #fff; font-weight: bold; }
+
+    .menu-btn.active .menu-tag {
+      color: #ff4d6d;
+      background: #fff;
+      border-color: #fff;
+      font-weight: bold;
+    }
+
     .menu-btn::before {
-      content: ''; position: absolute; top: 0; left: -100%; width: 40%; height: 100%;
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 40%;
+      height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-      transform: skewX(-30deg); pointer-events: none; z-index: 1;
+      transform: skewX(-30deg);
+      pointer-events: none;
+      z-index: 1;
     }
-    .menu-btn:active::before, .menu-btn.active::before { animation: cyber-scan 0.3s ease-out; }
-    @keyframes cyber-scan { 0% { left: -100%; } 100% { left: 200%; } }
+
+    .menu-btn:active::before,
+    .menu-btn.active::before {
+      animation: cyber-scan 0.3s ease-out;
+    }
+
+    @keyframes cyber-scan {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
+    
 
     .user-profile-box { padding: 18px; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(10, 10, 15, 0.4); text-align: center; }
     .btn-roblox { 
-      background: rgba(255, 255, 255, 0.04); color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.12); 
-      padding: 11px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; 
-      display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; 
-      text-decoration: none; font-size: 0.92rem;
+      background: rgba(255, 255, 255, 0.04); 
+      color: #f1f5f9; 
+      border: 1px solid rgba(255, 255, 255, 0.12); 
+      padding: 11px; 
+      border-radius: 10px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      width: 100%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 8px; 
+      transition: 0.2s; 
+      text-decoration: none;
+      font-size: 0.92rem;
     }
     .btn-roblox:hover { background: rgba(255, 255, 255, 0.08); border-color: #ff4d6d; box-shadow: 0 0 12px rgba(255,77,109,0.2); }
 
     .main-content { 
-      flex: 1; padding: 40px 30px; width: 100%; max-width: 1100px; margin: 0 auto; 
+      flex: 1; 
+      padding: 40px 30px; 
+      width: 100%; max-width: 1100px;
+      margin: 0 auto; 
       transition: padding-left 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .main-content.shifted { padding-left: 320px; }
@@ -212,28 +312,57 @@
     .tab-section { display: none; }
     .tab-section.active { display: block; }
 
+
     h1 { 
-      color: #ffffff !important; margin-bottom: 25px; font-size: 1.8rem; font-weight: 800; 
-      position: relative; display: inline-block; letter-spacing: 0.5px;
-      padding-bottom: 15px; text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      color: #ffffff !important; 
+      margin-bottom: 25px; 
+      font-size: 1.8rem; 
+      font-weight: 800; 
+      position: relative;
+      display: inline-block;
+      letter-spacing: 0.5px;
+      padding-bottom: 15px; 
+      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
     }
+
     h1::after {
-      content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 2px;
       background: linear-gradient(90deg, #ff4d6d, rgba(255, 77, 109, 0.1), transparent);
     }
 
+
     .glass-panel {
-      position: relative; border: 1px solid rgba(255, 77, 109, 0.25);
-      background: rgba(10, 10, 15, 0.65) !important; backdrop-filter: blur(14px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 77, 109, 0.03); border-radius: 16px;
+      position: relative;
+      border: 1px solid rgba(255, 77, 109, 0.25);
+      background: rgba(10, 10, 15, 0.65) !important;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 77, 109, 0.03);
+      border-radius: 16px;
     }
+
     .glass-panel::before {
-      content: ''; position: absolute; top: -1px; left: -1px; width: 12px; height: 12px;
-      border-top: 2px solid #ff4d6d; border-left: 2px solid #ff4d6d; pointer-events: none; z-index: 2;
+      content: '';
+      position: absolute;
+      top: -1px; left: -1px;
+      width: 12px; height: 12px;
+      border-top: 2px solid #ff4d6d;
+      border-left: 2px solid #ff4d6d;
+      pointer-events: none;
+      z-index: 2;
     }
+
     .glass-panel::after {
-      content: ''; position: absolute; bottom: -1px; right: -1px; width: 12px; height: 12px;
-      border-bottom: 2px solid #ff4d6d; border-right: 2px solid #ff4d6d; pointer-events: none; z-index: 2;
+      content: '';
+      position: absolute;
+      bottom: -1px; right: -1px;
+      width: 12px; height: 12px;
+      border-bottom: 2px solid #ff4d6d;
+      border-right: 2px solid #ff4d6d;
+      pointer-events: none;
+      z-index: 2;
     }
 
     .welcome-card { padding: 35px 25px; text-align: center; border-radius: 20px; }
@@ -242,38 +371,84 @@
     .welcome-icon { font-size: 3.5rem; margin-bottom: 12px; display: inline-block; animation: wave 2.5s infinite; transform-origin: 70% 70%; }
     
     @keyframes wave {
-      0% { transform: rotate(0deg); } 10% { transform: rotate(14deg); } 20% { transform: rotate(-8deg); }
-      30% { transform: rotate(14deg); } 40% { transform: rotate(-4deg); } 50% { transform: rotate(10deg); }
+      0% { transform: rotate(0deg); }
+      10% { transform: rotate(14deg); }
+      20% { transform: rotate(-8deg); }
+      30% { transform: rotate(14deg); }
+      40% { transform: rotate(-4deg); }
+      50% { transform: rotate(10deg); }
       60%, 100% { transform: rotate(0deg); }
     }
 
     .bot-profile-card {
-      padding: 25px; border-radius: 20px; border: 1px solid rgba(88, 101, 242, 0.3); 
+      padding: 25px;
+      border-radius: 20px;
+      border: 1px solid rgba(88, 101, 242, 0.3); 
       background: linear-gradient(145deg, rgba(10,10,15,0.8) 0%, rgba(88,101,242,0.1) 100%) !important;
-      position: relative; overflow: hidden;
+      position: relative;
+      overflow: hidden;
     }
+    
     .bot-profile-card::before {
       content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
       background: linear-gradient(to right, transparent, rgba(88,101,242,0.1), transparent);
-      transform: skewX(-20deg); animation: shine 6s infinite; z-index: 2;
+      transform: skewX(-20deg); animation: shine 6s infinite;
+      z-index: 2;
     }
     @keyframes shine { 0% { left: -100%; } 20%, 100% { left: 200%; } }
     
     .bot-card-inner { display: flex; gap: 25px; align-items: center; }
     .bot-avatar-wrapper { position: relative; flex-shrink: 0; }
-    .bot-avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #2b2d31; box-shadow: 0 8px 24px rgba(0,0,0,0.4); object-fit: cover; }
-    .bot-status { position: absolute; bottom: 4px; right: 4px; width: 20px; height: 20px; background-color: #23a559; border-radius: 50%; border: 4px solid #1e1e24; }
+    
+    .bot-avatar {
+      width: 90px; height: 90px; border-radius: 50%;
+      border: 3px solid #2b2d31; box-shadow: 0 8px 24px rgba(0,0,0,0.4); object-fit: cover;
+    }
+    
+    .bot-status {
+      position: absolute; bottom: 4px; right: 4px;
+      width: 20px; height: 20px; background-color: #23a559;
+      border-radius: 50%; border: 4px solid #1e1e24; 
+    }
+    
     .bot-info { flex: 1; }
-    .bot-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: nowrap; }
-    .bot-name { color: #fff; font-size: 1.35rem; font-weight: 800; margin: 0; }
-    .bot-badge { background: #5865F2; color: #fff; font-size: 0.7rem; font-weight: bold; padding: 3px 7px; border-radius: 6px; display: inline-flex; align-items: center; box-shadow: 0 2px 8px rgba(88,101,242,0.4); flex-shrink: 0; }
+    .bot-name-row { 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      margin-bottom: 8px; 
+      flex-wrap: nowrap; 
+    }
+    .bot-name { 
+      color: #fff; 
+      font-size: 1.35rem; 
+      font-weight: 800; 
+      margin: 0; 
+    }
+    
+    .bot-badge {
+      background: #5865F2; color: #fff; font-size: 0.7rem; font-weight: bold;
+      padding: 3px 7px; border-radius: 6px; display: inline-flex; align-items: center;
+      box-shadow: 0 2px 8px rgba(88,101,242,0.4);
+      flex-shrink: 0;
+    }
+    
     .bot-desc { color: var(--desc-color); font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; }
     .bot-action-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-    .btn-discord { background-color: #5865F2; color: white; font-weight: bold; font-size: 1rem; padding: 12px 24px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s ease; box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4); }
-    .btn-discord:hover { background-color: #4752C4; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6); }
+    
+    .btn-discord {
+      background-color: #5865F2; color: white; font-weight: bold; font-size: 1rem;
+      padding: 12px 24px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center;
+      text-decoration: none; transition: 0.2s ease; box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+    }
+    
+    .btn-discord:hover {
+      background-color: #4752C4; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6);
+    }
+    
     .bot-stats { color: #94a3b8; font-size: 0.85rem; }
     .bot-stats strong { color: #cbd5e1; }
-
+    
     @media (max-width: 600px) {
       .bot-card-inner { flex-direction: column; text-align: center; }
       .bot-name-row { justify-content: center; flex-wrap: nowrap; }
@@ -287,63 +462,123 @@
     
     .input-wrapper { display: flex; flex-direction: column; gap: 12px; }
     .input-row { display: flex; gap: 12px; flex-wrap: wrap; }
-    .input-wrapper input { background: rgba(255, 255, 255, 0.04); color: var(--text-color); border: 1px solid rgba(255, 255, 255, 0.15); padding: 12px 16px; border-radius: 10px; font-size: 0.95rem; outline: none; flex: 1; min-width: 220px; transition: 0.2s; }
+    .input-wrapper input {
+      background: rgba(255, 255, 255, 0.04); color: var(--text-color); border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 12px 16px; border-radius: 10px; font-size: 0.95rem; outline: none; flex: 1; min-width: 220px;
+      transition: 0.2s;
+    }
     .input-wrapper input:focus { border-color: #ff4d6d; box-shadow: 0 0 0 3px rgba(255,77,109,0.2); background: rgba(255, 255, 255, 0.08); }
-    .btn-action { background: linear-gradient(135deg, #ff4d6d, #d90429); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(255,77,109,0.4); }
+    .btn-action {
+      background: linear-gradient(135deg, #ff4d6d, #d90429); color: white; border: none; padding: 12px 24px;
+      border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(255,77,109,0.4);
+    }
     .btn-action:hover { box-shadow: 0 6px 20px rgba(255,77,109,0.6); transform: translateY(-2px); }
 
     .filter-box { margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px; padding: 18px 22px; }
     .filter-box label { color: var(--text-color); font-size: 1rem; font-weight: 700; white-space: nowrap; }
-    .filter-box select, .filter-box input[type="text"] { background: rgba(255, 255, 255, 0.04); color: var(--text-color); border: 1px solid rgba(255, 255, 255, 0.15); padding: 10px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; outline: none; transition: 0.2s; width: 100%; }
-    .filter-box select option { background-color: #1e1e24; color: #f8fafc; padding: 10px; }
+    
+    .filter-box select, .filter-box input[type="text"] { 
+      background: rgba(255, 255, 255, 0.04); 
+      color: var(--text-color); 
+      border: 1px solid rgba(255, 255, 255, 0.15); 
+      padding: 10px 16px; 
+      border-radius: 10px; 
+      font-size: 0.95rem; 
+      font-weight: 600; 
+      outline: none; 
+      transition: 0.2s; 
+      width: 100%; 
+    }
+    .filter-box select option {
+      background-color: #1e1e24;
+      color: #f8fafc;
+      padding: 10px;
+    }
     .filter-box select:focus, .filter-box input[type="text"]:focus { border-color: #ff4d6d; box-shadow: 0 0 0 3px rgba(255,77,109,0.2); }
 
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
     
-    .log-card { padding: 22px; display: flex; flex-direction: column; gap: 12px; transition: transform 0.3s ease, border-color 0.3s ease; }
+    .log-card { 
+      padding: 22px; 
+      display: flex; flex-direction: column; gap: 12px; 
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
     .log-card:hover { transform: translateY(-5px); border-color: rgba(255, 77, 109, 0.5); }
     .log-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255, 255, 255, 0.15); padding-bottom: 12px; color: var(--text-color); }
     
     .status-badge { padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.85em; display: inline-block; }
     .status-1 { background: rgba(22, 101, 52, 0.4); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
     .status-0 { background: rgba(153, 27, 27, 0.4); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+    .status-other { background: rgba(30, 64, 175, 0.4); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
 
     .log-info { font-size: 1rem; color: var(--text-color); font-weight: 500; }
     .highlight { color: #ff4d6d; font-weight: 800; font-size: 1.1rem; }
     .sub-id { font-size: 0.85em; color: var(--desc-color); margin-left: 6px; font-weight: normal; }
     .timestamp { font-size: 0.85em; color: var(--desc-color); text-align: right; font-style: italic; }
     
-    .btn-remove-acc { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
+    .btn-remove-acc {
+      background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: 0.2s;
+    }
     .btn-remove-acc:hover { background: rgba(239, 68, 68, 0.5); color: #fff; }
 
     .empty-msg { text-align: center; color: var(--desc-color); padding: 40px; border-radius: 14px; border: 2px dashed rgba(255, 255, 255, 0.15); font-size: 1.05rem; }
 
-    .stagger-item { opacity: 0; transform: translateY(25px); }
+    .stagger-item {
+      opacity: 0;
+      transform: translateY(25px);
+    }
 
-    @keyframes sequentialFadeUp { 0% { opacity: 0; transform: translateY(25px); } 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes sequentialFadeUp {
+      0% { opacity: 0; transform: translateY(25px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
 
-    /* Light Theme Settings */
-    body.light-theme { --text-color: #0f172a; --desc-color: #334155; }
-    body.light-theme .glass-panel { background: rgba(255, 255, 255, 0.35) !important; border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 12px 30px rgba(0,0,0,0.1); color: #0f172a; }
-    body.light-theme .sidebar { background: rgba(255, 255, 255, 0.65); border-right: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 4px 0 30px rgba(0,0,0,0.1); }
+    body.light-theme {
+      --text-color: #0f172a;
+      --desc-color: #334155;
+    }
+    body.light-theme .glass-panel {
+      background: rgba(255, 255, 255, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+      color: #0f172a;
+    }
+    body.light-theme .sidebar {
+      background: rgba(255, 255, 255, 0.65);
+      border-right: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 4px 0 30px rgba(0,0,0,0.1);
+    }
     body.light-theme .menu-btn { color: #1e293b; background: rgba(255, 255, 255, 0.3); border-color: rgba(0,0,0,0.08); }
     body.light-theme .menu-btn:hover { background: rgba(255, 77, 109, 0.1); color: #0f172a; }
-    body.light-theme .menu-btn.active { background: rgba(255, 77, 109, 0.2); color: #d90429; border: 1px solid rgba(217, 4, 41, 0.4); }
+    body.light-theme .menu-btn.active {
+      background: rgba(255, 77, 109, 0.2);
+      color: #d90429; border: 1px solid rgba(217, 4, 41, 0.4);
+    }
     body.light-theme .menu-tag { background: rgba(0,0,0,0.05); color: #475569; border-color: rgba(0,0,0,0.08); }
     body.light-theme .menu-btn.active .menu-tag { background: #d90429; color: #fff; }
-    body.light-theme .btn-roblox { background: rgba(255, 255, 255, 0.4); color: #0f172a; border: 1px solid rgba(0, 0, 0, 0.15); }
+    body.light-theme .btn-roblox {
+      background: rgba(255, 255, 255, 0.4);
+      color: #0f172a; border: 1px solid rgba(0, 0, 0, 0.15);
+    }
     body.light-theme .btn-roblox:hover { background: rgba(255, 255, 255, 0.6); border-color: #ff4d6d; }
     body.light-theme .user-profile-box { background: rgba(255, 255, 255, 0.4); }
-    body.light-theme .user-profile-box a, body.light-theme .user-profile-box span { color: var(--desc-color) !important; }
+    body.light-theme .user-profile-box a { color: var(--desc-color) !important; }
     body.light-theme .user-profile-box a:hover { color: #ff4d6d !important; }
-    body.light-theme .input-wrapper input, body.light-theme .filter-box select, body.light-theme .filter-box input[type="text"] { background: rgba(255, 255, 255, 0.3); color: #0f172a; border: 1px solid rgba(0, 0, 0, 0.2); }
+    body.light-theme .user-profile-box span { color: var(--desc-color) !important; }
+    body.light-theme .input-wrapper input, 
+    body.light-theme .filter-box select, 
+    body.light-theme .filter-box input[type="text"] {
+      background: rgba(255, 255, 255, 0.3); color: #0f172a; border: 1px solid rgba(0, 0, 0, 0.2);
+    }
     body.light-theme .filter-box select option { background-color: #ffffff; color: #0f172a; }
     body.light-theme .settings-modal { background: rgba(255, 255, 255, 0.45); border: 1px solid rgba(255, 255, 255, 0.7); }
     body.light-theme .bot-profile-card { background: rgba(255, 255, 255, 0.5); border-color: rgba(88, 101, 242, 0.4); }
     body.light-theme .bot-name { color: #0f172a; }
     body.light-theme .bot-avatar, body.light-theme .bot-status { border-color: #fff; }
     body.light-theme .bot-desc { color: #334155; }
-    body.light-theme .bot-stats, body.light-theme .bot-stats strong { color: #475569; }
+    body.light-theme .bot-stats { color: #475569; }
+    body.light-theme .bot-stats strong { color: #0f172a; }
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -390,22 +625,36 @@
         <ul class="menu">
           <li class="menu-item-wrapper">
             <button class="menu-btn active" onclick="showTab('home', this)">
-              <div class="menu-btn-content"><span>🏠</span> Trang Chủ</div><span class="menu-tag">[01]</span>
+              <div class="menu-btn-content">
+                <span>🏠</span> Trang Chủ
+              </div>
+              <span class="menu-tag">[01]</span>
             </button>
           </li>
           <li class="menu-item-wrapper">
             <button class="menu-btn" onclick="showTab('live', this)">
-              <div class="menu-btn-content"><span>🔴</span> Roblox Live</div><span class="menu-tag">[02]</span>
+              <div class="menu-btn-content">
+                <span>🔴</span> Roblox Live
+              </div>
+              <span class="menu-tag">[02]</span>
             </button>
           </li>
           <li class="menu-item-wrapper">
             <button class="menu-btn" onclick="showTab('history', this)">
-              <div class="menu-btn-content"><span>📜</span> Lịch Sử</div><span class="menu-tag">[03]</span>
+              <div class="menu-btn-content">
+                <span>📜</span> Lịch Sử
+              </div>
+              <span class="menu-tag">[03]</span>
             </button>
           </li>
+
           <li class="menu-item-wrapper">
             <button class="menu-btn" onclick="showTab('alerts', this)">
-              <div class="menu-btn-content"><span>🔔</span> Thông Báo <span id="alert-badge" class="alert-badge" style="display: none;">0</span></div><span class="menu-tag">[04]</span>
+              <div class="menu-btn-content">
+                <span>🔔</span> Thông Báo
+                <span id="alert-badge" class="alert-badge" style="display: none;">0</span>
+              </div>
+              <span class="menu-tag">[04]</span>
             </button>
           </li>
         </ul>
@@ -414,15 +663,14 @@
       <div class="user-profile-box" id="authBox">
         <a href="/auth/roblox" class="btn-roblox" id="robloxAuthBtn">🎮 Đăng nhập bằng Roblox</a>
         <div style="margin-top: 10px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <a href="#" target="_blank" style="color: var(--desc-color); font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff4d6d'" onmouseout="this.style.color='var(--desc-color)'">🔒 Bảo mật</a>
+          <a href="https://roblox-tracker-g1vm.onrender.com/privacy.html" target="_blank" style="color: var(--desc-color); font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff4d6d'" onmouseout="this.style.color='var(--desc-color)'">🔒 Bảo mật</a>
           <span style="color: #4b5563; font-size: 0.7rem;">•</span>
-          <a href="#" target="_blank" style="color: var(--desc-color); font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff4d6d'" onmouseout="this.style.color='var(--desc-color)'">📄 Điều khoản</a>
+          <a href="https://roblox-tracker-g1vm.onrender.com/terms.html" target="_blank" style="color: var(--desc-color); font-size: 0.78rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff4d6d'" onmouseout="this.style.color='var(--desc-color)'">📄 Điều khoản</a>
         </div>
       </div>
     </div>
 
     <div class="main-content" id="mainContent">
-      <!-- Home Tab -->
       <div id="tab-home" class="tab-section active">
         <h1 class="stagger-item">Dashboard</h1>
         <div class="welcome-card glass-panel stagger-item">
@@ -434,7 +682,7 @@
         <div class="bot-profile-card glass-panel stagger-item" style="margin-top: 30px;">
           <div class="bot-card-inner">
             <div class="bot-avatar-wrapper">
-              <img src="https://media.discordapp.net/attachments/1312337077525807125/1535700925228785835/02160d927f2bb7c77a4d36a5709309c5_1.gif" alt="Bot Avatar" class="bot-avatar">
+              <img src="https://media.discordapp.net/attachments/1312337077525807125/1535700925228785835/02160d927f2bb7c77a4d36a5709309c5_1.gif?ex=6a78b870&is=6a7766f0&hm=d437e0ec802d128d1d630ad8cbebe558b871dc5afecc196ea0b9648917dcf348&=" alt="Bot Avatar" class="bot-avatar">
               <div class="bot-status"></div>
             </div>
             
@@ -443,11 +691,20 @@
                 <h3 class="bot-name">Roblox Security Monitor</h3>
                 <span class="bot-badge">APP</span>
               </div>
-              <p class="bot-desc">Nhận thông báo trực tiếp về server Discord của bạn ngay khi có tài khoản theo dõi Online/Offline.</p>
+              <p class="bot-desc">
+                Nhận thông báo trực tiếp về server Discord của bạn ngay khi có tài khoản theo dõi Online/Offline. Hỗ trợ liên kết tài khoản và kiểm tra trạng thái cực nhanh chỉ với 1 lệnh gạch chéo (/) và dấu chấm (.).
+              </p>
               
               <div class="bot-action-row">
-                <a href="#" class="btn-discord">Thêm vào Máy chủ</a>
-                <div class="bot-stats"><span>Đang trong quá trình thử nghiệm <strong>>:)!</strong></span></div>
+                <a href="https://discord.com/oauth2/authorize?client_id=1531721453664469153&permissions=1126452078627856&integration_type=0&scope=bot" target="_blank" class="btn-discord">
+                  <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="currentColor" style="margin-right: 8px;">
+                    <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-19.32-72.1M42.02,65.36c-5.4,0-9.84-5.06-9.84-11.23s4.35-11.23,9.84-11.23,9.91,5.06,9.84,11.23C51.86,60.3,47.51,65.36,42.02,65.36Zm43.1,0c-5.4,0-9.84-5.06-9.84-11.23s4.35-11.23,9.84-11.23,9.91,5.06,9.84,11.23C85.12,60.3,80.77,65.36,85.12,65.36Z"/>
+                  </svg>
+                  Thêm vào Máy chủ
+                </a>
+                <div class="bot-stats">
+                  <span>Đang trong quá trình thử nghiệm <strong>>:)!</strong></span>
+                </div>
               </div>
             </div>
           </div>
@@ -462,7 +719,7 @@
           <div class="glass-panel" style="padding: 25px; text-align: center; border-radius: 16px;">
             <div style="font-size: 2rem; margin-bottom: 8px;">🎮</div>
             <div style="font-size: 1.8rem; font-weight: 800; color: #4ade80;" id="statMonitoredCount">0</div>
-            <div style="font-size: 0.9rem; color: var(--desc-color); margin-top: 4px; font-weight: 600;">Tài khoản đang giám sát</div>
+            <div style="font-size: 0.9rem; color: var(--desc-color); margin-top: 4px; font-weight: 600;">Tài khoản Roblox đang giám sát</div>
           </div>
           <div class="glass-panel" style="padding: 25px; text-align: center; border-radius: 16px;">
             <div style="font-size: 2rem; margin-bottom: 8px;">⚡</div>
@@ -470,22 +727,70 @@
             <div style="font-size: 0.9rem; color: var(--desc-color); margin-top: 4px; font-weight: 600;">Trạng thái hoạt động</div>
           </div>
         </div>
+
+        <div class="glass-panel stagger-item" style="margin-top: 30px; padding: 22px; border-radius: 16px; border-left: 4px solid #ff4d6d;">
+          <h3 style="color: #ff4d6d; font-size: 1.2rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            ⚙️ Hướng Dẫn Cấu Hình Quyền Riêng Tư Roblox (Privacy Settings)
+          </h3>
+          <p style="color: var(--desc-color); font-size: 0.95rem; line-height: 1.6; margin-bottom: 12px;">
+            Khi bạn đăng nhập tài khoản Roblox trên Web mà hệ thống không thể kiểm tra hoặc báo sai trạng thái, hãy điều chỉnh cài đặt riêng tư theo các bước sau:
+          </p>
+          <ol style="color: var(--text-color); font-size: 0.92rem; line-height: 1.8; padding-left: 22px;">
+            <li>Truy cập và đăng nhập tài khoản trên web <a href="https://www.roblox.com" target="_blank" style="color: #ff4d6d; font-weight: bold;">roblox.com</a>.</li>
+            <li>Nhấp vào biểu tượng <strong>Cài đặt (Settings) ⚙️</strong> ở góc trên bên phải &gt; chọn <strong>Quyền riêng tư (Privacy)</strong>.</li>
+            <li>Tìm đến phần <strong>Quyền riêng tư trải nghiệm (Experience Privacy Settings)</strong>:
+              <ul style="margin-top: 6px; margin-bottom: 6px; padding-left: 20px; list-style-type: disc; color: var(--desc-color);">
+                <li>Chỉnh mục <strong>Trạng thái trực tuyến (Online Status)</strong> sang <strong>Everyone (Mọi người)</strong>.</li>
+                <li>Chỉnh mục <strong>Ai có thể thấy bạn trong trải nghiệm (Who can see/join you in experiences)</strong> sang <strong>Everyone (Mọi người)</strong>.</li>
+              </ul>
+            </li>
+            <li>Lưu lại cài đặt để hệ thống Bot và Website theo dõi trạng thái chính xác nhất!</li>
+          </ol>
+        </div>
+
+        <div class="faq-section stagger-item" style="margin-top: 30px; margin-bottom: 20px;">
+          <h3 style="color: var(--text-color); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">❓ Câu Hỏi Thường Gặp</h3>
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div class="glass-panel" style="padding: 20px; border-radius: 14px;">
+              <div style="font-weight: 700; color: var(--text-color); margin-bottom: 6px; font-size: 1.05rem;">Làm sao để liên kết tài khoản?</div>
+              <div style="color: var(--desc-color); font-size: 0.92rem; line-height: 1.5;">Bạn có thể chuyển sang tab <strong>Roblox Live</strong>, nhập Roblox ID và Discord ID để hệ thống Bot gửi mã xác nhận qua tin nhắn riêng (DM) trên Discord, lưu ý bạn hãy liên kết tài khoản roblox trên Bot Discord trước bằng sử dụng lệnh (/roblox) và (.roblox) thì mới thêm được tài khoản roblox trên wed.</div>
+            </div>
+            <div class="glass-panel" style="padding: 20px; border-radius: 14px;">
+              <div style="font-weight: 700; color: var(--text-color); margin-bottom: 6px; font-size: 1.05rem;">Bot có bảo mật thông tin không?</div>
+              <div style="color: var(--desc-color); font-size: 0.92rem; line-height: 1.5;">Hoàn toàn bảo mật! Bot chỉ theo dõi trạng thái online/offline công khai và lịch sử chơi game của tài khoản Roblox thông qua hệ thống API an toàn, Bot chúng tôi không có lưu trữ mật khẩu tài khoản của bạn.</div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Live Tab -->
       <div id="tab-live" class="tab-section">
         <h1 class="stagger-item">🔴 Trạng Thái Trực Tiếp</h1>
+
+
         <div class="control-panel glass-panel stagger-item" style="margin-bottom: 25px; border-left: 4px solid #f59e0b; padding: 20px;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
             <div>
               <h3 style="color: #f59e0b; margin-bottom: 8px; font-size: 1.15rem;">🛡️ Chế Độ No-Playing</h3>
-              <p style="color: var(--desc-color); font-size: 0.9rem; line-height: 1.5; max-width: 600px;">Bật tính năng này để hệ thống giám sát và thông báo nếu phát hiện tài khoản tự nhiên hoạt động.</p>
+              <p style="color: var(--desc-color); font-size: 0.9rem; line-height: 1.5; max-width: 600px;">Bật tính năng này để hệ thống giám sát và thông báo nếu phát hiện tài khoản tự nhiên hoạt động hoặc vô game trong khi bạn đang bận (offline).</p>
             </div>
             <label class="switch">
               <input type="checkbox" id="noPlayingToggle" onchange="toggleNoPlayingMode(this)">
               <span class="slider round"></span>
             </label>
           </div>
+        </div>
+        
+        <div class="glass-panel stagger-item" style="margin-bottom: 25px; padding: 20px; border-radius: 16px; border-left: 4px solid #ff4d6d;">
+          <h3 style="color: #ff4d6d; font-size: 1.1rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            ⚠️ Lưu ý quan trọng về Quyền Riêng Tư Roblox
+          </h3>
+          <p style="color: var(--desc-color); font-size: 0.9rem; line-height: 1.5;">
+            Nếu bạn đăng nhập tài khoản Roblox trên Web mà hệ thống không hiển thị đúng trạng thái, vui lòng vào <a href="https://www.roblox.com" target="_blank" style="color: #ff4d6d; font-weight: bold;">Roblox Web</a> ⚙️ <strong>Settings &gt; Privacy &gt; Experience Privacy Settings</strong> và cập nhật:
+          </p>
+          <ul style="color: var(--text-color); font-size: 0.88rem; line-height: 1.6; margin-top: 8px; padding-left: 20px;">
+            <li><strong>Online Status (Trạng thái trực tuyến):</strong> Chọn <strong>Everyone (Mọi người)</strong></li>
+            <li><strong>Who can see / join you in experiences (Ai có thể thấy/tham gia cùng bạn trong trải nghiệm):</strong> Chọn <strong>Everyone (Mọi người)</strong></li>
+          </ul>
         </div>
 
         <div class="control-panel glass-panel stagger-item" id="verifyStep1">
@@ -512,12 +817,13 @@
           </div>
         </div>
 
+        <div id="verifyResultMsg" class="stagger-item" style="margin-bottom: 15px;"></div>
+
         <div id="live-container" class="grid-container stagger-item">
           <p class='empty-msg glass-panel'>Chưa có tài khoản nào được thêm.</p>
         </div>
       </div>
 
-      <!-- History Tab -->
       <div id="tab-history" class="tab-section">
         <h1 class="stagger-item">📜 Lịch Sử Hoạt Động</h1>
         <div class="filter-box glass-panel stagger-item" id="filterBox">
@@ -541,12 +847,13 @@
             <input type="text" id="dateFilter" placeholder="ngày/tháng/năm" oninput="renderHistoryLogs()">
           </div>
         </div>
+        
         <div id="logs" class="stagger-item">
           <p class='empty-msg glass-panel'>Đang tải lịch sử hoạt động...</p>
         </div>
       </div>
 
-      <!-- Alerts Tab -->
+
       <div id="tab-alerts" class="tab-section">
         <h1 class="stagger-item">🔔 Thông Báo Hoạt Động Bất Thường</h1>
         <div class="glass-panel stagger-item" style="margin-bottom: 25px; padding: 15px 22px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -561,16 +868,15 @@
   </div>
 
   <script>
-    // Utils & UI Control
     function toggleSettingsModal() {
-      document.getElementById('settingsModalOverlay').classList.toggle('open');
+      const modal = document.getElementById('settingsModalOverlay');
+      modal.classList.toggle('open');
     }
 
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const mainContent = document.getElementById('mainContent');
       const menuToggleBtn = document.getElementById('menuToggleBtn');
-      if (!sidebar || !mainContent || !menuToggleBtn) return; // Safety check
       
       sidebar.classList.toggle('open');
       const isOpen = sidebar.classList.contains('open');
@@ -584,40 +890,45 @@
           menuToggleBtn.classList.add('show');
         }
       } else {
-        menuToggleBtn.classList.toggle('show', !isOpen);
+        if (isOpen) {
+          menuToggleBtn.classList.remove('show');
+        } else {
+          menuToggleBtn.classList.add('show');
+        }
       }
     }
 
     function handleThemeToggle(checkbox) {
-      document.body.classList.toggle('light-theme', checkbox.checked);
-      try { localStorage.setItem('roblox_tracker_theme', checkbox.checked ? 'light' : 'dark'); } catch(e){}
+      if (checkbox.checked) {
+        document.body.classList.add('light-theme');
+        localStorage.setItem('roblox_tracker_theme', 'light');
+      } else {
+        document.body.classList.remove('light-theme');
+        localStorage.setItem('roblox_tracker_theme', 'dark');
+      }
     }
 
-    // Auth & Setup
     window.addEventListener('DOMContentLoaded', () => {
-      try {
-        const savedTheme = localStorage.getItem('roblox_tracker_theme');
-        const switchEl = document.getElementById('uiThemeSwitch');
-        if (savedTheme === 'light') {
-          document.body.classList.add('light-theme');
-          if (switchEl) switchEl.checked = true;
-        }
-        const noPlayingCheck = document.getElementById('noPlayingToggle');
-        if (noPlayingCheck) {
-            noPlayingCheck.checked = localStorage.getItem('no_playing_mode') === 'true';
-        }
-      } catch (e) { console.warn("Lỗi LocalStorage:", e) }
-      
-      initAuthSession();
+      const savedTheme = localStorage.getItem('roblox_tracker_theme');
+      const switchEl = document.getElementById('uiThemeSwitch');
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        if (switchEl) switchEl.checked = true;
+      }
+
+
+      const noPlayingCheck = document.getElementById('noPlayingToggle');
+      if (noPlayingCheck) {
+          noPlayingCheck.checked = localStorage.getItem('no_playing_mode') === 'true';
+      }
       updateAlertBadge();
       renderAlerts();
     });
 
-    // Verification Logic
     function requestVerificationCode() {
         const rId = document.getElementById('verifyRobloxId').value.trim();
         const dId = document.getElementById('verifyDiscordId').value.trim();
-        if(!rId || !dId) return alert("Vui lòng điền đủ Roblox ID và Discord ID!");
+        if(!rId || !dId) { alert("Vui lòng điền đủ Roblox ID và Discord ID!"); return; }
         alert("Đã gửi mã xác nhận đến Discord của bạn!");
         document.getElementById('verifyStep1').style.display = 'none';
         document.getElementById('verifyStep2').style.display = 'block';
@@ -628,14 +939,14 @@
         const rId = document.getElementById('verifyRobloxId').value.trim();
         const rName = document.getElementById('newRobloxNameInput').value.trim();
 
-        if(!code) return alert("Vui lòng nhập mã xác nhận!");
+        if(!code) { alert("Vui lòng nhập mã xác nhận!"); return; }
 
         let customAccounts = [];
         try { customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]'); } catch(e) {}
         
         if (rId && !customAccounts.some(acc => acc.id === rId)) {
             customAccounts.push({ id: rId, name: rName || `ID: ${rId}` });
-            try { localStorage.setItem('custom_tracked_accounts', JSON.stringify(customAccounts)); } catch(e){}
+            localStorage.setItem('custom_tracked_accounts', JSON.stringify(customAccounts));
         }
 
         alert("Xác thực tài khoản thành công!");
@@ -646,27 +957,30 @@
         updateUI(); 
     }
 
+
     function toggleNoPlayingMode(checkbox) {
-        try { localStorage.setItem('no_playing_mode', checkbox.checked ? 'true' : 'false'); } catch(e){}
+        localStorage.setItem('no_playing_mode', checkbox.checked ? 'true' : 'false');
+
     }
 
-    // Alerts
     function addAlert(uid, name, location, timeSeconds) {
-        try {
-            let alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]');
-            alerts.unshift({ id: Date.now() + Math.random(), uid, name, location, time: timeSeconds });
-            localStorage.setItem('roblox_alerts', JSON.stringify(alerts));
-            updateAlertBadge();
-        } catch(e){}
+        let alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]');
+        alerts.unshift({
+            id: Date.now() + Math.random(),
+            uid: uid,
+            name: name,
+            location: location,
+            time: timeSeconds
+        });
+        localStorage.setItem('roblox_alerts', JSON.stringify(alerts));
+        updateAlertBadge();
     }
 
     function renderAlerts() {
         const container = document.getElementById("alerts-container");
+        let alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]');
         if (!container) return;
-        
-        let alerts = [];
-        try { alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]'); } catch(e){}
-        
+
         container.innerHTML = "";
         if (alerts.length === 0) {
             container.innerHTML = "<p class='empty-msg glass-panel'>Không có thông báo hoạt động bất thường nào.</p>";
@@ -675,6 +989,7 @@
 
         alerts.forEach((alertData, index) => {
             const date = new Date(alertData.time * 1000);
+            const timeStr = date.toLocaleTimeString('vi-VN') + ' ' + date.toLocaleDateString('vi-VN');
             const card = document.createElement('div');
             card.className = 'log-card glass-panel';
             card.style.opacity = "0";
@@ -687,7 +1002,7 @@
                 <div class="log-info" style="margin-top:8px;">
                     <p style="margin-bottom:6px;">Tài khoản: <strong style="color: #4ade80;">${alertData.name}</strong> (ID: ${alertData.uid})</p>
                     <p style="margin-bottom:6px;">Phát hiện hoạt động: <strong style="color: #ff4d6d;">${alertData.location}</strong></p>
-                    <div class="timestamp" style="margin-top: 10px; color:#94a3b8;">⏰ Lúc: ${date.toLocaleTimeString('vi-VN')} ${date.toLocaleDateString('vi-VN')}</div>
+                    <div class="timestamp" style="margin-top: 10px; color:#94a3b8;">⏰ Lúc: ${timeStr}</div>
                 </div>
             `;
             container.appendChild(card);
@@ -695,38 +1010,37 @@
     }
 
     function deleteAlert(id) {
-        try {
-            let alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]');
-            alerts = alerts.filter(a => String(a.id) !== String(id));
-            localStorage.setItem('roblox_alerts', JSON.stringify(alerts));
-            renderAlerts();
-            updateAlertBadge();
-        } catch(e){}
+        let alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]');
+        alerts = alerts.filter(a => String(a.id) !== String(id));
+        localStorage.setItem('roblox_alerts', JSON.stringify(alerts));
+        renderAlerts();
+        updateAlertBadge();
     }
 
     function clearAllAlerts() {
-        if(confirm("Bạn có chắc chắn muốn xóa toàn bộ thông báo?")) {
-            try { localStorage.removeItem('roblox_alerts'); } catch(e){}
+        if(confirm("Bạn có chắc chắn muốn xóa toàn bộ thông báo hoạt động bất thường?")) {
+            localStorage.removeItem('roblox_alerts');
             renderAlerts();
             updateAlertBadge();
         }
     }
 
     function updateAlertBadge() {
-        try {
-            let alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]');
-            const badge = document.getElementById('alert-badge');
-            if (badge) {
-                badge.style.display = alerts.length > 0 ? 'inline-block' : 'none';
+        let alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]');
+        const badge = document.getElementById('alert-badge');
+        if (badge) {
+            if (alerts.length > 0) {
+                badge.style.display = 'inline-block';
                 badge.innerText = alerts.length;
+            } else {
+                badge.style.display = 'none';
             }
-        } catch(e){}
+        }
     }
+    // --- KẾT THÚC LOGIC THÔNG BÁO ---
 
-    // Tối ưu hóa Matrix Animation (dùng requestAnimationFrame thay vì setInterval)
     function initMatrix() {
       const canvas = document.getElementById('matrixCanvas');
-      if (!canvas) return;
       const ctx = canvas.getContext('2d');
 
       function resizeCanvas() {
@@ -738,6 +1052,7 @@
 
       const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>/?ROBLOX".split("");
       const fontSize = 16;
+      
       const glitches = [];
       const columns = Math.floor(canvas.width / fontSize);
       const numGlitches = Math.floor(columns * 0.60); 
@@ -754,6 +1069,7 @@
       function drawMatrix() {
         ctx.fillStyle = "rgba(0, 0, 0, 0.15)"; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
         ctx.font = fontSize + "px monospace";
 
         for (let i = 0; i < glitches.length; i++) {
@@ -762,7 +1078,13 @@
           
           if (g.counter >= g.speed) {
             const text = characters[Math.floor(Math.random() * characters.length)];
-            ctx.fillStyle = Math.random() > 0.95 ? "#ffffff" : "#ff1f3d"; 
+            
+            if (Math.random() > 0.95) {
+              ctx.fillStyle = "#ffffff"; 
+            } else {
+              ctx.fillStyle = "#ff1f3d"; 
+            }
+            
             ctx.fillText(text, g.x, g.y);
             
             g.y += fontSize;
@@ -775,18 +1097,17 @@
             }
           }
         }
-        setTimeout(() => requestAnimationFrame(drawMatrix), 35);
       }
-      requestAnimationFrame(drawMatrix);
+      setInterval(drawMatrix, 35);
     }
 
     function animateStaggeredElements(tabId) {
       const tab = document.getElementById('tab-' + tabId);
-      if (!tab) return;
       const items = tab.querySelectorAll('.stagger-item'); 
+      
       items.forEach((item, index) => {
         item.style.animation = 'none';
-        void item.offsetWidth; 
+        item.offsetHeight;
         item.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.12}s forwards`;
       });
     }
@@ -806,11 +1127,11 @@
         const menuToggleBtn = document.getElementById('menuToggleBtn');
 
         if (window.innerWidth > 768) {
-          if (sidebar) sidebar.classList.add('open');
-          if (mainContent) mainContent.classList.add('shifted');
-          if (menuToggleBtn) menuToggleBtn.classList.remove('show');
+          sidebar.classList.add('open');
+          mainContent.classList.add('shifted');
+          menuToggleBtn.classList.remove('show');
         } else {
-          if (menuToggleBtn) menuToggleBtn.classList.add('show');
+          menuToggleBtn.classList.add('show');
         }
 
         animateStaggeredElements('home');
@@ -821,9 +1142,8 @@
       document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
       
-      const tab = document.getElementById('tab-' + tabName);
-      if (tab) tab.classList.add('active');
-      if (btn) btn.classList.add('active');
+      document.getElementById('tab-' + tabName).classList.add('active');
+      btn.classList.add('active');
       
       if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('open');
@@ -833,10 +1153,96 @@
       animateStaggeredElements(tabName);
     }
 
-    // Logic Variables
-    let loggedInUserId = null;
-    let loggedInName = null;
+    const BACKEND_URL = ""; 
+    const urlParams = new URLSearchParams(window.location.search);
+    let loggedInUserId = urlParams.get('user_id');
+    let loggedInName = urlParams.get('name');
+
+    if (loggedInUserId && /^\d{5,14}$/.test(String(loggedInUserId).trim())) {
+      localStorage.setItem('logged_in_roblox_id', loggedInUserId);
+      localStorage.setItem('logged_in_roblox_name', loggedInName || `ID: ${loggedInUserId}`);
+    } else {
+      loggedInUserId = localStorage.getItem('logged_in_roblox_id');
+      loggedInName = localStorage.getItem('logged_in_roblox_name');
+    }
+
     const usernameCache = {};
+    if (loggedInUserId && loggedInName) usernameCache[loggedInUserId] = loggedInName;
+
+    function loadRobloxAvatar(userId, imgElementId) {
+      const imgEl = document.getElementById(imgElementId);
+      if (!imgEl) return;
+
+      imgEl.src = 'https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default';
+
+      fetch(`https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`)
+        .then(res => {
+          if (!res.ok) throw new Error('Mạng lỗi');
+          return res.json();
+        })
+        .then(data => {
+          if (data && data.data && data.data.length > 0 && data.data[0].imageUrl) {
+            imgEl.src = data.data[0].imageUrl;
+          }
+        })
+        .catch((error) => {
+          console.error("Lỗi khi tải avatar Roblox:", error);
+        });
+    }
+
+    function loadGameIcon(placeId, customIconUrl, imgElementId) {
+      const imgEl = document.getElementById(imgElementId);
+      if (!imgEl) return;
+
+      const fallbackIcon = 'https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png';
+
+      if (customIconUrl) {
+        imgEl.src = customIconUrl;
+        return;
+      }
+
+      imgEl.src = fallbackIcon;
+
+      if (placeId) {
+        fetch(`https://thumbnails.roproxy.com/v1/places/gameicons?placeIds=${placeId}&size=150x150&format=Png&isCircular=false`)
+          .then(res => {
+            if (!res.ok) throw new Error('CORS/API Error');
+            return res.json();
+          })
+          .then(data => {
+            if (data && data.data && data.data.length > 0 && data.data[0].imageUrl) {
+              imgEl.src = data.data[0].imageUrl;
+            }
+          })
+          .catch(err => {
+            console.error("Lỗi khi tải avatar game Roblox:", err);
+          });
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (loggedInUserId) {
+        const robloxAuthBtn = document.getElementById('robloxAuthBtn');
+        if (robloxAuthBtn) {
+          robloxAuthBtn.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%;">
+              <img id="sidebar-avatar-img" src="" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #4ade80; object-fit: cover; flex-shrink: 0;" onerror="this.src='https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default'">
+              <div style="text-align: left; overflow: hidden; flex: 1;">
+                <div style="font-size: 0.7rem; color: #4ade80; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">✓ ĐÃ KẾT NỐI</div>
+                <div style="font-size: 0.92rem; color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${loggedInName || ('ID: ' + loggedInUserId)}</div>
+              </div>
+            </div>
+          `;
+          robloxAuthBtn.style.background = 'linear-gradient(135deg, rgba(74, 222, 128, 0.18), rgba(16, 185, 129, 0.32))';
+          robloxAuthBtn.style.borderColor = '#4ade80';
+          robloxAuthBtn.style.boxShadow = '0 0 20px rgba(74, 222, 128, 0.3), inset 0 0 12px rgba(74, 222, 128, 0.15)';
+          robloxAuthBtn.style.padding = '10px 14px';
+
+          loadRobloxAvatar(loggedInUserId, 'sidebar-avatar-img');
+        }
+      }
+    });
+
     const firebaseConfig = {
       apiKey: "AIzaSyBYZE99y7JcqBXDQh7wHxFPdI0GVCCc_XE",
       authDomain: "roblox-logs-406cd.firebaseapp.com",
@@ -846,28 +1252,14 @@
       appId: "1:678655678400:web:8e99a81d2b2e23ec355a25",
       measurementId: "G-H7BS9DHD4C"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    
     let rawLogsData = [];
-    try {
-      const cached = localStorage.getItem('cached_raw_logs');
-      if (cached) rawLogsData = JSON.parse(cached);
-    } catch(e) {}
-
-    // Methods
-    function initAuthSession() {
-      // Logic đã được viết gọn lại để tránh lỗi
-      try {
-        loggedInUserId = localStorage.getItem('logged_in_roblox_id');
-        loggedInName = localStorage.getItem('logged_in_roblox_name');
-      } catch(e){}
-    }
 
     async function fetchRealtimeStats() {
       try {
-        const BACKEND_URL = ""; // Thêm link server của bạn vào đây nếu có
-        if (BACKEND_URL && BACKEND_URL.trim() !== "") {
+        if (BACKEND_URL) {
           const res = await fetch(`${BACKEND_URL}/api/stats`);
           if (res.ok) {
             const stats = await res.json();
@@ -879,7 +1271,311 @@
         console.error("Không lấy được stats realtime:", error);
       }
     }
-    
+
+    function initDateDropdowns() {
+      const daySel = document.getElementById('filterDay');
+      for (let i = 1; i <= 31; i++) daySel.innerHTML += `<option value="${i.toString().padStart(2, '0')}">${i}</option>`;
+      const monthSel = document.getElementById('filterMonth');
+      for (let i = 1; i <= 12; i++) monthSel.innerHTML += `<option value="${i.toString().padStart(2, '0')}">Tháng ${i}</option>`;
+      const yearSel = document.getElementById('filterYear');
+      const curYear = new Date().getFullYear();
+      for (let i = curYear; i >= curYear - 5; i--) yearSel.innerHTML += `<option value="${i}">${i}</option>`;
+    }
+
+    let isDateModeInput = false;
+    function toggleDateMode() {
+      isDateModeInput = !isDateModeInput;
+      document.getElementById('dropdownDateMode').style.display = isDateModeInput ? 'none' : 'flex';
+      document.getElementById('inputDateMode').style.display = isDateModeInput ? 'block' : 'none';
+      document.getElementById('toggleDateModeBtn').innerText = isDateModeInput ? "🔄 Dùng Dropdown" : "⚙️ Tùy chỉnh lịch";
+      renderHistoryLogs();
+    }
+
+    function getTrackedAccounts() {
+      const idMap = new Map();
+      if (loggedInUserId) {
+        idMap.set(String(loggedInUserId), String(loggedInName || `ID: ${loggedInUserId}`));
+      }
+      try {
+        const customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
+        customAccounts.forEach(acc => {
+          if (acc.id && /^\d{5,14}$/.test(String(acc.id).trim())) {
+            idMap.set(String(acc.id).trim(), String(acc.name || `ID: ${acc.id}`));
+          }
+        });
+      } catch (e) {
+        console.error("Lỗi parse dữ liệu tài khoản:", e);
+      }
+      return idMap;
+    }
+
+    function renderLiveView() {
+      const container = document.getElementById('live-container');
+      const trackedAccounts = getTrackedAccounts();
+      
+      if (trackedAccounts.size === 0) {
+        container.innerHTML = "<p class='empty-msg glass-panel'>Chưa có tài khoản nào được thêm. Vui lòng gửi yêu cầu phía trên để thêm.</p>";
+        return;
+      }
+
+      const now = new Date();
+      container.innerHTML = '';
+      let activeCount = 0;
+
+      trackedAccounts.forEach((accName, accIdStr) => {
+        const accLogs = rawLogsData.filter(l => String(l.robloxUserId || l.details?.robloxUserId || l.robloxId || "") === accIdStr);
+        accLogs.sort((a, b) => {
+          const tA = a.timestamp?.seconds || 0;
+          const tB = b.timestamp?.seconds || 0;
+          return tB - tA;
+        });
+        
+        let latestLog = accLogs[0] || { userStatus: 0, lastLocation: "Offline", details: { gameName: "Offline", rootPlaceId: null } };
+        
+        const rawStatus = latestLog.userStatus !== undefined ? latestLog.userStatus : (latestLog.details?.userStatus || 0);
+        let status = (rawStatus === 1 || rawStatus === 2) ? 1 : 0; 
+        
+        const logTime = latestLog.timestamp?.seconds ? new Date(latestLog.timestamp.seconds * 1000) : null;
+        let timeText = logTime ? `${logTime.toLocaleTimeString('vi-VN')} - ${logTime.toLocaleDateString('vi-VN')}` : "Không xác định";
+
+        let placeId = latestLog.details?.rootPlaceId || null;
+        let gameName = latestLog.lastLocation || latestLog.gameName || latestLog.details?.gameName || "Offline";
+        if (latestLog.details?.imageUrl && !gameName.includes("Offline")) {
+          latestLog.customImageUrl = latestLog.details.imageUrl; 
+        }
+
+        const div = document.createElement('div');
+        div.className = 'log-card glass-panel stagger-item';
+        div.style.position = 'relative';
+
+        const btnRemove = document.createElement('button');
+        btnRemove.className = 'btn-remove-acc';
+        btnRemove.style.position = 'absolute';
+        btnRemove.style.top = '15px';
+        btnRemove.style.right = '15px';
+        btnRemove.innerText = 'Xóa';
+        btnRemove.onclick = () => {
+           if(confirm(`Bạn có chắc muốn xóa tài khoản ${accName} khỏi danh sách theo dõi?`)) {
+              if (String(accIdStr) === String(loggedInUserId)) {
+                  alert("Không thể xóa tài khoản đã đăng nhập gốc!");
+                  return;
+              }
+              let customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
+              customAccounts = customAccounts.filter(a => String(a.id) !== String(accIdStr));
+              localStorage.setItem('custom_tracked_accounts', JSON.stringify(customAccounts));
+              updateUI();
+           }
+        };
+        div.appendChild(btnRemove);
+
+        div.innerHTML += `
+          <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 12px; margin-right: 40px;">
+            <img id="avatar-live-${accIdStr}" src="https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid ${status === 1 ? '#4ade80' : '#ef4444'}; box-shadow: 0 4px 10px rgba(0,0,0,0.3); object-fit: cover;">
+            <div>
+              <div style="font-weight: 800; font-size: 1.15rem; color: var(--text-color);">${accName}</div>
+              <div style="font-size: 0.8rem; color: var(--desc-color);">ID: ${accIdStr}</div>
+              <div class="status-badge ${status === 1 ? 'status-1' : 'status-0'}" style="margin-top: 6px; font-size: 0.75rem; padding: 4px 8px;">
+                ${status === 1 ? '● Đang Hoạt Động' : '○ Offline'}
+              </div>
+            </div>
+          </div>
+          <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px; display: flex; gap: 15px; align-items: center;">
+            <img id="gameicon-live-${accIdStr}" src="https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png" alt="Game Icon" style="width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; opacity: ${status === 1 && gameName !== 'Online' ? '1' : '0.5'};">
+            <div>
+              <div style="font-size: 0.85rem; color: var(--desc-color); margin-bottom: 4px;">Trạng thái hiện tại:</div>
+              <div style="font-weight: bold; color: ${status === 1 ? '#ff4d6d' : 'var(--text-color)'}; font-size: 1rem;">
+                ${status === 1 ? (gameName !== 'Online' ? '🎮 ' + gameName : '🌐 Đang Online (Website/App)') : '💤 Offline'}
+              </div>
+            </div>
+          </div>
+          <div class="timestamp" style="margin-top: 12px;">⏰ Cập nhật: ${timeText}</div>
+        `;
+        container.appendChild(div);
+
+        loadRobloxAvatar(accIdStr, `avatar-live-${accIdStr}`);
+        if (status === 1 && gameName !== 'Online') {
+          loadGameIcon(placeId, latestLog.customImageUrl, `gameicon-live-${accIdStr}`);
+        }
+
+        activeCount++;
+      });
+      
+      document.getElementById('statMonitoredCount').innerText = activeCount;
+    }
+
+    function renderHistoryLogs() {
+      const container = document.getElementById('logs');
+      const userFilterSelect = document.getElementById('userFilter');
+      const selectedUserId = userFilterSelect.value;
+      
+      let filterDateStr = "";
+      if (isDateModeInput) {
+        filterDateStr = document.getElementById('dateFilter').value.trim();
+      } else {
+        const d = document.getElementById('filterDay').value;
+        const m = document.getElementById('filterMonth').value;
+        const y = document.getElementById('filterYear').value;
+        if (d && m && y) filterDateStr = `${d}/${m}/${y}`;
+        else if (m && y) filterDateStr = `${m}/${y}`;
+        else if (y) filterDateStr = `${y}`;
+      }
+
+      const trackedAccounts = getTrackedAccounts();
+      const validUids = Array.from(trackedAccounts.keys());
+
+      let filteredLogs = rawLogsData.filter(log => {
+        const uid = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
+        if (selectedUserId !== "ALL" && uid !== selectedUserId) return false;
+        if (selectedUserId === "ALL" && !validUids.includes(uid)) return false;
+        
+        if (filterDateStr) {
+          if (!log.timestamp) return false;
+          const logDate = new Date(log.timestamp.seconds * 1000);
+          const logD = logDate.getDate().toString().padStart(2, '0');
+          const logM = (logDate.getMonth() + 1).toString().padStart(2, '0');
+          const logY = logDate.getFullYear();
+          const logDateFormatted = `${logD}/${logM}/${logY}`;
+          
+          if (!logDateFormatted.includes(filterDateStr)) return false;
+        }
+        return true;
+      });
+
+      filteredLogs.sort((a, b) => {
+        const tA = a.timestamp?.seconds || 0;
+        const tB = b.timestamp?.seconds || 0;
+        return tB - tA;
+      });
+
+      container.innerHTML = '';
+      if (filteredLogs.length === 0) {
+        container.innerHTML = "<p class='empty-msg glass-panel'>Không tìm thấy dữ liệu phù hợp với bộ lọc.</p>";
+        return;
+      }
+
+      filteredLogs.forEach(log => {
+        const rawStatus = log.userStatus !== undefined ? log.userStatus : (log.details?.userStatus || 0);
+        let status = (rawStatus === 1 || rawStatus === 2) ? 1 : 0; 
+        
+        let placeId = log.details?.rootPlaceId || null;
+        let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Offline";
+        if (log.details?.imageUrl && !gameName.includes("Offline")) {
+          log.customImageUrl = log.details.imageUrl; 
+        }
+
+        let timeStr = "Không xác định";
+        if (log.timestamp && log.timestamp.seconds) {
+           const d = new Date(log.timestamp.seconds * 1000);
+           timeStr = `${d.toLocaleTimeString('vi-VN')} - ${d.toLocaleDateString('vi-VN')}`;
+        }
+        
+        const uidStr = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
+        const displayName = trackedAccounts.get(uidStr) || (usernameCache[uidStr] ? usernameCache[uidStr] : `Tài khoản (${uidStr})`);
+        
+        let statusClass = "status-other";
+        let statusText = "Khác";
+        if (status === 1) { statusClass = "status-1"; statusText = "Đang Hoạt Động"; }
+        else if (status === 0) { statusClass = "status-0"; statusText = "Offline"; }
+
+        const logId = log.id || Math.random().toString(); 
+
+        const div = document.createElement('div');
+        div.className = 'log-card glass-panel stagger-item';
+        div.style.marginBottom = '15px';
+        div.innerHTML = `
+          <div class="log-top">
+            <div>
+              <span class="status-badge ${statusClass}">${statusText}</span>
+              <span class="sub-id">UID: ${uidStr}</span>
+            </div>
+            <div style="font-weight: bold; color: var(--text-color);">${displayName}</div>
+          </div>
+          
+          <div style="display: flex; gap: 15px; align-items: center; padding: 12px 0;">
+            <img id="gameicon-hist-${logId}" src="https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png" alt="Game Icon" style="width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; opacity: ${status === 1 && gameName !== 'Online' ? '1' : '0.3'};">
+            <div class="log-info">
+              <span style="color: var(--desc-color); font-size: 0.9em; margin-bottom: 4px; display: block;">Hoạt động ghi nhận:</span>
+              <span class="highlight">${status === 1 ? (gameName !== 'Online' ? '🎮 ' + gameName : '🌐 Đang Online') : '💤 Đã Offline'}</span>
+            </div>
+          </div>
+
+          <div class="timestamp">⏰ Ghi nhận lúc: ${timeStr}</div>
+        `;
+        container.appendChild(div);
+
+        if (status === 1 && gameName !== 'Online') {
+          loadGameIcon(placeId, log.customImageUrl, `gameicon-hist-${logId}`);
+        }
+      });
+    }
+
+    function updateUserFilterOptions() {
+      const select = document.getElementById('userFilter');
+      const currentValue = select.value;
+      const trackedAccounts = getTrackedAccounts();
+      
+      select.innerHTML = '<option value="ALL">✨ Tất cả tài khoản đang theo dõi</option>';
+      trackedAccounts.forEach((accName, accIdStr) => {
+        const option = document.createElement('option');
+        option.value = accIdStr;
+        option.innerText = accName;
+        select.appendChild(option);
+      });
+      
+      if (Array.from(select.options).some(opt => opt.value === currentValue)) {
+        select.value = currentValue;
+      }
+    }
+
+    function updateUI() {
+      updateUserFilterOptions();
+      renderLiveView();
+      renderHistoryLogs();
+    }
+
+    db.collection("roblox_logs").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+      rawLogsData = [];
+      let latestLogTime = parseInt(localStorage.getItem('last_processed_log_time') || '0');
+      let newLatestLogTime = latestLogTime;
+
+      snapshot.forEach(doc => {
+         const data = doc.data();
+         rawLogsData.push(data);
+         
+         const logTime = data.timestamp ? (data.timestamp.seconds || 0) : 0;
+         
+
+         if (logTime > latestLogTime) {
+             newLatestLogTime = Math.max(newLatestLogTime, logTime);
+             const uid = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
+             const trackedMap = getTrackedAccounts();
+             const trackedIds = Array.from(trackedMap.keys());
+             
+             const isNoPlayingActive = localStorage.getItem('no_playing_mode') === 'true';
+             
+             if (isNoPlayingActive && trackedIds.includes(uid)) {
+                 const rawStatus = data.userStatus !== undefined ? data.userStatus : (data.details?.userStatus || 0);
+                 const isOnline = rawStatus === 1 || rawStatus === 2;
+                 if (isOnline) {
+                     const gameName = data.lastLocation || data.gameName || data.details?.gameName || "Online";
+                     addAlert(uid, trackedMap.get(uid), gameName, logTime);
+                 }
+             }
+         }
+         
+         if (data.robloxId && data.robloxName) {
+           usernameCache[data.robloxId] = data.robloxName;
+         }
+      });
+
+      localStorage.setItem('last_processed_log_time', newLatestLogTime.toString());
+      updateUI();
+      renderAlerts();
+    }, error => {
+      console.error("Lỗi khi fetch logs realtime: ", error);
+      document.getElementById('logs').innerHTML = "<p class='empty-msg glass-panel' style='color: #ef4444;'>Lỗi kết nối CSDL.</p>";
+      document.getElementById('live-container').innerHTML = "<p class='empty-msg glass-panel' style='color: #ef4444;'>Lỗi kết nối CSDL.</p>";
+    });
 
   </script>
 </body>
