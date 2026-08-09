@@ -189,7 +189,6 @@
       transition: all 0.2s;
     }
 
-    /* --- BẮT ĐẦU HIỆU ỨNG CYBERPUNK CHO MENU --- */
     .menu-btn { 
       width: 100%; padding: 13px 16px;
       background: rgba(255, 255, 255, 0.02); 
@@ -278,7 +277,6 @@
       0% { left: -100%; }
       100% { left: 200%; }
     }
-    /* --- KẾT THÚC HIỆU ỨNG CYBERPUNK --- */
 
     .user-profile-box { padding: 18px; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(10, 10, 15, 0.4); text-align: center; }
     .btn-roblox { 
@@ -312,7 +310,6 @@
     .tab-section { display: none; }
     .tab-section.active { display: block; }
 
-    /* 3. THANH TIÊU ĐỀ PHONG CÁCH HUD */
     h1 { 
       color: #ffffff !important; 
       margin-bottom: 25px; 
@@ -333,7 +330,6 @@
       background: linear-gradient(90deg, #ff4d6d, rgba(255, 77, 109, 0.1), transparent);
     }
 
-    /* 2. KHUNG GIAO DIỆN KIỂU CÔNG NGHỆ (TECH CORNERS) */
     .glass-panel {
       position: relative;
       border: 1px solid rgba(255, 77, 109, 0.25);
@@ -647,7 +643,6 @@
               <span class="menu-tag">[03]</span>
             </button>
           </li>
-          <!-- BỔ SUNG: NÚT TAB THÔNG BÁO -->
           <li class="menu-item-wrapper">
             <button class="menu-btn" onclick="showTab('alerts', this)">
               <div class="menu-btn-content">
@@ -766,7 +761,6 @@
       <div id="tab-live" class="tab-section">
         <h1 class="stagger-item">🔴 Trạng Thái Trực Tiếp</h1>
 
-        <!-- BỔ SUNG: KHUNG BẬT/TẮT CHẾ ĐỘ NO-PLAYING -->
         <div class="control-panel glass-panel stagger-item" style="margin-bottom: 25px; border-left: 4px solid #f59e0b; padding: 20px;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
             <div>
@@ -825,7 +819,7 @@
       </div>
 
       <div id="tab-history" class="tab-section">
-        <h1 class="stagger-item">📜 Lịch Sử Hoạt Động</h1>
+        <h1 class="stagger-item">📜 Lịch Sử Hoạt Động (Đang Chơi Game)</h1>
         <div class="filter-box glass-panel stagger-item" id="filterBox">
           <label for="userFilter">👤 Lọc theo tài khoản:</label>
           <select id="userFilter" onchange="renderHistoryLogs()">
@@ -853,7 +847,6 @@
         </div>
       </div>
 
-      <!-- BỔ SUNG: KHU VỰC TAB THÔNG BÁO -->
       <div id="tab-alerts" class="tab-section">
         <h1 class="stagger-item">🔔 Thông Báo Hoạt Động Bất Thường</h1>
         <div class="glass-panel stagger-item" style="margin-bottom: 25px; padding: 15px 22px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -916,13 +909,27 @@
         if (switchEl) switchEl.checked = true;
       }
 
-      // Khởi tạo trạng thái No-Playing Toggle
       const noPlayingCheck = document.getElementById('noPlayingToggle');
       if (noPlayingCheck) {
           noPlayingCheck.checked = localStorage.getItem('no_playing_mode') === 'true';
       }
+      
+      initAuthSession();
       updateAlertBadge();
       renderAlerts();
+    });
+
+    // Bổ sung sự kiện bắt khi user chuyển tab rồi quay lại (visibilitychange & focus) để không bị mất UI/tài khoản
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        initAuthSession();
+        updateUI();
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      initAuthSession();
+      updateUI();
     });
 
     function requestVerificationCode() {
@@ -957,10 +964,8 @@
         updateUI(); 
     }
 
-    // --- BỔ SUNG: LOGIC THÔNG BÁO HOẠT ĐỘNG BẤT THƯỜNG ---
     function toggleNoPlayingMode(checkbox) {
         localStorage.setItem('no_playing_mode', checkbox.checked ? 'true' : 'false');
-        // Đã xóa alert theo yêu cầu
     }
 
     function addAlert(uid, name, location, timeSeconds) {
@@ -1037,7 +1042,6 @@
             }
         }
     }
-    // --- KẾT THÚC LOGIC THÔNG BÁO ---
 
     function initMatrix() {
       const canvas = document.getElementById('matrixCanvas');
@@ -1153,21 +1157,47 @@
       animateStaggeredElements(tabName);
     }
 
-    const BACKEND_URL = ""; 
-    const urlParams = new URLSearchParams(window.location.search);
-    let loggedInUserId = urlParams.get('user_id');
-    let loggedInName = urlParams.get('name');
-
-    if (loggedInUserId && /^\d{5,14}$/.test(String(loggedInUserId).trim())) {
-      localStorage.setItem('logged_in_roblox_id', loggedInUserId);
-      localStorage.setItem('logged_in_roblox_name', loggedInName || `ID: ${loggedInUserId}`);
-    } else {
-      loggedInUserId = localStorage.getItem('logged_in_roblox_id');
-      loggedInName = localStorage.getItem('logged_in_roblox_name');
-    }
-
+    let loggedInUserId = null;
+    let loggedInName = null;
     const usernameCache = {};
-    if (loggedInUserId && loggedInName) usernameCache[loggedInUserId] = loggedInName;
+
+    function initAuthSession() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let uId = urlParams.get('user_id');
+      let uName = urlParams.get('name');
+
+      if (uId && /^\d{5,14}$/.test(String(uId).trim())) {
+        loggedInUserId = String(uId).trim();
+        loggedInName = uName ? decodeURIComponent(uName) : `ID: ${loggedInUserId}`;
+        localStorage.setItem('logged_in_roblox_id', loggedInUserId);
+        localStorage.setItem('logged_in_roblox_name', loggedInName);
+      } else {
+        loggedInUserId = localStorage.getItem('logged_in_roblox_id');
+        loggedInName = localStorage.getItem('logged_in_roblox_name');
+      }
+
+      if (loggedInUserId && loggedInName) {
+        usernameCache[loggedInUserId] = loggedInName;
+        const robloxAuthBtn = document.getElementById('robloxAuthBtn');
+        if (robloxAuthBtn) {
+          robloxAuthBtn.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%;">
+              <img id="sidebar-avatar-img" src="" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #4ade80; object-fit: cover; flex-shrink: 0;" onerror="this.src='https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default'">
+              <div style="text-align: left; overflow: hidden; flex: 1;">
+                <div style="font-size: 0.7rem; color: #4ade80; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">✓ ĐÃ KẾT NỐI</div>
+                <div style="font-size: 0.92rem; color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${loggedInName}</div>
+              </div>
+            </div>
+          `;
+          robloxAuthBtn.style.background = 'linear-gradient(135deg, rgba(74, 222, 128, 0.18), rgba(16, 185, 129, 0.32))';
+          robloxAuthBtn.style.borderColor = '#4ade80';
+          robloxAuthBtn.style.boxShadow = '0 0 20px rgba(74, 222, 128, 0.3), inset 0 0 12px rgba(74, 222, 128, 0.15)';
+          robloxAuthBtn.style.padding = '10px 14px';
+
+          loadRobloxAvatar(loggedInUserId, 'sidebar-avatar-img');
+        }
+      }
+    }
 
     function loadRobloxAvatar(userId, imgElementId) {
       const imgEl = document.getElementById(imgElementId);
@@ -1220,29 +1250,6 @@
       }
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      if (loggedInUserId) {
-        const robloxAuthBtn = document.getElementById('robloxAuthBtn');
-        if (robloxAuthBtn) {
-          robloxAuthBtn.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%;">
-              <img id="sidebar-avatar-img" src="" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #4ade80; object-fit: cover; flex-shrink: 0;" onerror="this.src='https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default'">
-              <div style="text-align: left; overflow: hidden; flex: 1;">
-                <div style="font-size: 0.7rem; color: #4ade80; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">✓ ĐÃ KẾT NỐI</div>
-                <div style="font-size: 0.92rem; color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${loggedInName || ('ID: ' + loggedInUserId)}</div>
-              </div>
-            </div>
-          `;
-          robloxAuthBtn.style.background = 'linear-gradient(135deg, rgba(74, 222, 128, 0.18), rgba(16, 185, 129, 0.32))';
-          robloxAuthBtn.style.borderColor = '#4ade80';
-          robloxAuthBtn.style.boxShadow = '0 0 20px rgba(74, 222, 128, 0.3), inset 0 0 12px rgba(74, 222, 128, 0.15)';
-          robloxAuthBtn.style.padding = '10px 14px';
-
-          loadRobloxAvatar(loggedInUserId, 'sidebar-avatar-img');
-        }
-      }
-    });
-
     const firebaseConfig = {
       apiKey: "AIzaSyBYZE99y7JcqBXDQh7wHxFPdI0GVCCc_XE",
       authDomain: "roblox-logs-406cd.firebaseapp.com",
@@ -1255,10 +1262,17 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    
+    // Khôi phục dữ liệu thô từ localStorage cache nếu có để chống mất khi đổi tab
     let rawLogsData = [];
+    try {
+      const cached = localStorage.getItem('cached_raw_logs');
+      if (cached) rawLogsData = JSON.parse(cached);
+    } catch(e) {}
 
     async function fetchRealtimeStats() {
       try {
+        const BACKEND_URL = ""; 
         if (BACKEND_URL) {
           const res = await fetch(`${BACKEND_URL}/api/stats`);
           if (res.ok) {
@@ -1318,7 +1332,6 @@
         return;
       }
 
-      const now = new Date();
       container.innerHTML = '';
       let activeCount = 0;
 
@@ -1344,6 +1357,9 @@
           latestLog.customImageUrl = latestLog.details.imageUrl; 
         }
 
+        // Kiểm tra xem có đang chơi game cụ thể không
+        const isPlayingGame = (status === 1) && (gameName && gameName !== "Online" && gameName !== "Website" && !gameName.toLowerCase().includes("offline"));
+
         const div = document.createElement('div');
         div.className = 'log-card glass-panel stagger-item';
         div.style.position = 'relative';
@@ -1368,6 +1384,28 @@
         };
         div.appendChild(btnRemove);
 
+        // Khởi tạo phần thông tin trạng thái & hình ảnh game (chỉ hiện khi đang chơi game)
+        let gameSectionHtml = '';
+        if (isPlayingGame) {
+          gameSectionHtml = `
+            <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px; display: flex; gap: 15px; align-items: center;">
+              <img id="gameicon-live-${accIdStr}" src="https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png" alt="Game Icon" style="width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); object-fit: cover;">
+              <div>
+                <div style="font-size: 0.85rem; color: var(--desc-color); margin-bottom: 4px;">Đang chơi game:</div>
+                <div style="font-weight: bold; color: #ff4d6d; font-size: 1rem;">🎮 ${gameName}</div>
+              </div>
+            </div>
+          `;
+        } else {
+          gameSectionHtml = `
+            <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px;">
+              <div style="font-size: 0.9rem; color: var(--desc-color);">
+                ${status === 1 ? '🌐 Trạng thái: Đang Online (Website/App)' : '💤 Trạng thái: Offline'}
+              </div>
+            </div>
+          `;
+        }
+
         div.innerHTML += `
           <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 12px; margin-right: 40px;">
             <img id="avatar-live-${accIdStr}" src="https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid ${status === 1 ? '#4ade80' : '#ef4444'}; box-shadow: 0 4px 10px rgba(0,0,0,0.3); object-fit: cover;">
@@ -1379,21 +1417,13 @@
               </div>
             </div>
           </div>
-          <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px; display: flex; gap: 15px; align-items: center;">
-            <img id="gameicon-live-${accIdStr}" src="https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png" alt="Game Icon" style="width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; opacity: ${status === 1 && gameName !== 'Online' ? '1' : '0.5'};">
-            <div>
-              <div style="font-size: 0.85rem; color: var(--desc-color); margin-bottom: 4px;">Trạng thái hiện tại:</div>
-              <div style="font-weight: bold; color: ${status === 1 ? '#ff4d6d' : 'var(--text-color)'}; font-size: 1rem;">
-                ${status === 1 ? (gameName !== 'Online' ? '🎮 ' + gameName : '🌐 Đang Online (Website/App)') : '💤 Offline'}
-              </div>
-            </div>
-          </div>
+          ${gameSectionHtml}
           <div class="timestamp" style="margin-top: 12px;">⏰ Cập nhật: ${timeText}</div>
         `;
         container.appendChild(div);
 
         loadRobloxAvatar(accIdStr, `avatar-live-${accIdStr}`);
-        if (status === 1 && gameName !== 'Online') {
+        if (isPlayingGame) {
           loadGameIcon(placeId, latestLog.customImageUrl, `gameicon-live-${accIdStr}`);
         }
 
@@ -1423,7 +1453,16 @@
       const trackedAccounts = getTrackedAccounts();
       const validUids = Array.from(trackedAccounts.keys());
 
+      // Chỉ lọc lấy các log đang chơi game (loại bỏ offline và online website)
       let filteredLogs = rawLogsData.filter(log => {
+        const rawStatus = log.userStatus !== undefined ? log.userStatus : (log.details?.userStatus || 0);
+        let status = (rawStatus === 1 || rawStatus === 2) ? 1 : 0; 
+        let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Offline";
+
+        // Yêu cầu: lịch sử chỉ ghi lại khi đang chơi game
+        if (status !== 1) return false;
+        if (!gameName || gameName === "Online" || gameName === "Website" || gameName.toLowerCase().includes("offline")) return false;
+
         const uid = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
         if (selectedUserId !== "ALL" && uid !== selectedUserId) return false;
         if (selectedUserId === "ALL" && !validUids.includes(uid)) return false;
@@ -1449,17 +1488,14 @@
 
       container.innerHTML = '';
       if (filteredLogs.length === 0) {
-        container.innerHTML = "<p class='empty-msg glass-panel'>Không tìm thấy dữ liệu phù hợp với bộ lọc.</p>";
+        container.innerHTML = "<p class='empty-msg glass-panel'>Không tìm thấy lịch sử chơi game nào phù hợp với bộ lọc.</p>";
         return;
       }
 
       filteredLogs.forEach(log => {
-        const rawStatus = log.userStatus !== undefined ? log.userStatus : (log.details?.userStatus || 0);
-        let status = (rawStatus === 1 || rawStatus === 2) ? 1 : 0; 
-        
         let placeId = log.details?.rootPlaceId || null;
-        let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Offline";
-        if (log.details?.imageUrl && !gameName.includes("Offline")) {
+        let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Đang chơi game";
+        if (log.details?.imageUrl) {
           log.customImageUrl = log.details.imageUrl; 
         }
 
@@ -1471,12 +1507,6 @@
         
         const uidStr = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
         const displayName = trackedAccounts.get(uidStr) || (usernameCache[uidStr] ? usernameCache[uidStr] : `Tài khoản (${uidStr})`);
-        
-        let statusClass = "status-other";
-        let statusText = "Khác";
-        if (status === 1) { statusClass = "status-1"; statusText = "Đang Hoạt Động"; }
-        else if (status === 0) { statusClass = "status-0"; statusText = "Offline"; }
-
         const logId = log.id || Math.random().toString(); 
 
         const div = document.createElement('div');
@@ -1485,27 +1515,28 @@
         div.innerHTML = `
           <div class="log-top">
             <div>
-              <span class="status-badge ${statusClass}">${statusText}</span>
+              <span class="status-badge status-1">🎮 Đang Chơi Game</span>
               <span class="sub-id">UID: ${uidStr}</span>
             </div>
             <div style="font-weight: bold; color: var(--text-color);">${displayName}</div>
           </div>
           
           <div style="display: flex; gap: 15px; align-items: center; padding: 12px 0;">
-            <img id="gameicon-hist-${logId}" src="https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png" alt="Game Icon" style="width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; opacity: ${status === 1 && gameName !== 'Online' ? '1' : '0.3'};">
+            <img id="gameicon-hist-${logId}" src="https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png" alt="Game Icon" style="width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); object-fit: cover;">
             <div class="log-info">
-              <span style="color: var(--desc-color); font-size: 0.9em; margin-bottom: 4px; display: block;">Hoạt động ghi nhận:</span>
-              <span class="highlight">${status === 1 ? (gameName !== 'Online' ? '🎮 ' + gameName : '🌐 Đang Online') : '💤 Đã Offline'}</span>
+              <span style="color: var(--desc-color); font-size: 0.9em; margin-bottom: 4px; display: block;">Tựa game:</span>
+              <span class="highlight">${gameName}</span>
             </div>
           </div>
 
-          <div class="timestamp">⏰ Ghi nhận lúc: ${timeStr}</div>
+          <div class="timestamp" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>⏱️ Thời gian chơi lúc đó:</span>
+            <strong>${timeStr}</strong>
+          </div>
         `;
         container.appendChild(div);
 
-        if (status === 1 && gameName !== 'Online') {
-          loadGameIcon(placeId, log.customImageUrl, `gameicon-hist-${logId}`);
-        }
+        loadGameIcon(placeId, log.customImageUrl, `gameicon-hist-${logId}`);
       });
     }
 
@@ -1528,53 +1559,60 @@
     }
 
     function updateUI() {
+      initAuthSession();
       updateUserFilterOptions();
       renderLiveView();
       renderHistoryLogs();
     }
 
     db.collection("roblox_logs").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-      rawLogsData = [];
-      let latestLogTime = parseInt(localStorage.getItem('last_processed_log_time') || '0');
-      let newLatestLogTime = latestLogTime;
+      // Nếu snapshot trả về dữ liệu hợp lệ, cập nhật lại rawLogsData và lưu cache
+      if (!snapshot.empty) {
+        rawLogsData = [];
+        let latestLogTime = parseInt(localStorage.getItem('last_processed_log_time') || '0');
+        let newLatestLogTime = latestLogTime;
 
-      snapshot.forEach(doc => {
-         const data = doc.data();
-         rawLogsData.push(data);
-         
-         const logTime = data.timestamp ? (data.timestamp.seconds || 0) : 0;
-         
-         // KIỂM TRA THÔNG BÁO BẤT THƯỜNG (NO-PLAYING MODE)
-         if (logTime > latestLogTime) {
-             newLatestLogTime = Math.max(newLatestLogTime, logTime);
-             const uid = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
-             const trackedMap = getTrackedAccounts();
-             const trackedIds = Array.from(trackedMap.keys());
-             
-             const isNoPlayingActive = localStorage.getItem('no_playing_mode') === 'true';
-             
-             if (isNoPlayingActive && trackedIds.includes(uid)) {
-                 const rawStatus = data.userStatus !== undefined ? data.userStatus : (data.details?.userStatus || 0);
-                 const isOnline = rawStatus === 1 || rawStatus === 2;
-                 if (isOnline) {
-                     const gameName = data.lastLocation || data.gameName || data.details?.gameName || "Online";
-                     addAlert(uid, trackedMap.get(uid), gameName, logTime);
-                 }
-             }
-         }
-         
-         if (data.robloxId && data.robloxName) {
-           usernameCache[data.robloxId] = data.robloxName;
-         }
-      });
+        snapshot.forEach(doc => {
+           const data = doc.data();
+           rawLogsData.push(data);
+           
+           const logTime = data.timestamp ? (data.timestamp.seconds || 0) : 0;
+           
+           if (logTime > latestLogTime) {
+               newLatestLogTime = Math.max(newLatestLogTime, logTime);
+               const uid = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
+               const trackedMap = getTrackedAccounts();
+               const trackedIds = Array.from(trackedMap.keys());
+               
+               const isNoPlayingActive = localStorage.getItem('no_playing_mode') === 'true';
+               
+               if (isNoPlayingActive && trackedIds.includes(uid)) {
+                   const rawStatus = data.userStatus !== undefined ? data.userStatus : (data.details?.userStatus || 0);
+                   const isOnline = rawStatus === 1 || rawStatus === 2;
+                   if (isOnline) {
+                       const gameName = data.lastLocation || data.gameName || data.details?.gameName || "Online";
+                       addAlert(uid, trackedMap.get(uid), gameName, logTime);
+                   }
+               }
+           }
+           
+           if (data.robloxId && data.robloxName) {
+             usernameCache[data.robloxId] = data.robloxName;
+           }
+        });
 
-      localStorage.setItem('last_processed_log_time', newLatestLogTime.toString());
+        localStorage.setItem('last_processed_log_time', newLatestLogTime.toString());
+        try {
+          localStorage.setItem('cached_raw_logs', JSON.stringify(rawLogsData));
+        } catch(e) {}
+      }
+
       updateUI();
-      renderAlerts(); // Cập nhật tab thông báo ngay khi có dữ liệu mới
+      renderAlerts();
     }, error => {
       console.error("Lỗi khi fetch logs realtime: ", error);
-      document.getElementById('logs').innerHTML = "<p class='empty-msg glass-panel' style='color: #ef4444;'>Lỗi kết nối CSDL.</p>";
-      document.getElementById('live-container').innerHTML = "<p class='empty-msg glass-panel' style='color: #ef4444;'>Lỗi kết nối CSDL.</p>";
+      // Giữ nguyên dữ liệu cache cũ nếu lỗi kết nối tạm thời để không bị trắng màn hình
+      updateUI();
     });
 
   </script>
