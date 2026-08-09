@@ -672,6 +672,27 @@
           </div>
         </div>
 
+        <!-- HƯỚNG DẪN CÀI ĐẶT QUYỀN RIÊNG TƯ ROBLOX (TRANG CHỦ) -->
+        <div class="glass-panel stagger-item" style="margin-top: 30px; padding: 22px; border-radius: 16px; border-left: 4px solid #ff4d6d;">
+          <h3 style="color: #ff4d6d; font-size: 1.2rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            ⚙️ Hướng Dẫn Cấu Hình Quyền Riêng Tư Roblox (Privacy Settings)
+          </h3>
+          <p style="color: var(--desc-color); font-size: 0.95rem; line-height: 1.6; margin-bottom: 12px;">
+            Khi bạn đăng nhập tài khoản Roblox trên Web mà hệ thống không thể kiểm tra hoặc báo sai trạng thái, hãy điều chỉnh cài đặt riêng tư theo các bước sau:
+          </p>
+          <ol style="color: var(--text-color); font-size: 0.92rem; line-height: 1.8; padding-left: 22px;">
+            <li>Truy cập và đăng nhập tài khoản trên web <a href="https://www.roblox.com" target="_blank" style="color: #ff4d6d; font-weight: bold;">roblox.com</a>.</li>
+            <li>Nhấp vào biểu tượng <strong>Cài đặt (Settings) ⚙️</strong> ở góc trên bên phải &gt; chọn <strong>Quyền riêng tư (Privacy)</strong>.</li>
+            <li>Tìm đến phần <strong>Quyền riêng tư trải nghiệm (Experience Privacy Settings)</strong>:
+              <ul style="margin-top: 6px; margin-bottom: 6px; padding-left: 20px; list-style-type: disc; color: var(--desc-color);">
+                <li>Chỉnh mục <strong>Trạng thái trực tuyến (Online Status)</strong> sang <strong>Everyone (Mọi người)</strong>.</li>
+                <li>Chỉnh mục <strong>Ai có thể thấy bạn trong trải nghiệm (Who can see/join you in experiences)</strong> sang <strong>Everyone (Mọi người)</strong>.</li>
+              </ul>
+            </li>
+            <li>Lưu lại cài đặt để hệ thống Bot và Website theo dõi trạng thái chính xác nhất!</li>
+          </ol>
+        </div>
+
         <div class="faq-section stagger-item" style="margin-top: 30px; margin-bottom: 20px;">
           <h3 style="color: var(--text-color); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">❓ Câu Hỏi Thường Gặp</h3>
           <div style="display: flex; flex-direction: column; gap: 15px;">
@@ -690,6 +711,20 @@
       <div id="tab-live" class="tab-section">
         <h1 class="stagger-item">🔴 Trạng Thái Trực Tiếp</h1>
         
+        <!-- HƯỚNG DẪN CÀI ĐẶT QUYỀN RIÊNG TƯ ROBLOX (ROBLOX LIVE) -->
+        <div class="glass-panel stagger-item" style="margin-bottom: 25px; padding: 20px; border-radius: 16px; border-left: 4px solid #ff4d6d;">
+          <h3 style="color: #ff4d6d; font-size: 1.1rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            ⚠️ Lưu ý quan trọng về Quyền Riêng Tư Roblox
+          </h3>
+          <p style="color: var(--desc-color); font-size: 0.9rem; line-height: 1.5;">
+            Nếu bạn đăng nhập tài khoản Roblox trên Web mà hệ thống không hiển thị đúng trạng thái, vui lòng vào <a href="https://www.roblox.com" target="_blank" style="color: #ff4d6d; font-weight: bold;">Roblox Web</a> ⚙️ <strong>Settings &gt; Privacy &gt; Experience Privacy Settings</strong> và cập nhật:
+          </p>
+          <ul style="color: var(--text-color); font-size: 0.88rem; line-height: 1.6; margin-top: 8px; padding-left: 20px;">
+            <li><strong>Online Status (Trạng thái trực tuyến):</strong> Chọn <strong>Everyone (Mọi người)</strong></li>
+            <li><strong>Who can see / join you in experiences (Ai có thể thấy/tham gia cùng bạn trong trải nghiệm):</strong> Chọn <strong>Everyone (Mọi người)</strong></li>
+          </ul>
+        </div>
+
         <div class="control-panel glass-panel stagger-item" id="verifyStep1">
           <h3>📩 Yêu cầu gửi mã xác nhận qua Discord</h3>
           <p class="control-desc">Nhập ID tài khoản Roblox của bạn để liên kết xác thực.</p>
@@ -964,7 +999,6 @@
     const usernameCache = {};
     if (loggedInUserId && loggedInName) usernameCache[loggedInUserId] = loggedInName;
 
-    // Hàm an toàn để lấy ảnh avatar người chơi
     function loadRobloxAvatar(userId, imgElementId) {
       const imgEl = document.getElementById(imgElementId);
       if (!imgEl) return;
@@ -986,7 +1020,6 @@
         });
     }
 
-    // Hàm tải avatar/icon game Roblox
     function loadGameIcon(placeId, customIconUrl, imgElementId) {
       const imgEl = document.getElementById(imgElementId);
       if (!imgEl) return;
