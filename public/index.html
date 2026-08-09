@@ -819,7 +819,7 @@
       </div>
 
       <div id="tab-history" class="tab-section">
-        <h1 class="stagger-item">📜 Lịch Sử Hoạt Động (Đang Chơi Game)</h1>
+        <h1 class="stagger-item">📜 Lịch Sử Hoạt Động (Đã Chơi Game)</h1>
         <div class="filter-box glass-panel stagger-item" id="filterBox">
           <label for="userFilter">👤 Lọc theo tài khoản:</label>
           <select id="userFilter" onchange="renderHistoryLogs()">
@@ -919,7 +919,6 @@
       renderAlerts();
     });
 
-    // Bổ sung sự kiện bắt khi user chuyển tab rồi quay lại (visibilitychange & focus) để không bị mất UI/tài khoản
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
         initAuthSession();
@@ -1107,11 +1106,12 @@
 
     function animateStaggeredElements(tabId) {
       const tab = document.getElementById('tab-' + tabId);
+      if (!tab) return;
       const items = tab.querySelectorAll('.stagger-item'); 
       
       items.forEach((item, index) => {
         item.style.animation = 'none';
-        item.offsetHeight;
+        void item.offsetWidth; 
         item.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.12}s forwards`;
       });
     }
@@ -1176,7 +1176,7 @@
         loggedInName = localStorage.getItem('logged_in_roblox_name');
       }
 
-      if (loggedInUserId && loggedInName) {
+      if (loggedInUserId && loggedInUserId !== "null" && loggedInUserId !== "undefined" && loggedInName) {
         usernameCache[loggedInUserId] = loggedInName;
         const robloxAuthBtn = document.getElementById('robloxAuthBtn');
         if (robloxAuthBtn) {
@@ -1263,7 +1263,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     
-    // Khôi phục dữ liệu thô từ localStorage cache nếu có để chống mất khi đổi tab
     let rawLogsData = [];
     try {
       const cached = localStorage.getItem('cached_raw_logs');
@@ -1307,7 +1306,7 @@
 
     function getTrackedAccounts() {
       const idMap = new Map();
-      if (loggedInUserId) {
+      if (loggedInUserId && loggedInUserId !== "null" && loggedInUserId !== "undefined") {
         idMap.set(String(loggedInUserId), String(loggedInName || `ID: ${loggedInUserId}`));
       }
       try {
@@ -1328,7 +1327,7 @@
       const trackedAccounts = getTrackedAccounts();
       
       if (trackedAccounts.size === 0) {
-        container.innerHTML = "<p class='empty-msg glass-panel'>Chưa có tài khoản nào được thêm. Vui lòng gửi yêu cầu phía trên để thêm.</p>";
+        container.innerHTML = "<p class='empty-msg glass-panel stagger-item'>Chưa có tài khoản nào được thêm. Vui lòng gửi yêu cầu phía trên để thêm.</p>";
         return;
       }
 
@@ -1351,13 +1350,12 @@
         const logTime = latestLog.timestamp?.seconds ? new Date(latestLog.timestamp.seconds * 1000) : null;
         let timeText = logTime ? `${logTime.toLocaleTimeString('vi-VN')} - ${logTime.toLocaleDateString('vi-VN')}` : "Không xác định";
 
-        let placeId = latestLog.details?.rootPlaceId || null;
+        let placeId = latestLog.details?.rootPlaceId || latestLog.details?.placeId || latestLog.placeId || latestLog.rootPlaceId || null;
         let gameName = latestLog.lastLocation || latestLog.gameName || latestLog.details?.gameName || "Offline";
         if (latestLog.details?.imageUrl && !gameName.includes("Offline")) {
           latestLog.customImageUrl = latestLog.details.imageUrl; 
         }
 
-        // Kiểm tra xem có đang chơi game cụ thể không
         const isPlayingGame = (status === 1) && (gameName && gameName !== "Online" && gameName !== "Website" && !gameName.toLowerCase().includes("offline"));
 
         const div = document.createElement('div');
@@ -1384,7 +1382,6 @@
         };
         div.appendChild(btnRemove);
 
-        // Khởi tạo phần thông tin trạng thái & hình ảnh game (chỉ hiện khi đang chơi game)
         let gameSectionHtml = '';
         if (isPlayingGame) {
           gameSectionHtml = `
@@ -1453,13 +1450,11 @@
       const trackedAccounts = getTrackedAccounts();
       const validUids = Array.from(trackedAccounts.keys());
 
-      // Chỉ lọc lấy các log đang chơi game (loại bỏ offline và online website)
       let filteredLogs = rawLogsData.filter(log => {
         const rawStatus = log.userStatus !== undefined ? log.userStatus : (log.details?.userStatus || 0);
         let status = (rawStatus === 1 || rawStatus === 2) ? 1 : 0; 
         let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Offline";
 
-        // Yêu cầu: lịch sử chỉ ghi lại khi đang chơi game
         if (status !== 1) return false;
         if (!gameName || gameName === "Online" || gameName === "Website" || gameName.toLowerCase().includes("offline")) return false;
 
@@ -1469,40 +1464,52 @@
         
         if (filterDateStr) {
           if (!log.timestamp) return false;
-          const logDate = new Date(log.timestamp.seconds * 1000);
-          const logD = logDate.getDate().toString().padStart(2, '0');
-          const logM = (logDate.getMonth() + 1).toString().padStart(2, '0');
-          const logY = logDate.getFullYear();
-          const logDateFormatted = `${logD}/${logM}/${logY}`;
+          let logDate;
+          if (log.timestamp.seconds) { logDate = new Date(log.timestamp.seconds * 1000); } 
+          else if (typeof log.timestamp === 'number' || typeof log.timestamp === 'string') { logDate = new Date(log.timestamp); }
           
-          if (!logDateFormatted.includes(filterDateStr)) return false;
+          if (logDate && !isNaN(logDate.getTime())) {
+            const logD = logDate.getDate().toString().padStart(2, '0');
+            const logM = (logDate.getMonth() + 1).toString().padStart(2, '0');
+            const logY = logDate.getFullYear();
+            const logDateFormatted = `${logD}/${logM}/${logY}`;
+            
+            if (!logDateFormatted.includes(filterDateStr)) return false;
+          } else {
+            return false;
+          }
         }
         return true;
       });
 
       filteredLogs.sort((a, b) => {
-        const tA = a.timestamp?.seconds || 0;
-        const tB = b.timestamp?.seconds || 0;
+        const tA = a.timestamp?.seconds || (typeof a.timestamp === 'number' ? a.timestamp : 0);
+        const tB = b.timestamp?.seconds || (typeof b.timestamp === 'number' ? b.timestamp : 0);
         return tB - tA;
       });
 
       container.innerHTML = '';
       if (filteredLogs.length === 0) {
-        container.innerHTML = "<p class='empty-msg glass-panel'>Không tìm thấy lịch sử chơi game nào phù hợp với bộ lọc.</p>";
+        container.innerHTML = "<p class='empty-msg glass-panel stagger-item'>Không tìm thấy lịch sử chơi game nào phù hợp với bộ lọc.</p>";
         return;
       }
 
-      filteredLogs.forEach(log => {
-        let placeId = log.details?.rootPlaceId || null;
+      filteredLogs.forEach((log, index) => {
+        let placeId = log.details?.rootPlaceId || log.details?.placeId || log.placeId || log.rootPlaceId || null;
         let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Đang chơi game";
         if (log.details?.imageUrl) {
           log.customImageUrl = log.details.imageUrl; 
         }
 
         let timeStr = "Không xác định";
-        if (log.timestamp && log.timestamp.seconds) {
-           const d = new Date(log.timestamp.seconds * 1000);
-           timeStr = `${d.toLocaleTimeString('vi-VN')} - ${d.toLocaleDateString('vi-VN')}`;
+        if (log.timestamp) {
+           let d;
+           if (log.timestamp.seconds) { d = new Date(log.timestamp.seconds * 1000); } 
+           else if (typeof log.timestamp === 'number' || typeof log.timestamp === 'string') { d = new Date(log.timestamp); }
+           
+           if (d && !isNaN(d.getTime())) {
+               timeStr = `${d.toLocaleTimeString('vi-VN')} - ${d.toLocaleDateString('vi-VN')}`;
+           }
         }
         
         const uidStr = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
@@ -1515,7 +1522,7 @@
         div.innerHTML = `
           <div class="log-top">
             <div>
-              <span class="status-badge status-1">🎮 Đang Chơi Game</span>
+              <span class="status-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">✔️ Đã Chơi Game</span>
               <span class="sub-id">UID: ${uidStr}</span>
             </div>
             <div style="font-weight: bold; color: var(--text-color);">${displayName}</div>
@@ -1529,9 +1536,9 @@
             </div>
           </div>
 
-          <div class="timestamp" style="display: flex; justify-content: space-between; align-items: center;">
-            <span>⏱️ Thời gian chơi lúc đó:</span>
-            <strong>${timeStr}</strong>
+          <div class="timestamp" style="margin-top: 5px; text-align: left; padding-top: 10px; border-top: 1px dashed rgba(255, 255, 255, 0.1);">
+            <span style="color: var(--desc-color);">⏱️ Thời gian bắt đầu chơi: </span>
+            <strong style="color: var(--text-color); font-size: 0.95rem;">${timeStr}</strong>
           </div>
         `;
         container.appendChild(div);
@@ -1563,10 +1570,16 @@
       updateUserFilterOptions();
       renderLiveView();
       renderHistoryLogs();
+
+      // Fix lỗi kẹt animation (tàng hình đồ họa) khi đổi trình duyệt/chuyển tab
+      const activeTabEl = document.querySelector('.tab-section.active');
+      if (activeTabEl) {
+        const tabId = activeTabEl.id.replace('tab-', '');
+        animateStaggeredElements(tabId);
+      }
     }
 
     db.collection("roblox_logs").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-      // Nếu snapshot trả về dữ liệu hợp lệ, cập nhật lại rawLogsData và lưu cache
       if (!snapshot.empty) {
         rawLogsData = [];
         let latestLogTime = parseInt(localStorage.getItem('last_processed_log_time') || '0');
@@ -1611,7 +1624,6 @@
       renderAlerts();
     }, error => {
       console.error("Lỗi khi fetch logs realtime: ", error);
-      // Giữ nguyên dữ liệu cache cũ nếu lỗi kết nối tạm thời để không bị trắng màn hình
       updateUI();
     });
 
