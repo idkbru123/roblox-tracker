@@ -919,17 +919,7 @@
       renderAlerts();
     });
 
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        initAuthSession();
-        updateUI();
-      }
-    });
-
-    window.addEventListener('focus', () => {
-      initAuthSession();
-      updateUI();
-    });
+    // Đã xóa bỏ tính năng tự động làm mới giao diện khi chuyển đổi Tab (sự kiện visibilitychange và focus) để ngăn chặn các lỗi mất thông tin và kẹt ảnh mà bạn gặp phải.
 
     function requestVerificationCode() {
         const rId = document.getElementById('verifyRobloxId').value.trim();
