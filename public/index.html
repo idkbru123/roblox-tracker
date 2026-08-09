@@ -18,7 +18,6 @@
       --desc-color: #94a3b8;
     }
 
-   
     body::before {
       content: "";
       position: fixed;
@@ -124,7 +123,6 @@
     input:checked + .slider { background-color: #ff4d6d; border-color: #ff4d6d; }
     input:checked + .slider:before { transform: translateX(24px); }
 
-   
     .sidebar { 
       width: 295px; 
       background: rgba(10, 10, 18, 0.55); 
@@ -179,6 +177,18 @@
       margin-bottom: 8px;
     }
 
+    .alert-badge {
+      background: #d90429;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 2px 7px;
+      border-radius: 12px;
+      margin-left: auto;
+      box-shadow: 0 0 8px rgba(217, 4, 41, 0.6);
+      transition: all 0.2s;
+    }
+
     /* --- BẮT ĐẦU HIỆU ỨNG CYBERPUNK CHO MENU --- */
     .menu-btn { 
       width: 100%; padding: 13px 16px;
@@ -198,6 +208,7 @@
       gap: 12px;
       position: relative;
       z-index: 2;
+      width: 100%;
     }
 
     .menu-tag {
@@ -636,6 +647,16 @@
               <span class="menu-tag">[03]</span>
             </button>
           </li>
+          <!-- BỔ SUNG: NÚT TAB THÔNG BÁO -->
+          <li class="menu-item-wrapper">
+            <button class="menu-btn" onclick="showTab('alerts', this)">
+              <div class="menu-btn-content">
+                <span>🔔</span> Thông Báo
+                <span id="alert-badge" class="alert-badge" style="display: none;">0</span>
+              </div>
+              <span class="menu-tag">[04]</span>
+            </button>
+          </li>
         </ul>
       </div>
 
@@ -675,7 +696,6 @@
               </p>
               
               <div class="bot-action-row">
-                <!-- Đã cập nhật link Discord OAuth2 mới vào đây -->
                 <a href="https://discord.com/oauth2/authorize?client_id=1531721453664469153&permissions=1126452078627856&integration_type=0&scope=bot" target="_blank" class="btn-discord">
                   <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="currentColor" style="margin-right: 8px;">
                     <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-19.32-72.1M42.02,65.36c-5.4,0-9.84-5.06-9.84-11.23s4.35-11.23,9.84-11.23,9.91,5.06,9.84,11.23C51.86,60.3,47.51,65.36,42.02,65.36Zm43.1,0c-5.4,0-9.84-5.06-9.84-11.23s4.35-11.23,9.84-11.23,9.91,5.06,9.84,11.23C85.12,60.3,80.77,65.36,85.12,65.36Z"/>
@@ -708,7 +728,6 @@
           </div>
         </div>
 
-        <!-- HƯỚNG DẪN CÀI ĐẶT QUYỀN RIÊNG TƯ ROBLOX (TRANG CHỦ) -->
         <div class="glass-panel stagger-item" style="margin-top: 30px; padding: 22px; border-radius: 16px; border-left: 4px solid #ff4d6d;">
           <h3 style="color: #ff4d6d; font-size: 1.2rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
             ⚙️ Hướng Dẫn Cấu Hình Quyền Riêng Tư Roblox (Privacy Settings)
@@ -746,8 +765,21 @@
 
       <div id="tab-live" class="tab-section">
         <h1 class="stagger-item">🔴 Trạng Thái Trực Tiếp</h1>
+
+        <!-- BỔ SUNG: KHUNG BẬT/TẮT CHẾ ĐỘ NO-PLAYING -->
+        <div class="control-panel glass-panel stagger-item" style="margin-bottom: 25px; border-left: 4px solid #f59e0b; padding: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+              <h3 style="color: #f59e0b; margin-bottom: 8px; font-size: 1.15rem;">🛡️ Chế Độ No-Playing</h3>
+              <p style="color: var(--desc-color); font-size: 0.9rem; line-height: 1.5; max-width: 600px;">Bật tính năng này để hệ thống giám sát và thông báo nếu phát hiện tài khoản tự nhiên hoạt động hoặc vô game trong khi bạn đang bận (offline).</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="noPlayingToggle" onchange="toggleNoPlayingMode(this)">
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
         
-        <!-- HƯỚNG DẪN CÀI ĐẶT QUYỀN RIÊNG TƯ ROBLOX (ROBLOX LIVE) -->
         <div class="glass-panel stagger-item" style="margin-bottom: 25px; padding: 20px; border-radius: 16px; border-left: 4px solid #ff4d6d;">
           <h3 style="color: #ff4d6d; font-size: 1.1rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
             ⚠️ Lưu ý quan trọng về Quyền Riêng Tư Roblox
@@ -820,6 +852,18 @@
           <p class='empty-msg glass-panel'>Đang tải lịch sử hoạt động...</p>
         </div>
       </div>
+
+      <!-- BỔ SUNG: KHU VỰC TAB THÔNG BÁO -->
+      <div id="tab-alerts" class="tab-section">
+        <h1 class="stagger-item">🔔 Thông Báo Hoạt Động Bất Thường</h1>
+        <div class="glass-panel stagger-item" style="margin-bottom: 25px; padding: 15px 22px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <span style="color: var(--desc-color); font-size: 0.95rem;">Lịch sử các cảnh báo được ghi nhận bởi hệ thống No-Playing.</span>
+          <button class="btn-remove-acc" onclick="clearAllAlerts()" style="background: rgba(239, 68, 68, 0.2); padding: 8px 15px; font-size: 0.9rem;">🗑️ Xóa tất cả</button>
+        </div>
+        <div id="alerts-container" class="grid-container stagger-item">
+          <p class='empty-msg glass-panel'>Không có thông báo nào.</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -871,6 +915,14 @@
         document.body.classList.add('light-theme');
         if (switchEl) switchEl.checked = true;
       }
+
+      // Khởi tạo trạng thái No-Playing Toggle
+      const noPlayingCheck = document.getElementById('noPlayingToggle');
+      if (noPlayingCheck) {
+          noPlayingCheck.checked = localStorage.getItem('no_playing_mode') === 'true';
+      }
+      updateAlertBadge();
+      renderAlerts();
     });
 
     function requestVerificationCode() {
@@ -904,6 +956,92 @@
         
         updateUI(); 
     }
+
+    // --- BỔ SUNG: LOGIC THÔNG BÁO HOẠT ĐỘNG BẤT THƯỜNG ---
+    function toggleNoPlayingMode(checkbox) {
+        localStorage.setItem('no_playing_mode', checkbox.checked ? 'true' : 'false');
+        if (checkbox.checked) {
+            alert("✅ Đã BẬT chế độ No-Playing. Hệ thống sẽ cảnh báo nếu tài khoản vào game khi bạn vắng mặt.");
+        } else {
+            alert("❌ Đã TẮT chế độ No-Playing.");
+        }
+    }
+
+    function addAlert(uid, name, location, timeSeconds) {
+        let alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]');
+        alerts.unshift({
+            id: Date.now() + Math.random(),
+            uid: uid,
+            name: name,
+            location: location,
+            time: timeSeconds
+        });
+        localStorage.setItem('roblox_alerts', JSON.stringify(alerts));
+        updateAlertBadge();
+    }
+
+    function renderAlerts() {
+        const container = document.getElementById("alerts-container");
+        let alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]');
+        if (!container) return;
+
+        container.innerHTML = "";
+        if (alerts.length === 0) {
+            container.innerHTML = "<p class='empty-msg glass-panel'>Không có thông báo hoạt động bất thường nào.</p>";
+            return;
+        }
+
+        alerts.forEach((alertData, index) => {
+            const date = new Date(alertData.time * 1000);
+            const timeStr = date.toLocaleTimeString('vi-VN') + ' ' + date.toLocaleDateString('vi-VN');
+            const card = document.createElement('div');
+            card.className = 'log-card glass-panel';
+            card.style.opacity = "0";
+            card.style.animation = `sequentialFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.1}s forwards`;
+            card.innerHTML = `
+                <div class="log-top">
+                    <div><span class="highlight" style="color:#f59e0b;">⚠️ CẢNH BÁO BẤT THƯỜNG</span></div>
+                    <button class="btn-remove-acc" onclick="deleteAlert('${alertData.id}')">Xóa</button>
+                </div>
+                <div class="log-info" style="margin-top:8px;">
+                    <p style="margin-bottom:6px;">Tài khoản: <strong style="color: #4ade80;">${alertData.name}</strong> (ID: ${alertData.uid})</p>
+                    <p style="margin-bottom:6px;">Phát hiện hoạt động: <strong style="color: #ff4d6d;">${alertData.location}</strong></p>
+                    <div class="timestamp" style="margin-top: 10px; color:#94a3b8;">⏰ Lúc: ${timeStr}</div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function deleteAlert(id) {
+        let alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]');
+        alerts = alerts.filter(a => String(a.id) !== String(id));
+        localStorage.setItem('roblox_alerts', JSON.stringify(alerts));
+        renderAlerts();
+        updateAlertBadge();
+    }
+
+    function clearAllAlerts() {
+        if(confirm("Bạn có chắc chắn muốn xóa toàn bộ thông báo hoạt động bất thường?")) {
+            localStorage.removeItem('roblox_alerts');
+            renderAlerts();
+            updateAlertBadge();
+        }
+    }
+
+    function updateAlertBadge() {
+        let alerts = JSON.parse(localStorage.getItem('roblox_alerts') || '[]');
+        const badge = document.getElementById('alert-badge');
+        if (badge) {
+            if (alerts.length > 0) {
+                badge.style.display = 'inline-block';
+                badge.innerText = alerts.length;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
+    // --- KẾT THÚC LOGIC THÔNG BÁO ---
 
     function initMatrix() {
       const canvas = document.getElementById('matrixCanvas');
@@ -1128,305 +1266,321 @@
         if (BACKEND_URL) {
           const res = await fetch(`${BACKEND_URL}/api/stats`);
           if (res.ok) {
-            const data = await res.json();
-            if (data.serverCount !== undefined) {
-              document.getElementById('statServerCount').textContent = data.serverCount;
-            }
-            if (data.uptime !== undefined) {
-              document.getElementById('statUptime').textContent = data.uptime;
-            }
+            const stats = await res.json();
+            document.getElementById('statServerCount').innerText = stats.serverCount || 0;
+            document.getElementById('statMonitoredCount').innerText = stats.monitoredCount || 0;
           }
-        } else {
-          db.collection("system_stats").doc("main").get().then(doc => {
-            if (doc.exists) {
-              const data = doc.data();
-              if (data.serverCount !== undefined) {
-                document.getElementById('statServerCount').textContent = data.serverCount;
-              }
-              if (data.uptime !== undefined) {
-                document.getElementById('statUptime').textContent = data.uptime;
-              }
-            }
-          }).catch(() => {});
         }
-      } catch (err) {
-        console.error("Không thể lấy thống kê thời gian thực từ backend:", err);
+      } catch (error) {
+        console.error("Không lấy được stats realtime:", error);
       }
     }
 
     function initDateDropdowns() {
-      const daySelect = document.getElementById("filterDay");
-      const monthSelect = document.getElementById("filterMonth");
-      const yearSelect = document.getElementById("filterYear");
-      if (!daySelect) return;
-      for (let i = 1; i <= 31; i++) daySelect.appendChild(new Option(`Ngày ${i}`, i));
-      for (let i = 1; i <= 12; i++) monthSelect.appendChild(new Option(`Tháng ${i}`, i));
-      const cy = new Date().getFullYear();
-      for (let y = cy + 1; y >= cy - 3; y--) yearSelect.appendChild(new Option(`Năm ${y}`, y));
+      const daySel = document.getElementById('filterDay');
+      for (let i = 1; i <= 31; i++) daySel.innerHTML += `<option value="${i.toString().padStart(2, '0')}">${i}</option>`;
+      const monthSel = document.getElementById('filterMonth');
+      for (let i = 1; i <= 12; i++) monthSel.innerHTML += `<option value="${i.toString().padStart(2, '0')}">Tháng ${i}</option>`;
+      const yearSel = document.getElementById('filterYear');
+      const curYear = new Date().getFullYear();
+      for (let i = curYear; i >= curYear - 5; i--) yearSel.innerHTML += `<option value="${i}">${i}</option>`;
     }
 
+    let isDateModeInput = false;
     function toggleDateMode() {
-      const drop = document.getElementById("dropdownDateMode");
-      const input = document.getElementById("inputDateMode");
-      const btn = document.getElementById("toggleDateModeBtn");
-      if (drop.style.display === "none") {
-        drop.style.display = "flex"; input.style.display = "none"; btn.textContent = "⚙️ Tùy chỉnh lịch";
-      } else {
-        drop.style.display = "none"; input.style.display = "block"; btn.textContent = "📋 Chọn danh sách";
-      }
+      isDateModeInput = !isDateModeInput;
+      document.getElementById('dropdownDateMode').style.display = isDateModeInput ? 'none' : 'flex';
+      document.getElementById('inputDateMode').style.display = isDateModeInput ? 'block' : 'none';
+      document.getElementById('toggleDateModeBtn').innerText = isDateModeInput ? "🔄 Dùng Dropdown" : "⚙️ Tùy chỉnh lịch";
       renderHistoryLogs();
     }
-
-    function isValidRobloxId(id) { return id && /^\d{5,14}$/.test(String(id).trim()); }
 
     function getTrackedAccounts() {
-      let customAccounts = [];
-      try { customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]'); } catch(e) {}
-      const accountMap = new Map();
-      
-      if (loggedInUserId && isValidRobloxId(loggedInUserId)) {
-        accountMap.set(loggedInUserId, loggedInName || `ID: ${loggedInUserId}`);
+      const idMap = new Map();
+      if (loggedInUserId) {
+        idMap.set(String(loggedInUserId), String(loggedInName || `ID: ${loggedInUserId}`));
       }
-      
-      customAccounts.forEach(acc => { if (isValidRobloxId(acc.id)) accountMap.set(acc.id, acc.name || `ID: ${acc.id}`); });
-      return accountMap;
+      try {
+        const customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
+        customAccounts.forEach(acc => {
+          if (acc.id && /^\d{5,14}$/.test(String(acc.id).trim())) {
+            idMap.set(String(acc.id).trim(), String(acc.name || `ID: ${acc.id}`));
+          }
+        });
+      } catch (e) {
+        console.error("Lỗi parse dữ liệu tài khoản:", e);
+      }
+      return idMap;
     }
 
-    function updateUI() {
-      const trackedMap = getTrackedAccounts();
-      const trackedIds = Array.from(trackedMap.keys());
+    function renderLiveView() {
+      const container = document.getElementById('live-container');
+      const trackedAccounts = getTrackedAccounts();
       
-      const statCountEl = document.getElementById("statMonitoredCount");
-      if (statCountEl) {
-        statCountEl.textContent = trackedIds.length;
-      }
-
-      const filterSelect = document.getElementById("userFilter");
-      if (filterSelect) {
-        const currentVal = filterSelect.value;
-        filterSelect.innerHTML = '<option value="ALL">✨ Tất cả tài khoản</option>';
-        trackedIds.forEach(uid => filterSelect.appendChild(new Option(`${trackedMap.get(uid)} (ID: ${uid})`, uid)));
-        if (filterSelect.querySelector(`option[value="${currentVal}"]`)) filterSelect.value = currentVal;
-      }
-      renderLiveView(trackedMap, trackedIds);
-      renderHistoryLogs();
-    }
-
-    function removeTrackedAccount(id) {
-      if (id === loggedInUserId) {
-        localStorage.removeItem('logged_in_roblox_id');
-        localStorage.removeItem('logged_in_roblox_name');
-        loggedInUserId = null;
-        loggedInName = null;
-        const robloxAuthBtn = document.getElementById('robloxAuthBtn');
-        if (robloxAuthBtn) {
-          robloxAuthBtn.innerHTML = `🎮 Đăng nhập bằng Roblox`;
-          robloxAuthBtn.style.borderColor = '';
-          robloxAuthBtn.style.color = '';
-          robloxAuthBtn.style.background = '';
-          robloxAuthBtn.style.boxShadow = '';
-          robloxAuthBtn.style.padding = '';
-        }
-      }
-      let customAccounts = [];
-      try { customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]'); } catch(e) {}
-      customAccounts = customAccounts.filter(acc => acc.id !== id);
-      localStorage.setItem('custom_tracked_accounts', JSON.stringify(customAccounts));
-      updateUI();
-    }
-
-    function renderLiveView(trackedMap, trackedIds) {
-      const liveContainer = document.getElementById("live-container");
-      liveContainer.innerHTML = "";
-      if (trackedIds.length === 0) {
-        liveContainer.innerHTML = `<div class='empty-msg glass-panel' style='animation: sequentialFadeUp 0.5s forwards;'>⚠️ Chưa có tài khoản nào được thêm hoặc đăng nhập.</div>`;
+      if (trackedAccounts.size === 0) {
+        container.innerHTML = "<p class='empty-msg glass-panel'>Chưa có tài khoản nào được thêm. Vui lòng gửi yêu cầu phía trên để thêm.</p>";
         return;
       }
 
-      trackedIds.forEach((userId, index) => {
-        const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId || item.robloxId) === String(userId));
-        const isOnline = userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1 || userLog.userStatus === 2) : false;
-        const playerName = trackedMap.get(userId) || `ID: ${userId}`;
-        const rawGame = userLog ? (userLog.lastLocation || userLog.gameName || userLog.details?.gameName) : null;
-        let locationText = isOnline ? (rawGame && !rawGame.includes('Website') ? `Đang trải nghiệm: <span style="color:#ff4d6d;">${rawGame}</span>` : `<span style="color:#ff4d6d;">Trang chủ</span>`) : `<span style="color:var(--desc-color);">Chưa có hoạt động</span>`;
-        const badge = isOnline ? '<span class="status-badge status-1">🟢 Online</span>' : '<span class="status-badge status-0">🔴 Offline</span>';
-        
-        const imgId = `live-avatar-${userId}`;
+      const now = new Date();
+      container.innerHTML = '';
+      let activeCount = 0;
 
-        const card = document.createElement("div");
-        card.className = "log-card glass-panel";
-        card.style.opacity = "0"; 
-        card.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.12}s forwards`; 
-        card.innerHTML = `
-          <div class="log-top">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="position: relative; width: 42px; height: 42px; flex-shrink: 0;">
-                <img id="${imgId}" src="" alt="Avatar" style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid ${isOnline ? '#4ade80' : '#ff4d6d'}; object-fit: cover; background: rgba(255,255,255,0.05);">
-                <div style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: ${isOnline ? '#23a559' : '#f87171'}; border-radius: 50%; border: 2px solid #0f172a;"></div>
-              </div>
-              <div>
-                <span class="highlight">${playerName}</span> 
-                ${userId === loggedInUserId ? '<span style="font-size:0.7rem; background:rgba(74,222,128,0.2); color:#4ade80; padding:1px 5px; border-radius:4px; display:inline-block; margin-top:2px;">Tài khoản chính</span>' : ''}
+      trackedAccounts.forEach((accName, accIdStr) => {
+        const accLogs = rawLogsData.filter(l => String(l.robloxUserId || l.details?.robloxUserId || l.robloxId || "") === accIdStr);
+        accLogs.sort((a, b) => {
+          const tA = a.timestamp?.seconds || 0;
+          const tB = b.timestamp?.seconds || 0;
+          return tB - tA;
+        });
+        
+        let latestLog = accLogs[0] || { userStatus: 0, lastLocation: "Offline", details: { gameName: "Offline", rootPlaceId: null } };
+        
+        const rawStatus = latestLog.userStatus !== undefined ? latestLog.userStatus : (latestLog.details?.userStatus || 0);
+        let status = (rawStatus === 1 || rawStatus === 2) ? 1 : 0; 
+        
+        const logTime = latestLog.timestamp?.seconds ? new Date(latestLog.timestamp.seconds * 1000) : null;
+        let timeText = logTime ? `${logTime.toLocaleTimeString('vi-VN')} - ${logTime.toLocaleDateString('vi-VN')}` : "Không xác định";
+
+        let placeId = latestLog.details?.rootPlaceId || null;
+        let gameName = latestLog.lastLocation || latestLog.gameName || latestLog.details?.gameName || "Offline";
+        if (latestLog.details?.imageUrl && !gameName.includes("Offline")) {
+          latestLog.customImageUrl = latestLog.details.imageUrl; 
+        }
+
+        const div = document.createElement('div');
+        div.className = 'log-card glass-panel stagger-item';
+        div.style.position = 'relative';
+
+        const btnRemove = document.createElement('button');
+        btnRemove.className = 'btn-remove-acc';
+        btnRemove.style.position = 'absolute';
+        btnRemove.style.top = '15px';
+        btnRemove.style.right = '15px';
+        btnRemove.innerText = 'Xóa';
+        btnRemove.onclick = () => {
+           if(confirm(`Bạn có chắc muốn xóa tài khoản ${accName} khỏi danh sách theo dõi?`)) {
+              if (String(accIdStr) === String(loggedInUserId)) {
+                  alert("Không thể xóa tài khoản đã đăng nhập gốc!");
+                  return;
+              }
+              let customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
+              customAccounts = customAccounts.filter(a => String(a.id) !== String(accIdStr));
+              localStorage.setItem('custom_tracked_accounts', JSON.stringify(customAccounts));
+              updateUI();
+           }
+        };
+        div.appendChild(btnRemove);
+
+        div.innerHTML += `
+          <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 12px; margin-right: 40px;">
+            <img id="avatar-live-${accIdStr}" src="https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid ${status === 1 ? '#4ade80' : '#ef4444'}; box-shadow: 0 4px 10px rgba(0,0,0,0.3); object-fit: cover;">
+            <div>
+              <div style="font-weight: 800; font-size: 1.15rem; color: var(--text-color);">${accName}</div>
+              <div style="font-size: 0.8rem; color: var(--desc-color);">ID: ${accIdStr}</div>
+              <div class="status-badge ${status === 1 ? 'status-1' : 'status-0'}" style="margin-top: 6px; font-size: 0.75rem; padding: 4px 8px;">
+                ${status === 1 ? '● Đang Hoạt Động' : '○ Offline'}
               </div>
             </div>
-            <div style="display:flex;gap:8px; align-items:center;">${badge} <button class="btn-remove-acc" onclick="removeTrackedAccount('${userId}')">🗑️ Xóa</button></div>
           </div>
-          <div class="log-info" style="margin-top:8px;"><p style="margin-bottom:6px; font-size: 0.88rem; color: var(--desc-color);">ID: ${userId}</p><p>${locationText}</p></div>`;
-        liveContainer.appendChild(card);
+          <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px; display: flex; gap: 15px; align-items: center;">
+            <img id="gameicon-live-${accIdStr}" src="https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png" alt="Game Icon" style="width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; opacity: ${status === 1 && gameName !== 'Online' ? '1' : '0.5'};">
+            <div>
+              <div style="font-size: 0.85rem; color: var(--desc-color); margin-bottom: 4px;">Trạng thái hiện tại:</div>
+              <div style="font-weight: bold; color: ${status === 1 ? '#ff4d6d' : 'var(--text-color)'}; font-size: 1rem;">
+                ${status === 1 ? (gameName !== 'Online' ? '🎮 ' + gameName : '🌐 Đang Online (Website/App)') : '💤 Offline'}
+              </div>
+            </div>
+          </div>
+          <div class="timestamp" style="margin-top: 12px;">⏰ Cập nhật: ${timeText}</div>
+        `;
+        container.appendChild(div);
 
-        loadRobloxAvatar(userId, imgId);
+        loadRobloxAvatar(accIdStr, `avatar-live-${accIdStr}`);
+        if (status === 1 && gameName !== 'Online') {
+          loadGameIcon(placeId, latestLog.customImageUrl, `gameicon-live-${accIdStr}`);
+        }
+
+        activeCount++;
       });
+      
+      document.getElementById('statMonitoredCount').innerText = activeCount;
     }
 
     function renderHistoryLogs() {
-      const container = document.getElementById("logs");
-      const trackedMap = getTrackedAccounts();
-      const trackedIds = Array.from(trackedMap.keys());
-      const selectedUser = document.getElementById("userFilter")?.value || "ALL";
+      const container = document.getElementById('logs');
+      const userFilterSelect = document.getElementById('userFilter');
+      const selectedUserId = userFilterSelect.value;
       
-      const fDay = document.getElementById("filterDay")?.value;
-      const fMonth = document.getElementById("filterMonth")?.value;
-      const fYear = document.getElementById("filterYear")?.value;
-      const fStr = document.getElementById("dateFilter")?.value.trim();
-      const isInputMode = document.getElementById("inputDateMode")?.style.display !== "none";
+      let filterDateStr = "";
+      if (isDateModeInput) {
+        filterDateStr = document.getElementById('dateFilter').value.trim();
+      } else {
+        const d = document.getElementById('filterDay').value;
+        const m = document.getElementById('filterMonth').value;
+        const y = document.getElementById('filterYear').value;
+        if (d && m && y) filterDateStr = `${d}/${m}/${y}`;
+        else if (m && y) filterDateStr = `${m}/${y}`;
+        else if (y) filterDateStr = `${y}`;
+      }
 
-      let userLogs = rawLogsData.filter(d => {
-        const uid = String(d.robloxUserId || d.details?.robloxUserId || d.robloxId || "");
-        if (!trackedIds.includes(uid)) return false;
-        if (selectedUser !== "ALL" && uid !== selectedUser) return false;
+      const trackedAccounts = getTrackedAccounts();
+      const validUids = Array.from(trackedAccounts.keys());
+
+      let filteredLogs = rawLogsData.filter(log => {
+        const uid = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
+        if (selectedUserId !== "ALL" && uid !== selectedUserId) return false;
+        if (selectedUserId === "ALL" && !validUids.includes(uid)) return false;
+        
+        if (filterDateStr) {
+          if (!log.timestamp) return false;
+          const logDate = new Date(log.timestamp.seconds * 1000);
+          const logD = logDate.getDate().toString().padStart(2, '0');
+          const logM = (logDate.getMonth() + 1).toString().padStart(2, '0');
+          const logY = logDate.getFullYear();
+          const logDateFormatted = `${logD}/${logM}/${logY}`;
+          
+          if (!logDateFormatted.includes(filterDateStr)) return false;
+        }
         return true;
       });
 
-      const logsByUid = {};
-      userLogs.forEach(log => {
-        const uid = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
-        if (!logsByUid[uid]) logsByUid[uid] = [];
-        logsByUid[uid].push(log);
+      filteredLogs.sort((a, b) => {
+        const tA = a.timestamp?.seconds || 0;
+        const tB = b.timestamp?.seconds || 0;
+        return tB - tA;
       });
 
-      const processedSessions = [];
-      const now = new Date();
-
-      for (const uid in logsByUid) {
-        const sortedLogs = logsByUid[uid].sort((a, b) => {
-          const tA = a.timestamp?.seconds || 0;
-          const tB = b.timestamp?.seconds || 0;
-          return tA - tB;
-        });
-
-        let currentSession = null;
-
-        sortedLogs.forEach((log) => {
-          const game = log.gameName || log.placeName || log.lastLocation || log.details?.gameName || "";
-          const placeId = log.placeId || log.details?.placeId || log.rootPlaceId || null;
-          const iconUrl = log.gameIcon || log.icon || log.details?.gameIcon || log.details?.icon || null;
-          
-          const isGame = game && !game.includes("Website") && !game.includes("Offline") && game.trim() !== "";
-          const time = log.timestamp?.seconds ? new Date(log.timestamp.seconds * 1000) : now;
-
-          if (isGame) {
-            if (currentSession && currentSession.game !== game) {
-               currentSession.endTime = time;
-               currentSession.durationMs = currentSession.endTime - currentSession.startTime;
-               processedSessions.push(currentSession);
-               currentSession = { game: game, startTime: time, uid: uid, placeId: placeId, iconUrl: iconUrl };
-            } else if (!currentSession) {
-               currentSession = { game: game, startTime: time, uid: uid, placeId: placeId, iconUrl: iconUrl };
-            } else {
-               if (!currentSession.placeId && placeId) currentSession.placeId = placeId;
-               if (!currentSession.iconUrl && iconUrl) currentSession.iconUrl = iconUrl;
-            }
-          } else {
-            if (currentSession) {
-               currentSession.endTime = time;
-               currentSession.durationMs = currentSession.endTime - currentSession.startTime;
-               processedSessions.push(currentSession);
-               currentSession = null; 
-            }
-          }
-        });
-
-        if (currentSession) {
-           currentSession.endTime = now;
-           currentSession.durationMs = currentSession.endTime - currentSession.startTime;
-           currentSession.isOngoing = true; 
-           processedSessions.push(currentSession);
-        }
-      }
-
-      const filteredSessions = processedSessions.filter(session => {
-         const dateObj = session.startTime;
-         if (isInputMode && fStr) {
-             const dateString = dateObj.toLocaleDateString('vi-VN');
-             if (!dateString.includes(fStr)) return false;
-         } else if (!isInputMode) {
-             if (fDay && dateObj.getDate() != fDay) return false;
-             if (fMonth && (dateObj.getMonth() + 1) != fMonth) return false;
-             if (fYear && dateObj.getFullYear() != fYear) return false;
-         }
-         return true;
-      });
-
-      filteredSessions.sort((a, b) => b.startTime - a.startTime);
-
-      container.innerHTML = "";
-      if (filteredSessions.length === 0) {
-        container.innerHTML = "<p class='empty-msg glass-panel' style='animation: sequentialFadeUp 0.5s forwards;'>Không có hoạt động chơi game nào được ghi nhận.</p>";
+      container.innerHTML = '';
+      if (filteredLogs.length === 0) {
+        container.innerHTML = "<p class='empty-msg glass-panel'>Không tìm thấy dữ liệu phù hợp với bộ lọc.</p>";
         return;
       }
 
-      filteredSessions.slice(0, 20).forEach((session, index) => {
-        const timeStr = session.startTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + session.startTime.toLocaleDateString('vi-VN');
-        const name = trackedMap.get(session.uid) || session.uid;
-
-        let durationMinutes = Math.floor(session.durationMs / 60000);
-        let durationStr = "";
-        if (durationMinutes < 1) {
-            durationStr = "Dưới 1 phút";
-        } else if (durationMinutes < 60) {
-            durationStr = durationMinutes + " phút";
-        } else {
-            const hours = Math.floor(durationMinutes / 60);
-            const mins = durationMinutes % 60;
-            durationStr = hours + " giờ " + (mins > 0 ? mins + " phút" : "");
+      filteredLogs.forEach(log => {
+        const rawStatus = log.userStatus !== undefined ? log.userStatus : (log.details?.userStatus || 0);
+        let status = (rawStatus === 1 || rawStatus === 2) ? 1 : 0; 
+        
+        let placeId = log.details?.rootPlaceId || null;
+        let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Offline";
+        if (log.details?.imageUrl && !gameName.includes("Offline")) {
+          log.customImageUrl = log.details.imageUrl; 
         }
 
-        const badgeHtml = session.isOngoing
-             ? '<span class="status-badge status-1">🟢 Đang chơi game</span>'
-             : '<span class="status-badge status-other">🎮 Đã chơi game</span>';
-
-        const gameImgId = `game-icon-${session.uid}-${index}`;
-
-        const card = document.createElement("div");
-        card.className = "log-card glass-panel";
-        card.style.opacity = "0"; 
-        card.style.animation = `sequentialFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.08}s forwards`; 
+        let timeStr = "Không xác định";
+        if (log.timestamp && log.timestamp.seconds) {
+           const d = new Date(log.timestamp.seconds * 1000);
+           timeStr = `${d.toLocaleTimeString('vi-VN')} - ${d.toLocaleDateString('vi-VN')}`;
+        }
         
-        card.innerHTML = `
+        const uidStr = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
+        const displayName = trackedAccounts.get(uidStr) || (usernameCache[uidStr] ? usernameCache[uidStr] : `Tài khoản (${uidStr})`);
+        
+        let statusClass = "status-other";
+        let statusText = "Khác";
+        if (status === 1) { statusClass = "status-1"; statusText = "Đang Hoạt Động"; }
+        else if (status === 0) { statusClass = "status-0"; statusText = "Offline"; }
+
+        const logId = log.id || Math.random().toString(); 
+
+        const div = document.createElement('div');
+        div.className = 'log-card glass-panel stagger-item';
+        div.style.marginBottom = '15px';
+        div.innerHTML = `
           <div class="log-top">
-            <div>Người chơi: <span class="highlight">${name}</span></div>
-            ${badgeHtml}
+            <div>
+              <span class="status-badge ${statusClass}">${statusText}</span>
+              <span class="sub-id">UID: ${uidStr}</span>
+            </div>
+            <div style="font-weight: bold; color: var(--text-color);">${displayName}</div>
           </div>
-          <div class="log-info" style="margin-top: 10px; display: flex; align-items: center; gap: 12px;">
-            <img id="${gameImgId}" src="" alt="Game Avatar" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255, 77, 109, 0.3); background: rgba(255,255,255,0.05); flex-shrink: 0;" onerror="this.onerror=null; this.src='https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png'">
-            <div style="font-weight: 700; color: var(--text-color); font-size: 1.05rem; word-break: break-word;">
-              ${session.game}
+          
+          <div style="display: flex; gap: 15px; align-items: center; padding: 12px 0;">
+            <img id="gameicon-hist-${logId}" src="https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png" alt="Game Icon" style="width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; opacity: ${status === 1 && gameName !== 'Online' ? '1' : '0.3'};">
+            <div class="log-info">
+              <span style="color: var(--desc-color); font-size: 0.9em; margin-bottom: 4px; display: block;">Hoạt động ghi nhận:</span>
+              <span class="highlight">${status === 1 ? (gameName !== 'Online' ? '🎮 ' + gameName : '🌐 Đang Online') : '💤 Đã Offline'}</span>
             </div>
           </div>
-          <div style="font-size: 0.95rem; color: #cbd5e1; margin-top: 10px;">⏳ Đã chơi được: <strong style="color: #ff4d6d;">${durationStr}</strong></div>
-          <div class="timestamp" style="margin-top: 8px;">⏰ Bắt đầu lúc: ${timeStr}</div>`;
-          
-        container.appendChild(card);
 
-        loadGameIcon(session.placeId, session.iconUrl, gameImgId);
+          <div class="timestamp">⏰ Ghi nhận lúc: ${timeStr}</div>
+        `;
+        container.appendChild(div);
+
+        if (status === 1 && gameName !== 'Online') {
+          loadGameIcon(placeId, log.customImageUrl, `gameicon-hist-${logId}`);
+        }
       });
+    }
+
+    function updateUserFilterOptions() {
+      const select = document.getElementById('userFilter');
+      const currentValue = select.value;
+      const trackedAccounts = getTrackedAccounts();
+      
+      select.innerHTML = '<option value="ALL">✨ Tất cả tài khoản đang theo dõi</option>';
+      trackedAccounts.forEach((accName, accIdStr) => {
+        const option = document.createElement('option');
+        option.value = accIdStr;
+        option.innerText = accName;
+        select.appendChild(option);
+      });
+      
+      if (Array.from(select.options).some(opt => opt.value === currentValue)) {
+        select.value = currentValue;
+      }
+    }
+
+    function updateUI() {
+      updateUserFilterOptions();
+      renderLiveView();
+      renderHistoryLogs();
     }
 
     db.collection("roblox_logs").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
       rawLogsData = [];
-      snapshot.forEach(doc => rawLogsData.push(doc.data()));
+      let latestLogTime = parseInt(localStorage.getItem('last_processed_log_time') || '0');
+      let newLatestLogTime = latestLogTime;
+
+      snapshot.forEach(doc => {
+         const data = doc.data();
+         rawLogsData.push(data);
+         
+         const logTime = data.timestamp ? (data.timestamp.seconds || 0) : 0;
+         
+         // KIỂM TRA THÔNG BÁO BẤT THƯỜNG (NO-PLAYING MODE)
+         if (logTime > latestLogTime) {
+             newLatestLogTime = Math.max(newLatestLogTime, logTime);
+             const uid = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
+             const trackedMap = getTrackedAccounts();
+             const trackedIds = Array.from(trackedMap.keys());
+             
+             const isNoPlayingActive = localStorage.getItem('no_playing_mode') === 'true';
+             
+             if (isNoPlayingActive && trackedIds.includes(uid)) {
+                 const rawStatus = data.userStatus !== undefined ? data.userStatus : (data.details?.userStatus || 0);
+                 const isOnline = rawStatus === 1 || rawStatus === 2;
+                 if (isOnline) {
+                     const gameName = data.lastLocation || data.gameName || data.details?.gameName || "Online";
+                     addAlert(uid, trackedMap.get(uid), gameName, logTime);
+                 }
+             }
+         }
+         
+         if (data.robloxId && data.robloxName) {
+           usernameCache[data.robloxId] = data.robloxName;
+         }
+      });
+
+      localStorage.setItem('last_processed_log_time', newLatestLogTime.toString());
       updateUI();
+      renderAlerts(); // Cập nhật tab thông báo ngay khi có dữ liệu mới
+    }, error => {
+      console.error("Lỗi khi fetch logs realtime: ", error);
+      document.getElementById('logs').innerHTML = "<p class='empty-msg glass-panel' style='color: #ef4444;'>Lỗi kết nối CSDL.</p>";
+      document.getElementById('live-container').innerHTML = "<p class='empty-msg glass-panel' style='color: #ef4444;'>Lỗi kết nối CSDL.</p>";
     });
+
   </script>
 </body>
 </html>
