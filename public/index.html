@@ -1179,6 +1179,36 @@
         });
     }
 
+    // Hàm lấy icon/thumbnail tựa game chơi
+    function loadGameThumbnail(placeId, universeId, imgElementId) {
+      const imgEl = document.getElementById(imgElementId);
+      if (!imgEl) return;
+
+      if (!universeId && placeId) {
+        fetch(`https://apis.roproxy.com/universes/v1/places/${placeId}/universe`)
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.universeId) {
+              fetchGameIcon(data.universeId, imgEl);
+            }
+          })
+          .catch(err => console.error("Lỗi lấy universeId:", err));
+      } else if (universeId) {
+        fetchGameIcon(universeId, imgEl);
+      }
+    }
+
+    function fetchGameIcon(universeId, imgEl) {
+      fetch(`https://thumbnails.roproxy.com/v1/games/icons?universeIds=${universeId}&size=150x150&format=Png&isCircular=false`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.data && data.data.length > 0 && data.data[0].imageUrl) {
+            imgEl.src = data.data[0].imageUrl;
+          }
+        })
+        .catch(err => console.error("Lỗi lấy icon game:", err));
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       if (loggedInUserId) {
         const robloxAuthBtn = document.getElementById('robloxAuthBtn');
@@ -1253,12 +1283,12 @@
     function getTrackedAccounts() {
       const idMap = new Map();
       if (loggedInUserId) {
-        idMap.set(String(loggedInUserId), String(loggedInName || `ID: ${loggedInUserId}`));
+        idMap.set(String(loggedInUserId).trim(), String(loggedInName || `ID: ${loggedInUserId}`));
       }
       try {
         const customAccounts = JSON.parse(localStorage.getItem('custom_tracked_accounts') || '[]');
         customAccounts.forEach(acc => {
-          if (acc.id && /^\d{5,14}$/.test(String(acc.id).trim())) {
+          if (acc.id) {
             idMap.set(String(acc.id).trim(), String(acc.name || `ID: ${acc.id}`));
           }
         });
@@ -1281,7 +1311,7 @@
       let activeCount = 0;
 
       trackedAccounts.forEach((accName, accIdStr) => {
-        const accLogs = rawLogsData.filter(l => String(l.robloxUserId || l.details?.robloxUserId || l.robloxId || "") === accIdStr);
+        const accLogs = rawLogsData.filter(l => String(l.robloxUserId || l.details?.robloxUserId || l.robloxId || "").trim() === accIdStr);
         accLogs.sort((a, b) => {
           const tA = a.timestamp?.seconds || 0;
           const tB = b.timestamp?.seconds || 0;
@@ -1372,11 +1402,11 @@
       const validUids = Array.from(trackedAccounts.keys());
 
       let filteredLogs = rawLogsData.filter(log => {
-        const uid = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
-        if (selectedUserId !== "ALL" && uid !== selectedUserId) return false;
-        if (selectedUserId === "ALL" && !validUids.includes(uid)) return false;
+        const uid = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || log.details?.robloxId || log.userId || log.details?.userId || "").trim();
         
-        // CHỈ LẤY KHI ĐANG CHƠI GAME (LOẠI BỎ OFFLINE VÀ ONLINE THÔNG THƯỜNG)
+        // Sửa lỗi lọc tài khoản bằng cách so sánh chính xác UID (loại bỏ lỗi ẩn lịch sử)
+        if (selectedUserId !== "ALL" && uid !== String(selectedUserId).trim()) return false;
+
         const rawStatus = log.userStatus !== undefined ? log.userStatus : (log.details?.userStatus || 0);
         let status = (rawStatus === 1 || rawStatus === 2) ? 1 : 0; 
         let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Offline";
@@ -1410,8 +1440,10 @@
         return;
       }
 
-      filteredLogs.forEach(log => {
+      filteredLogs.forEach((log, index) => {
         let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Không xác định";
+        let placeId = log.rootPlaceId || log.placeId || log.details?.rootPlaceId || log.details?.placeId || "";
+        let universeId = log.universeId || log.details?.universeId || "";
 
         let timeStr = "Không xác định";
         if (log.timestamp && log.timestamp.seconds) {
@@ -1419,8 +1451,9 @@
            timeStr = `${d.toLocaleTimeString('vi-VN')} - ${d.toLocaleDateString('vi-VN')}`;
         }
         
-        const uidStr = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
+        const uidStr = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "").trim();
         const displayName = trackedAccounts.get(uidStr) || (usernameCache[uidStr] ? usernameCache[uidStr] : `Tài khoản (${uidStr})`);
+        const imgElementId = `game-icon-${index}-${uidStr}`;
 
         const div = document.createElement('div');
         div.className = 'log-card glass-panel stagger-item';
@@ -1434,14 +1467,21 @@
             <div style="font-weight: bold; color: var(--text-color);">${displayName}</div>
           </div>
           
-          <div class="log-info" style="padding: 12px 0;">
-            <span style="color: var(--desc-color); font-size: 0.9em; margin-bottom: 4px; display: block;">Tựa game tham gia:</span>
-            <span class="highlight">🎮 ${gameName}</span>
+          <div class="log-info" style="padding: 12px 0; display: flex; align-items: center; gap: 15px;">
+            <img id="${imgElementId}" src="https://tr.rbxcdn.com/18bf60699479b4a927a4d533ec53d898/150/150/Image/Png" alt="Game Icon" style="width: 55px; height: 55px; border-radius: 12px; border: 2px solid rgba(255,77,109,0.4); object-fit: cover; flex-shrink: 0;" onerror="this.src='https://tr.rbxcdn.com/18bf60699479b4a927a4d533ec53d898/150/150/Image/Png'">
+            <div>
+              <span style="color: var(--desc-color); font-size: 0.85em; margin-bottom: 2px; display: block;">Tựa game tham gia:</span>
+              <span class="highlight">🎮 ${gameName}</span>
+            </div>
           </div>
 
           <div class="timestamp" style="color: #4ade80; font-weight: 600;">⏱️ Thời điểm chơi lúc: ${timeStr}</div>
         `;
         container.appendChild(div);
+
+        if (placeId || universeId) {
+          loadGameThumbnail(placeId, universeId, imgElementId);
+        }
       });
     }
 
@@ -1482,7 +1522,7 @@
          
          if (logTime > latestLogTime) {
              newLatestLogTime = Math.max(newLatestLogTime, logTime);
-             const uid = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
+             const uid = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "").trim();
              const trackedMap = getTrackedAccounts();
              const trackedIds = Array.from(trackedMap.keys());
              
