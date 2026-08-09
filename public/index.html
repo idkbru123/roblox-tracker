@@ -189,7 +189,6 @@
       transition: all 0.2s;
     }
 
-
     .menu-btn { 
       width: 100%; padding: 13px 16px;
       background: rgba(255, 255, 255, 0.02); 
@@ -278,7 +277,6 @@
       0% { left: -100%; }
       100% { left: 200%; }
     }
-    
 
     .user-profile-box { padding: 18px; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(10, 10, 15, 0.4); text-align: center; }
     .btn-roblox { 
@@ -312,7 +310,6 @@
     .tab-section { display: none; }
     .tab-section.active { display: block; }
 
-
     h1 { 
       color: #ffffff !important; 
       margin-bottom: 25px; 
@@ -332,7 +329,6 @@
       width: 100%; height: 2px;
       background: linear-gradient(90deg, #ff4d6d, rgba(255, 77, 109, 0.1), transparent);
     }
-
 
     .glass-panel {
       position: relative;
@@ -647,7 +643,6 @@
               <span class="menu-tag">[03]</span>
             </button>
           </li>
-
           <li class="menu-item-wrapper">
             <button class="menu-btn" onclick="showTab('alerts', this)">
               <div class="menu-btn-content">
@@ -766,7 +761,6 @@
       <div id="tab-live" class="tab-section">
         <h1 class="stagger-item">🔴 Trạng Thái Trực Tiếp</h1>
 
-
         <div class="control-panel glass-panel stagger-item" style="margin-bottom: 25px; border-left: 4px solid #f59e0b; padding: 20px;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
             <div>
@@ -825,7 +819,7 @@
       </div>
 
       <div id="tab-history" class="tab-section">
-        <h1 class="stagger-item">📜 Lịch Sử Hoạt Động</h1>
+        <h1 class="stagger-item">📜 Lịch Sử Chơi Game</h1>
         <div class="filter-box glass-panel stagger-item" id="filterBox">
           <label for="userFilter">👤 Lọc theo tài khoản:</label>
           <select id="userFilter" onchange="renderHistoryLogs()">
@@ -849,10 +843,9 @@
         </div>
         
         <div id="logs" class="stagger-item">
-          <p class='empty-msg glass-panel'>Đang tải lịch sử hoạt động...</p>
+          <p class='empty-msg glass-panel'>Đang tải lịch sử chơi game...</p>
         </div>
       </div>
-
 
       <div id="tab-alerts" class="tab-section">
         <h1 class="stagger-item">🔔 Thông Báo Hoạt Động Bất Thường</h1>
@@ -916,7 +909,6 @@
         if (switchEl) switchEl.checked = true;
       }
 
-
       const noPlayingCheck = document.getElementById('noPlayingToggle');
       if (noPlayingCheck) {
           noPlayingCheck.checked = localStorage.getItem('no_playing_mode') === 'true';
@@ -957,10 +949,8 @@
         updateUI(); 
     }
 
-
     function toggleNoPlayingMode(checkbox) {
         localStorage.setItem('no_playing_mode', checkbox.checked ? 'true' : 'false');
-
     }
 
     function addAlert(uid, name, location, timeSeconds) {
@@ -1037,7 +1027,6 @@
             }
         }
     }
-    // --- KẾT THÚC LOGIC THÔNG BÁO ---
 
     function initMatrix() {
       const canvas = document.getElementById('matrixCanvas');
@@ -1190,36 +1179,6 @@
         });
     }
 
-    function loadGameIcon(placeId, customIconUrl, imgElementId) {
-      const imgEl = document.getElementById(imgElementId);
-      if (!imgEl) return;
-
-      const fallbackIcon = 'https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png';
-
-      if (customIconUrl) {
-        imgEl.src = customIconUrl;
-        return;
-      }
-
-      imgEl.src = fallbackIcon;
-
-      if (placeId) {
-        fetch(`https://thumbnails.roproxy.com/v1/places/gameicons?placeIds=${placeId}&size=150x150&format=Png&isCircular=false`)
-          .then(res => {
-            if (!res.ok) throw new Error('CORS/API Error');
-            return res.json();
-          })
-          .then(data => {
-            if (data && data.data && data.data.length > 0 && data.data[0].imageUrl) {
-              imgEl.src = data.data[0].imageUrl;
-            }
-          })
-          .catch(err => {
-            console.error("Lỗi khi tải avatar game Roblox:", err);
-          });
-      }
-    }
-
     window.addEventListener('DOMContentLoaded', () => {
       if (loggedInUserId) {
         const robloxAuthBtn = document.getElementById('robloxAuthBtn');
@@ -1318,7 +1277,6 @@
         return;
       }
 
-      const now = new Date();
       container.innerHTML = '';
       let activeCount = 0;
 
@@ -1338,11 +1296,7 @@
         const logTime = latestLog.timestamp?.seconds ? new Date(latestLog.timestamp.seconds * 1000) : null;
         let timeText = logTime ? `${logTime.toLocaleTimeString('vi-VN')} - ${logTime.toLocaleDateString('vi-VN')}` : "Không xác định";
 
-        let placeId = latestLog.details?.rootPlaceId || null;
         let gameName = latestLog.lastLocation || latestLog.gameName || latestLog.details?.gameName || "Offline";
-        if (latestLog.details?.imageUrl && !gameName.includes("Offline")) {
-          latestLog.customImageUrl = latestLog.details.imageUrl; 
-        }
 
         const div = document.createElement('div');
         div.className = 'log-card glass-panel stagger-item';
@@ -1379,24 +1333,18 @@
               </div>
             </div>
           </div>
-          <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px; display: flex; gap: 15px; align-items: center;">
-            <img id="gameicon-live-${accIdStr}" src="https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png" alt="Game Icon" style="width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; opacity: ${status === 1 && gameName !== 'Online' ? '1' : '0.5'};">
-            <div>
-              <div style="font-size: 0.85rem; color: var(--desc-color); margin-bottom: 4px;">Trạng thái hiện tại:</div>
-              <div style="font-weight: bold; color: ${status === 1 ? '#ff4d6d' : 'var(--text-color)'}; font-size: 1rem;">
-                ${status === 1 ? (gameName !== 'Online' ? '🎮 ' + gameName : '🌐 Đang Online (Website/App)') : '💤 Offline'}
-              </div>
+          <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px;">
+            <div style="font-size: 0.85rem; color: var(--desc-color); margin-bottom: 4px;">Trạng thái hiện tại:</div>
+            <div style="font-weight: bold; color: ${status === 1 ? '#ff4d6d' : 'var(--text-color)'}; font-size: 1rem;">
+              ${status === 1 ? (gameName !== 'Online' && gameName !== 'Website' ? '🎮 ' + gameName : '🌐 Đang Online (Website/App)') : '💤 Offline'}
             </div>
           </div>
+          ${status === 1 && gameName !== 'Online' && gameName !== 'Website' ? `<div style="margin-top: 8px; font-size: 0.9rem; color: #4ade80; font-weight: 600;">⏱️ Thời gian vào chơi lúc: ${timeText}</div>` : ''}
           <div class="timestamp" style="margin-top: 12px;">⏰ Cập nhật: ${timeText}</div>
         `;
         container.appendChild(div);
 
         loadRobloxAvatar(accIdStr, `avatar-live-${accIdStr}`);
-        if (status === 1 && gameName !== 'Online') {
-          loadGameIcon(placeId, latestLog.customImageUrl, `gameicon-live-${accIdStr}`);
-        }
-
         activeCount++;
       });
       
@@ -1428,6 +1376,15 @@
         if (selectedUserId !== "ALL" && uid !== selectedUserId) return false;
         if (selectedUserId === "ALL" && !validUids.includes(uid)) return false;
         
+        // CHỈ LẤY KHI ĐANG CHƠI GAME (LOẠI BỎ OFFLINE VÀ ONLINE THÔNG THƯỜNG)
+        const rawStatus = log.userStatus !== undefined ? log.userStatus : (log.details?.userStatus || 0);
+        let status = (rawStatus === 1 || rawStatus === 2) ? 1 : 0; 
+        let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Offline";
+
+        if (status === 0 || gameName === 'Online' || gameName === 'Website' || gameName === 'Offline' || !gameName) {
+          return false;
+        }
+
         if (filterDateStr) {
           if (!log.timestamp) return false;
           const logDate = new Date(log.timestamp.seconds * 1000);
@@ -1449,19 +1406,12 @@
 
       container.innerHTML = '';
       if (filteredLogs.length === 0) {
-        container.innerHTML = "<p class='empty-msg glass-panel'>Không tìm thấy dữ liệu phù hợp với bộ lọc.</p>";
+        container.innerHTML = "<p class='empty-msg glass-panel'>Không tìm thấy lịch sử chơi game nào phù hợp.</p>";
         return;
       }
 
       filteredLogs.forEach(log => {
-        const rawStatus = log.userStatus !== undefined ? log.userStatus : (log.details?.userStatus || 0);
-        let status = (rawStatus === 1 || rawStatus === 2) ? 1 : 0; 
-        
-        let placeId = log.details?.rootPlaceId || null;
-        let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Offline";
-        if (log.details?.imageUrl && !gameName.includes("Offline")) {
-          log.customImageUrl = log.details.imageUrl; 
-        }
+        let gameName = log.lastLocation || log.gameName || log.details?.gameName || "Không xác định";
 
         let timeStr = "Không xác định";
         if (log.timestamp && log.timestamp.seconds) {
@@ -1471,13 +1421,6 @@
         
         const uidStr = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
         const displayName = trackedAccounts.get(uidStr) || (usernameCache[uidStr] ? usernameCache[uidStr] : `Tài khoản (${uidStr})`);
-        
-        let statusClass = "status-other";
-        let statusText = "Khác";
-        if (status === 1) { statusClass = "status-1"; statusText = "Đang Hoạt Động"; }
-        else if (status === 0) { statusClass = "status-0"; statusText = "Offline"; }
-
-        const logId = log.id || Math.random().toString(); 
 
         const div = document.createElement('div');
         div.className = 'log-card glass-panel stagger-item';
@@ -1485,27 +1428,20 @@
         div.innerHTML = `
           <div class="log-top">
             <div>
-              <span class="status-badge ${statusClass}">${statusText}</span>
+              <span class="status-badge status-1">Đang Chơi Game</span>
               <span class="sub-id">UID: ${uidStr}</span>
             </div>
             <div style="font-weight: bold; color: var(--text-color);">${displayName}</div>
           </div>
           
-          <div style="display: flex; gap: 15px; align-items: center; padding: 12px 0;">
-            <img id="gameicon-hist-${logId}" src="https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png" alt="Game Icon" style="width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; opacity: ${status === 1 && gameName !== 'Online' ? '1' : '0.3'};">
-            <div class="log-info">
-              <span style="color: var(--desc-color); font-size: 0.9em; margin-bottom: 4px; display: block;">Hoạt động ghi nhận:</span>
-              <span class="highlight">${status === 1 ? (gameName !== 'Online' ? '🎮 ' + gameName : '🌐 Đang Online') : '💤 Đã Offline'}</span>
-            </div>
+          <div class="log-info" style="padding: 12px 0;">
+            <span style="color: var(--desc-color); font-size: 0.9em; margin-bottom: 4px; display: block;">Tựa game tham gia:</span>
+            <span class="highlight">🎮 ${gameName}</span>
           </div>
 
-          <div class="timestamp">⏰ Ghi nhận lúc: ${timeStr}</div>
+          <div class="timestamp" style="color: #4ade80; font-weight: 600;">⏱️ Thời điểm chơi lúc: ${timeStr}</div>
         `;
         container.appendChild(div);
-
-        if (status === 1 && gameName !== 'Online') {
-          loadGameIcon(placeId, log.customImageUrl, `gameicon-hist-${logId}`);
-        }
       });
     }
 
@@ -1544,7 +1480,6 @@
          
          const logTime = data.timestamp ? (data.timestamp.seconds || 0) : 0;
          
-
          if (logTime > latestLogTime) {
              newLatestLogTime = Math.max(newLatestLogTime, logTime);
              const uid = String(data.robloxUserId || data.details?.robloxUserId || data.robloxId || "");
@@ -1558,7 +1493,9 @@
                  const isOnline = rawStatus === 1 || rawStatus === 2;
                  if (isOnline) {
                      const gameName = data.lastLocation || data.gameName || data.details?.gameName || "Online";
-                     addAlert(uid, trackedMap.get(uid), gameName, logTime);
+                     if (gameName !== 'Online' && gameName !== 'Website') {
+                         addAlert(uid, trackedMap.get(uid), gameName, logTime);
+                     }
                  }
              }
          }
