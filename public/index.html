@@ -1035,17 +1035,13 @@
     const usernameCache = {};
     if (loggedInUserId && loggedInName) usernameCache[loggedInUserId] = loggedInName;
 
-    // --- FIX: UPDATED FUNCTION TO FETCH AVATAR CORRECTLY ---
     function loadRobloxAvatar(userId, imgElementId) {
       const imgEl = document.getElementById(imgElementId);
       if (!imgEl) return;
 
       imgEl.src = 'https://tr.rbxcdn.com/39st_150/AvatarHeadshot/Png/Default';
 
-      // SỬ DỤNG API THUMBNAILS CHÍNH THỨC CỦA ROBLOX (CÓ THỂ CẦN PROXY NẾU CHẶN CORS)
-      // Nếu API này không hoạt động trực tiếp trên trình duyệt do CORS, 
-      // hãy chắc chắn server proxy của bạn đã cấu hình header CORS: Access-Control-Allow-Origin: *
-      fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`)
+      fetch(`https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`)
         .then(res => {
           if (!res.ok) throw new Error('Mạng lỗi');
           return res.json();
@@ -1056,16 +1052,7 @@
           }
         })
         .catch((error) => {
-          console.error("Lỗi khi tải avatar Roblox (Thử dùng proxy thay thế nếu lỗi CORS):", error);
-          // Tự động thử proxy nếu API chính chặn
-          fetch(`https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`)
-            .then(res => res.json())
-            .then(data => {
-                if (data && data.data && data.data.length > 0 && data.data[0].imageUrl) {
-                    imgEl.src = data.data[0].imageUrl;
-                }
-            })
-            .catch(err => console.error("Lỗi proxy cũng không tải được avatar:", err));
+          console.error("Lỗi khi tải avatar Roblox:", error);
         });
     }
 
@@ -1083,7 +1070,7 @@
       imgEl.src = fallbackIcon;
 
       if (placeId) {
-        fetch(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeId}&size=150x150&format=Png&isCircular=false`)
+        fetch(`https://thumbnails.roproxy.com/v1/places/gameicons?placeIds=${placeId}&size=150x150&format=Png&isCircular=false`)
           .then(res => {
             if (!res.ok) throw new Error('CORS/API Error');
             return res.json();
@@ -1094,15 +1081,7 @@
             }
           })
           .catch(err => {
-            // Tự động thử proxy nếu API chính chặn
-            fetch(`https://thumbnails.roproxy.com/v1/places/gameicons?placeIds=${placeId}&size=150x150&format=Png&isCircular=false`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.data && data.data.length > 0 && data.data[0].imageUrl) {
-                        imgEl.src = data.data[0].imageUrl;
-                    }
-                })
-                .catch(err => console.error("Lỗi khi tải avatar game Roblox:", err));
+            console.error("Lỗi khi tải avatar game Roblox:", err);
           });
       }
     }
