@@ -5,17 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Roblox Personal Tracker // NEON_PROTOCOL</title>
   
-  <!-- CYBERPUNK FONT STACK -->
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
   <style>
-    /* ==========================================================================
-       1. CYBERPUNK DESIGN TOKENS
-       ========================================================================== */
     :root {
-      /* Colors */
+      
       --bg-color: #0a0a0f;
       --card-color: #12121a;
       --muted-color: #1c1c2e;
@@ -27,13 +24,13 @@
       --border-color: #2a2a3a;
       --destructive: #ff3366;
 
-      /* Glow Effects */
+     
       --neon-glow-sm: 0 0 3px #00ff88, 0 0 6px #00ff8830;
       --neon-glow: 0 0 5px #00ff88, 0 0 10px #00ff8840;
       --neon-glow-lg: 0 0 10px #00ff88, 0 0 20px #00ff8860, 0 0 40px #00ff8830;
       --neon-glow-secondary: 0 0 5px #ff00ff, 0 0 20px #ff00ff60;
 
-      /* Geometry / Chamfer Cuts */
+  
       --chamfer: polygon(
         0 10px, 10px 0, 
         calc(100% - 10px) 0, 100% 10px, 
@@ -60,7 +57,7 @@
       line-height: 1.6;
     }
 
-    /* CRT SCANLINES & NOISE */
+
     body::after {
       content: "";
       position: fixed;
@@ -76,7 +73,7 @@
       z-index: 9999;
     }
 
-    /* GRID / CIRCUIT PATTERN */
+ 
     body::before {
       content: "";
       position: fixed;
@@ -95,7 +92,7 @@
       width: 100vw; height: 100vh;
       z-index: 1;
       pointer-events: none;
-      opacity: 0.4; /* Dimmed to prevent overwhelming the UI */
+      opacity: 0.6; 
     }
 
     .bg-overlay {
@@ -116,9 +113,7 @@
       min-height: 100vh;
     }
 
-    /* ==========================================================================
-       2. TYPOGRAPHY & GLITCH EFFECTS
-       ========================================================================== */
+
     h1, h2, h3 {
       font-family: 'Orbitron', sans-serif;
       text-transform: uppercase;
@@ -135,7 +130,6 @@
       text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
     }
 
-    /* Chromatic Aberration Glitch on H1 */
     .cyber-glitch {
       position: relative;
     }
@@ -178,9 +172,7 @@
       100% { clip-path: polygon(0 95%, 100% 95%, 100% 95%, 0 95%); }
     }
 
-    /* ==========================================================================
-       3. COMPONENTS: PANELS & BUTTONS
-       ========================================================================== */
+
     .cyber-panel {
       position: relative;
       background: var(--card-color) !important;
@@ -195,7 +187,7 @@
       transform: translateY(-2px);
     }
 
-    /* Decoration for panels */
+
     .cyber-panel::before {
       content: '';
       position: absolute;
@@ -225,9 +217,7 @@
       box-shadow: var(--neon-glow);
     }
 
-    /* ==========================================================================
-       4. LAYOUT & SIDEBAR
-       ========================================================================== */
+
     .menu-toggle-btn {
       position: fixed;
       top: 20px; left: 20px;
@@ -286,7 +276,7 @@
     .menu { list-style: none; margin-top: 18px; padding: 0 14px; }
     .menu-item-wrapper { position: relative; margin-bottom: 8px; }
 
-    /* CYBER MENU BUTTONS */
+
     .menu-btn { 
       width: 100%; padding: 13px 16px;
       background: transparent; 
@@ -356,9 +346,7 @@
     .tab-section { display: none; }
     .tab-section.active { display: block; }
 
-    /* ==========================================================================
-       5. SPECIFIC SECTIONS & MODULES
-       ========================================================================== */
+
     .welcome-card { padding: 35px 25px; text-align: left; }
     .welcome-card h2 { color: var(--accent-primary); font-size: 1.8rem; margin-bottom: 12px; }
     .welcome-card p { font-size: 1rem; color: var(--text-muted); }
@@ -411,7 +399,7 @@
     .bot-stats { color: var(--text-muted); font-size: 0.85rem; font-family: monospace; }
     .bot-stats strong { color: var(--text-primary); }
 
-    /* STATS GRID */
+ 
     .stats-grid > div {
       padding: 25px; text-align: left; border-left: 4px solid var(--border-color);
     }
@@ -419,7 +407,7 @@
     .stats-grid > div:nth-child(2) { border-left-color: var(--accent-primary); }
     .stats-grid > div:nth-child(3) { border-left-color: var(--accent-secondary); }
     
-    /* INPUTS / TERMINAL AESTHETIC */
+   
     .control-panel { padding: 24px; margin-bottom: 25px; }
     .control-panel h3 { color: var(--text-primary); font-size: 1.15rem; margin-bottom: 8px; }
     .control-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px; }
@@ -440,7 +428,7 @@
     .filter-box label { color: var(--text-primary); font-size: 1rem; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; }
     .filter-box select option { background-color: var(--bg-color); color: var(--accent-primary); }
 
-    /* LOG CARDS */
+   
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
     
     .log-card { 
@@ -764,13 +752,13 @@
           if (g.counter >= g.speed) {
             const text = characters[Math.floor(Math.random() * characters.length)];
             
-            // Cyberpunk colors for matrix drop
+            // Cyberpunk colors for matrix drop (slightly brighter trails for improved clarity)
             if (Math.random() > 0.95) {
               ctx.fillStyle = "#00ff88"; // primary neon green
             } else if(Math.random() > 0.9) {
               ctx.fillStyle = "#ff00ff"; // magenta glitch
             } else {
-              ctx.fillStyle = "#1c1c2e"; // ghost trails
+              ctx.fillStyle = "#2c2c42"; // brighter ghost trails
             }
             
             ctx.fillText(text, g.x, g.y);
