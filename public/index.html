@@ -396,7 +396,7 @@
     }
     
     .bot-info { flex: 1; }
-    .bot-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .bot-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
     .bot-name { color: var(--text-primary); font-size: 1.35rem; margin: 0; }
     
     .bot-badge {
@@ -444,26 +444,26 @@
     .filter-box label { color: var(--text-primary); font-size: 1rem; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; }
     .filter-box select option { background-color: var(--bg-color); color: var(--accent-primary); }
 
-    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
     
     .log-card { 
       padding: 22px; display: flex; flex-direction: column; gap: 12px; 
     }
-    .log-top { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed var(--border-color); padding-bottom: 12px; }
+    .log-top { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed var(--border-color); padding-bottom: 12px; gap: 10px; }
     
-    .status-badge { padding: 4px 8px; clip-path: var(--chamfer-sm); font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; text-transform: uppercase; }
+    .status-badge { padding: 4px 8px; clip-path: var(--chamfer-sm); font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; text-transform: uppercase; white-space: nowrap; }
     .status-1 { background: rgba(0, 255, 136, 0.1); color: var(--accent-primary); border: 1px solid var(--accent-primary); box-shadow: inset 0 0 5px rgba(0,255,136,0.2); }
     .status-0 { background: rgba(255, 51, 102, 0.1); color: var(--destructive); border: 1px solid var(--destructive); }
     .status-other { background: rgba(0, 212, 255, 0.1); color: var(--accent-tertiary); border: 1px solid var(--accent-tertiary); }
 
-    .log-info { font-size: 0.9rem; color: var(--text-primary); }
-    .highlight { color: var(--accent-primary); font-weight: bold; font-size: 1rem; text-transform: uppercase; }
-    .timestamp { font-size: 0.8rem; color: var(--text-muted); text-align: right; font-family: monospace; }
+    .log-info { font-size: 0.9rem; color: var(--text-primary); word-break: break-word; }
+    .highlight { color: var(--accent-primary); font-weight: bold; font-size: 1rem; text-transform: uppercase; word-break: break-all; }
+    .timestamp { font-size: 0.8rem; color: var(--text-muted); text-align: right; font-family: monospace; white-space: nowrap; }
     
     .btn-remove-acc {
       background: transparent; color: var(--destructive); border: 1px solid var(--destructive);
       padding: 4px 10px; clip-path: var(--chamfer-sm); font-size: 0.75rem; cursor: pointer; transition: 150ms;
-      font-family: 'Share Tech Mono', monospace; text-transform: uppercase;
+      font-family: 'Share Tech Mono', monospace; text-transform: uppercase; white-space: nowrap;
     }
     .btn-remove-acc:hover { background: var(--destructive); color: var(--bg-color); box-shadow: 0 0 10px var(--destructive); }
 
@@ -475,9 +475,24 @@
       100% { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 20px 15px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
       .bot-card-inner { flex-direction: column; text-align: left; align-items: flex-start; }
       .bot-action-row { flex-direction: column; align-items: stretch; gap: 12px; }
+      .grid-container {
+        grid-template-columns: 100%;
+      }
+      .input-row {
+        flex-direction: column;
+      }
+      .input-wrapper input, .filter-box select, .filter-box input[type="text"] {
+        min-width: 100%;
+      }
     }
   </style>
 
@@ -651,12 +666,12 @@
             <option value="ALL" data-i18n="allTargets">[*] ALL_TARGETS</option>
           </select>
           
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 8px;">
             <label style="margin: 0; font-size: 0.85rem;" data-i18n="temporalFilter">> TEMPORAL_FILTER:</label>
             <button type="button" id="toggleDateModeBtn" onclick="toggleDateMode()" style="background: transparent; color: var(--accent-tertiary); border: 1px solid var(--accent-tertiary); padding: 4px 10px; font-family: monospace; font-size: 0.75rem; cursor: pointer; clip-path: var(--chamfer-sm);" data-i18n="toggleMode">TOGGLE_MODE</button>
           </div>
 
-          <div id="dropdownDateMode" style="display: flex; gap: 10px; margin-top: 10px;">
+          <div id="dropdownDateMode" style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
             <select id="filterDay" onchange="renderHistoryLogs()" style="flex: 1;"><option value="">DD</option></select>
             <select id="filterMonth" onchange="renderHistoryLogs()" style="flex: 1;"><option value="">MM</option></select>
             <select id="filterYear" onchange="renderHistoryLogs()" style="flex: 1;"><option value="">YYYY</option></select>
@@ -1216,17 +1231,17 @@
         card.style.animation = `sequentialFadeUp 0.3s steps(4) ${index * 0.08}s forwards`; 
         card.innerHTML = `
           <div class="log-top">
-            <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <div style="display: flex; align-items: flex-start; gap: 12px; min-width: 0; flex: 1;">
               <div style="position: relative; width: 42px; height: 42px; flex-shrink: 0;">
                 <img id="${imgId}" src="" alt="Avatar" style="width: 42px; height: 42px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); border: 2px solid ${isOnline ? 'var(--accent-primary)' : 'var(--border-color)'}; object-fit: cover;">
               </div>
-              <div>
+              <div style="min-width: 0; flex: 1;">
                 <div class="highlight">${playerName}</div> 
                 ${userId === loggedInUserId ? '<span style="font-size:0.65rem; background:var(--accent-primary); color:var(--bg-color); padding:1px 5px; font-family:monospace; display:inline-block; margin-top:2px;">[ROOT_USER]</span>' : ''}
                 <div style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace; margin-top: 4px;">ID:${userId}</div>
               </div>
             </div>
-            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex-shrink: 0;">
                ${badge} 
                <button class="btn-remove-acc" onclick="removeTrackedAccount('${userId}')">[DROP]</button>
             </div>
@@ -1365,16 +1380,16 @@
         
         card.innerHTML = `
           <div class="log-top">
-            <div style="font-family: monospace; font-size: 0.85rem;">TRGT: <span class="highlight">${name}</span></div>
+            <div style="font-family: monospace; font-size: 0.85rem; min-width: 0; overflow: hidden; text-overflow: ellipsis;">TRGT: <span class="highlight">${name}</span></div>
             ${badgeHtml}
           </div>
           <div class="log-info" style="margin-top: 10px; display: flex; align-items: center; gap: 15px;">
             <img id="${gameImgId}" src="" alt="Game Avatar" style="width: 50px; height: 50px; clip-path: var(--chamfer-sm); object-fit: cover; border: 1px solid var(--border-color); flex-shrink: 0;" onerror="this.onerror=null; this.src='https://tr.rbxcdn.com/53eb28a3068f801a2f61111d0449553f/150/150/Image/Png'">
-            <div style="font-family: 'Share Tech Mono', monospace; color: var(--text-primary); font-size: 1.05rem; text-transform: uppercase;">
+            <div style="font-family: 'Share Tech Mono', monospace; color: var(--text-primary); font-size: 1.05rem; text-transform: uppercase; word-break: break-word;">
               ${session.game}
             </div>
           </div>
-          <div style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); margin-top: 12px; display: flex; justify-content: space-between;">
+          <div style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); margin-top: 12px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
             <span>DUR: <strong style="color: var(--accent-tertiary);">${durationStr}</strong></span>
             <span class="timestamp">${timeStr}</span>
           </div>`;
