@@ -469,6 +469,53 @@
 
     .empty-msg { text-align: center; color: var(--text-muted); padding: 40px; font-family: monospace; border: 1px dashed var(--border-color); }
 
+    /* ===== ROBLOX-NOPLAYING FEATURE ===== */
+    .notplaying-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+      margin-top: 4px; padding-top: 12px; border-top: 1px dashed var(--border-color);
+    }
+    .notplaying-label { font-size: 0.72rem; color: var(--text-muted); font-family: monospace; text-transform: uppercase; }
+    .notplaying-state { font-weight: bold; }
+    .notplaying-state.on { color: var(--accent-primary); }
+    .notplaying-state.off { color: var(--text-muted); }
+
+    .btn-notplaying {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.72rem;
+      padding: 6px 12px;
+      clip-path: var(--chamfer-sm);
+      cursor: pointer;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition: all 150ms steps(4);
+    }
+    .btn-notplaying:hover { border-color: var(--accent-tertiary); color: var(--accent-tertiary); }
+    .btn-notplaying.is-on { border-color: var(--accent-primary); color: var(--accent-primary); box-shadow: var(--neon-glow-sm); }
+
+    .anomaly-warning {
+      margin-top: 10px;
+      padding: 9px 12px;
+      background: rgba(255, 51, 102, 0.1);
+      border: 1px solid var(--destructive);
+      color: var(--destructive);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      clip-path: var(--chamfer-sm);
+      animation: anomalyPulse 1s infinite alternate;
+    }
+    @keyframes anomalyPulse {
+      0% { box-shadow: 0 0 4px rgba(255, 51, 102, 0.3); }
+      100% { box-shadow: 0 0 14px rgba(255, 51, 102, 0.7); }
+    }
+
+    .menu-btn-anomaly { border-color: var(--destructive) !important; color: var(--destructive) !important; animation: anomalyPulse 1s infinite alternate; }
+    .menu-btn-anomaly .menu-tag { color: var(--destructive) !important; border-color: var(--destructive) !important; }
+    .menu-btn-anomaly:hover { background: rgba(255, 51, 102, 0.08) !important; color: var(--destructive) !important; }
+    /* ===== END ROBLOX-NOPLAYING FEATURE ===== */
+
     .stagger-item { opacity: 0; transform: translateY(15px); }
     @keyframes sequentialFadeUp {
       0% { opacity: 0; transform: translateY(15px); }
@@ -543,6 +590,14 @@
                 <span>>_</span> <span data-i18n="dataLogs">DATA.LOGS</span>
               </div>
               <span class="menu-tag">[03]</span>
+            </button>
+          </li>
+          <li class="menu-item-wrapper" id="anomalyMenuItem" style="display: none;">
+            <button class="menu-btn menu-btn-anomaly" onclick="showTab('live', this)">
+              <div class="menu-btn-content">
+                <span>>_</span> <span data-i18n="anomalyMenuLabel">⚠ ANOMALY_ALERT</span>
+              </div>
+              <span class="menu-tag" id="anomalyMenuCount">0</span>
             </button>
           </li>
         </ul>
@@ -732,7 +787,14 @@
         temporalFilter: "> BỘ_LỌC_THỜI_GIAN:",
         toggleMode: "CHUYỂN_CHẾ_ĐỘ",
         extractingData: "ĐANG TRÍCH XUẤT DỮ LIỆU...",
-        noDataFrag: "KHÔNG TÌM THẤY MẢNH DỮ LIỆU NÀO."
+        noDataFrag: "KHÔNG TÌM THẤY MẢNH DỮ LIỆU NÀO.",
+        notPlayingLabel: "CHẾ ĐỘ KHÔNG CHƠI:",
+        notPlayingOn: "BẬT",
+        notPlayingOff: "TẮT",
+        notPlayingEnableBtn: "🛡️ KHÔNG CHƠI HÔM NAY",
+        notPlayingDisableBtn: "🔓 CHO PHÉP CHƠI",
+        anomalyWarningText: "🚨 BẤT THƯỜNG: Phát hiện tài khoản đang vào game/online trong khi chế độ \"Không chơi game\" đang BẬT!",
+        anomalyMenuLabel: "⚠ CẢNH_BÁO_BẤT_THƯỜNG"
       },
       en: {
         sysDashboard: "SYS.DASHBOARD",
@@ -775,7 +837,14 @@
         temporalFilter: "> TEMPORAL_FILTER:",
         toggleMode: "TOGGLE_MODE",
         extractingData: "EXTRACTING_DATA...",
-        noDataFrag: "NO DATA FRAGMENTS FOUND."
+        noDataFrag: "NO DATA FRAGMENTS FOUND.",
+        notPlayingLabel: "NOT_PLAYING_MODE:",
+        notPlayingOn: "ON",
+        notPlayingOff: "OFF",
+        notPlayingEnableBtn: "🛡️ NOT PLAYING TODAY",
+        notPlayingDisableBtn: "🔓 ALLOW PLAYING",
+        anomalyWarningText: "🚨 ANOMALY: Target detected in-game/online while \"Not Playing\" mode is ON!",
+        anomalyMenuLabel: "⚠ ANOMALY_ALERT"
       }
     };
 
@@ -1206,14 +1275,63 @@
       updateUI();
     }
 
+    // ===== ROBLOX-NOPLAYING FEATURE =====
+    // NOTE: This dashboard has no backend endpoint exposed for reading/writing
+    // the "is_not_playing" flag (bot.py stores it in the `roblox_users` table
+    // and toggles it only via the Discord slash/prefix commands). To keep this
+    // page working standalone, the ON/OFF state is mirrored client-side in
+    // localStorage, following the exact same pattern already used by
+    // `custom_tracked_accounts` above. If a `/api/roblox-notplaying` endpoint
+    // is ever added to bot.py's Flask app, wire it into
+    // getNotPlayingMap()/setNotPlayingStatus() below instead of localStorage.
+    function getNotPlayingMap() {
+      let map = {};
+      try { map = JSON.parse(localStorage.getItem('roblox_notplaying_status') || '{}'); } catch(e) {}
+      return map;
+    }
+
+    function isNotPlayingEnabled(id) {
+      const map = getNotPlayingMap();
+      return !!map[id];
+    }
+
+    function setNotPlayingStatus(id, status) {
+      const map = getNotPlayingMap();
+      if (status) map[id] = true; else delete map[id];
+      localStorage.setItem('roblox_notplaying_status', JSON.stringify(map));
+    }
+
+    function toggleNotPlaying(id) {
+      setNotPlayingStatus(id, !isNotPlayingEnabled(id));
+      updateUI();
+    }
+
+    function updateAnomalyNotificationMenu(anomalyCount) {
+      const item = document.getElementById('anomalyMenuItem');
+      const countEl = document.getElementById('anomalyMenuCount');
+      if (!item) return;
+      if (anomalyCount > 0) {
+        item.style.display = 'block';
+        if (countEl) countEl.textContent = anomalyCount;
+      } else {
+        item.style.display = 'none';
+        if (countEl) countEl.textContent = '0';
+      }
+    }
+    // ===== END ROBLOX-NOPLAYING FEATURE =====
+
     function renderLiveView(trackedMap, trackedIds) {
       const liveContainer = document.getElementById("live-container");
       liveContainer.innerHTML = "";
       if (trackedIds.length === 0) {
         const noTargetText = translations[currentLang].noTargets;
         liveContainer.innerHTML = `<div class='empty-msg cyber-panel' style='animation: sequentialFadeUp 0.5s forwards;'>${noTargetText}</div>`;
+        updateAnomalyNotificationMenu(0);
         return;
       }
+
+      let anomalyCount = 0;
+      const npLabels = translations[currentLang];
 
       trackedIds.forEach((userId, index) => {
         const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId || item.robloxId) === String(userId));
@@ -1224,6 +1342,17 @@
         const badge = isOnline ? '<span class="status-badge status-1">ON_GRID</span>' : '<span class="status-badge status-0">OFFLINE</span>';
         
         const imgId = `live-avatar-${userId}`;
+
+        // ROBLOX-NOPLAYING: per-account "not playing today" toggle + anomaly check
+        const notPlayingOn = isNotPlayingEnabled(userId);
+        const isAnomaly = notPlayingOn && isOnline;
+        if (isAnomaly) anomalyCount++;
+        const notPlayingRowHtml = `
+          <div class="notplaying-row">
+            <span class="notplaying-label">${npLabels.notPlayingLabel} <span class="notplaying-state ${notPlayingOn ? 'on' : 'off'}">${notPlayingOn ? npLabels.notPlayingOn : npLabels.notPlayingOff}</span></span>
+            <button class="btn-notplaying ${notPlayingOn ? 'is-on' : ''}" onclick="toggleNotPlaying('${userId}')">${notPlayingOn ? npLabels.notPlayingDisableBtn : npLabels.notPlayingEnableBtn}</button>
+          </div>
+          ${isAnomaly ? `<div class="anomaly-warning">${npLabels.anomalyWarningText}</div>` : ''}`;
 
         const card = document.createElement("div");
         card.className = "log-card cyber-panel";
@@ -1246,11 +1375,14 @@
                <button class="btn-remove-acc" onclick="removeTrackedAccount('${userId}')">[DROP]</button>
             </div>
           </div>
-          <div class="log-info" style="margin-top:12px; font-family: monospace;">${locationText}</div>`;
+          <div class="log-info" style="margin-top:12px; font-family: monospace;">${locationText}</div>
+          ${notPlayingRowHtml}`;
         liveContainer.appendChild(card);
 
         loadRobloxAvatar(userId, imgId);
       });
+
+      updateAnomalyNotificationMenu(anomalyCount);
     }
 
     function renderHistoryLogs() {
