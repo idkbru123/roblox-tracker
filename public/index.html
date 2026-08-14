@@ -592,6 +592,14 @@
               <span class="menu-tag">[03]</span>
             </button>
           </li>
+          <li class="menu-item-wrapper">
+            <button class="menu-btn" onclick="showTab('notifications', this)">
+              <div class="menu-btn-content">
+                <span>>_</span> <span data-i18n="notifMenu">NOTIF.LOG</span>
+              </div>
+              <span class="menu-tag">[04]</span>
+            </button>
+          </li>
           <li class="menu-item-wrapper" id="anomalyMenuItem" style="display: none;">
             <button class="menu-btn menu-btn-anomaly" onclick="showTab('live', this)">
               <div class="menu-btn-content">
@@ -741,6 +749,19 @@
           <p class='empty-msg cyber-panel' data-i18n="extractingData">EXTRACTING_DATA...</p>
         </div>
       </div>
+
+      <div id="tab-notifications" class="tab-section">
+        <h1 class="stagger-item cyber-glitch" data-text="NOTIFICATIONS" data-i18n-glitch="notifTitle">NOTIFICATIONS</h1>
+
+        <div class="filter-box cyber-panel stagger-item" style="flex-direction: row; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <span style="font-size: 0.85rem; color: var(--text-muted);" data-i18n="notifDesc">Recorded anomaly events while "Bot Check Activity" is enabled.</span>
+          <button class="btn-action" style="padding: 8px 16px; font-size: 0.8rem;" onclick="clearAnomalyHistory()" data-i18n="clearNotif">🗑️ CLEAR_LOG</button>
+        </div>
+
+        <div id="notification-container" class="grid-container stagger-item">
+          <p class='empty-msg cyber-panel' data-i18n="noNotif">NO ANOMALIES RECORDED.</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -794,7 +815,13 @@
         notPlayingEnableBtn: "🛡️ KHÔNG CHƠI HÔM NAY",
         notPlayingDisableBtn: "🔓 DỪNG KIỂM TRA",
         anomalyWarningText: "🚨 BẤT THƯỜNG: Phát hiện tài khoản đang vào game/online trong khi chế độ \"Không chơi game\" đang BẬT!",
-        anomalyMenuLabel: "⚠ CẢNH_BÁO_BẤT_THƯỜNG"
+        anomalyMenuLabel: "⚠ CẢNH_BÁO_BẤT_THƯỜNG",
+        notifMenu: "NHẬT_KÝ_THÔNG_BÁO",
+        notifTitle: "THÔNG_BÁO",
+        notifDesc: "Ghi lại các sự kiện bất thường khi \"Bot kiểm tra hoạt động\" đang BẬT.",
+        clearNotif: "🗑️ XÓA_NHẬT_KÝ",
+        noNotif: "CHƯA CÓ SỰ KIỆN BẤT THƯỜNG NÀO ĐƯỢC GHI NHẬN.",
+        anomalyBadge: "BẤT THƯỜNG"
       },
       en: {
         sysDashboard: "SYS.DASHBOARD",
@@ -844,7 +871,13 @@
         notPlayingEnableBtn: "🛡️ NOT PLAYING TODAY",
         notPlayingDisableBtn: "🔓 STOP CHECKING",
         anomalyWarningText: "🚨 ANOMALY: Target detected in-game/online while \"Not Playing\" mode is ON!",
-        anomalyMenuLabel: "⚠ ANOMALY_ALERT"
+        anomalyMenuLabel: "⚠ ANOMALY_ALERT",
+        notifMenu: "NOTIF.LOG",
+        notifTitle: "NOTIFICATIONS",
+        notifDesc: "Recorded anomaly events while \"Bot Check Activity\" is enabled.",
+        clearNotif: "🗑️ CLEAR_LOG",
+        noNotif: "NO ANOMALIES RECORDED.",
+        anomalyBadge: "ANOMALY"
       }
     };
 
@@ -1253,6 +1286,7 @@
       }
       renderLiveView(trackedMap, trackedIds);
       renderHistoryLogs();
+      renderAnomalyHistory();
     }
 
     function removeTrackedAccount(id) {
@@ -1318,6 +1352,69 @@
         if (countEl) countEl.textContent = '0';
       }
     }
+
+    // ---- Notification section: persistent record of past anomaly events ----
+    function getAnomalyHistory() {
+      let hist = [];
+      try { hist = JSON.parse(localStorage.getItem('roblox_anomaly_history') || '[]'); } catch(e) {}
+      return hist;
+    }
+
+    function saveAnomalyHistory(hist) {
+      if (hist.length > 100) hist = hist.slice(hist.length - 100);
+      localStorage.setItem('roblox_anomaly_history', JSON.stringify(hist));
+    }
+
+    // Logs a new record only when the anomaly is new or its detail (game/location)
+    // changed since the last record for that account, mirroring bot.py's
+    // prev_sig/curr_sig comparison in process_roblox_presence() so the log
+    // captures new occurrences instead of repeating the same entry every render.
+    function recordAnomalyEvent(userId, playerName, sig) {
+      const hist = getAnomalyHistory();
+      const lastForUser = [...hist].reverse().find(h => h.userId === userId);
+      if (lastForUser && lastForUser.sig === sig) return;
+      hist.push({ userId, playerName, sig, time: Date.now() });
+      saveAnomalyHistory(hist);
+    }
+
+    function clearAnomalyHistory() {
+      localStorage.removeItem('roblox_anomaly_history');
+      renderAnomalyHistory();
+    }
+
+    function renderAnomalyHistory() {
+      const container = document.getElementById('notification-container');
+      if (!container) return;
+
+      const hist = getAnomalyHistory().slice().reverse();
+      if (hist.length === 0) {
+        const noNotifText = translations[currentLang].noNotif;
+        container.innerHTML = `<p class='empty-msg cyber-panel' style='animation: sequentialFadeUp 0.5s forwards;'>${noNotifText}</p>`;
+        return;
+      }
+
+      const trackedMap = getTrackedAccounts();
+      container.innerHTML = "";
+      hist.slice(0, 50).forEach((entry, index) => {
+        const name = trackedMap.get(entry.userId) || entry.playerName || `ID:${entry.userId}`;
+        const timeStr = new Date(entry.time).toLocaleString(currentLang === 'vi' ? 'vi-VN' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const onlineLabel = currentLang === 'vi' ? 'Trực tuyến' : 'Online';
+        const detail = entry.sig && entry.sig !== 'ONLINE' ? entry.sig : onlineLabel;
+
+        const card = document.createElement('div');
+        card.className = 'log-card cyber-panel';
+        card.style.opacity = '0';
+        card.style.animation = `sequentialFadeUp 0.3s steps(4) ${index * 0.05}s forwards`;
+        card.innerHTML = `
+          <div class="log-top">
+            <div style="font-family: monospace; font-size: 0.85rem; min-width: 0; overflow: hidden; text-overflow: ellipsis;">TRGT: <span class="highlight">${name}</span></div>
+            <span class="status-badge status-0">🚨 ${translations[currentLang].anomalyBadge}</span>
+          </div>
+          <div class="log-info" style="margin-top: 10px;">${detail}</div>
+          <div style="font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-top: 10px; text-align: right;">${timeStr}</div>`;
+        container.appendChild(card);
+      });
+    }
     // ===== END ROBLOX-NOPLAYING FEATURE =====
 
     function renderLiveView(trackedMap, trackedIds) {
@@ -1346,7 +1443,10 @@
         // ROBLOX-NOPLAYING: per-account "not playing today" toggle + anomaly check
         const notPlayingOn = isNotPlayingEnabled(userId);
         const isAnomaly = notPlayingOn && isOnline;
-        if (isAnomaly) anomalyCount++;
+        if (isAnomaly) {
+          anomalyCount++;
+          recordAnomalyEvent(userId, playerName, rawGame && !rawGame.includes('Website') ? rawGame : 'ONLINE');
+        }
         const notPlayingRowHtml = `
           <div class="notplaying-row">
             <span class="notplaying-label">${npLabels.notPlayingLabel} <span class="notplaying-state ${notPlayingOn ? 'on' : 'off'}">${notPlayingOn ? npLabels.notPlayingOn : npLabels.notPlayingOff}</span></span>
