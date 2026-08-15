@@ -818,10 +818,11 @@
         anomalyMenuLabel: "⚠ CẢNH_BÁO_BẤT_THƯỜNG",
         notifMenu: "🚨 THÔNG_BÁO",
         notifTitle: "🚨 THÔNG_BÁO",
-        notifDesc: "Ghi lại các sự kiện bất thường khi \"Bot kiểm tra hoạt động\" đang BẬT.",
+        notifDesc: "Ghi lại các sự kiện bất thường mà bot phát hiện được (kể cả khi web đang đóng).",
         clearNotif: "🗑️ XÓA_NHẬT_KÝ",
         noNotif: "CHƯA CÓ SỰ KIỆN BẤT THƯỜNG NÀO ĐƯỢC GHI NHẬN.",
-        anomalyBadge: "BẤT THƯỜNG"
+        anomalyBadge: "BẤT THƯỜNG",
+        anomalyDetectedDetail: "Phát hiện vào game/online khi chế độ giám sát đang BẬT."
       },
       en: {
         sysDashboard: "📊 SYS.DASHBOARD",
@@ -874,10 +875,11 @@
         anomalyMenuLabel: "⚠ ANOMALY_ALERT",
         notifMenu: "🚨 NOTIF.LOG",
         notifTitle: "🚨 NOTIFICATIONS",
-        notifDesc: "Recorded anomaly events while \"Bot Check Activity\" is enabled.",
+        notifDesc: "Anomaly events detected by the bot (even while this page is closed).",
         clearNotif: "🗑️ CLEAR_LOG",
         noNotif: "NO ANOMALIES RECORDED.",
-        anomalyBadge: "ANOMALY"
+        anomalyBadge: "ANOMALY",
+        anomalyDetectedDetail: "Detected in-game/online while monitoring mode was ON."
       }
     };
 
@@ -1354,31 +1356,36 @@
     }
 
     // ---- Notification section: persistent record of past anomaly events ----
-    function getAnomalyHistory() {
-      let hist = [];
-      try { hist = JSON.parse(localStorage.getItem('roblox_anomaly_history') || '[]'); } catch(e) {}
-      return hist;
+    // bot.py's own background loop (roblox_presence_monitor -> process_roblox_presence)
+    // already detects anomalies 24/7 using the bot's own is_not_playing flag, and pushes
+    // each one into Firestore's "roblox_logs" collection via save_roblox_activity() with
+    // lastLocation set to the "🚨 BẤT THƯỜNG..." alert text. That happens on the bot's
+    // server regardless of whether this website is open, so instead of tracking anomalies
+    // ourselves in the browser (which only works while the tab is open), we detect them
+    // straight from that already-persistent Firestore data.
+    function isAnomalyLog(log) {
+      return !!(log && log.lastLocation && String(log.lastLocation).includes('BẤT THƯỜNG'));
     }
 
-    function saveAnomalyHistory(hist) {
-      if (hist.length > 100) hist = hist.slice(hist.length - 100);
-      localStorage.setItem('roblox_anomaly_history', JSON.stringify(hist));
+    function getDismissedAnomalyIds() {
+      let ids = [];
+      try { ids = JSON.parse(localStorage.getItem('roblox_dismissed_anomalies') || '[]'); } catch(e) {}
+      return new Set(ids);
     }
 
-    // Logs a new record only when the anomaly is new or its detail (game/location)
-    // changed since the last record for that account, mirroring bot.py's
-    // prev_sig/curr_sig comparison in process_roblox_presence() so the log
-    // captures new occurrences instead of repeating the same entry every render.
-    function recordAnomalyEvent(userId, playerName, sig) {
-      const hist = getAnomalyHistory();
-      const lastForUser = [...hist].reverse().find(h => h.userId === userId);
-      if (lastForUser && lastForUser.sig === sig) return;
-      hist.push({ userId, playerName, sig, time: Date.now() });
-      saveAnomalyHistory(hist);
+    function saveDismissedAnomalyIds(idsSet) {
+      let ids = Array.from(idsSet);
+      if (ids.length > 300) ids = ids.slice(ids.length - 300);
+      localStorage.setItem('roblox_dismissed_anomalies', JSON.stringify(ids));
     }
 
+    // "Clear log" hides the currently-listed entries from this browser's view only —
+    // it never deletes the bot's real Firestore records, since those are the bot's
+    // actual activity history, not something a viewer button should be able to erase.
     function clearAnomalyHistory() {
-      localStorage.removeItem('roblox_anomaly_history');
+      const dismissed = getDismissedAnomalyIds();
+      rawLogsData.filter(isAnomalyLog).forEach(log => { if (log._id) dismissed.add(log._id); });
+      saveDismissedAnomalyIds(dismissed);
       renderAnomalyHistory();
     }
 
@@ -1386,31 +1393,34 @@
       const container = document.getElementById('notification-container');
       if (!container) return;
 
-      const hist = getAnomalyHistory().slice().reverse();
-      if (hist.length === 0) {
+      const dismissed = getDismissedAnomalyIds();
+      const entries = rawLogsData.filter(log => isAnomalyLog(log) && !(log._id && dismissed.has(log._id)));
+
+      if (entries.length === 0) {
         const noNotifText = translations[currentLang].noNotif;
         container.innerHTML = `<p class='empty-msg cyber-panel' style='animation: sequentialFadeUp 0.5s forwards;'>${noNotifText}</p>`;
         return;
       }
 
       const trackedMap = getTrackedAccounts();
+      const detectedLabel = translations[currentLang].anomalyDetectedDetail;
       container.innerHTML = "";
-      hist.slice(0, 50).forEach((entry, index) => {
-        const name = trackedMap.get(entry.userId) || entry.playerName || `ID:${entry.userId}`;
-        const timeStr = new Date(entry.time).toLocaleString(currentLang === 'vi' ? 'vi-VN' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        const onlineLabel = currentLang === 'vi' ? 'Trực tuyến' : 'Online';
-        const detail = entry.sig && entry.sig !== 'ONLINE' ? entry.sig : onlineLabel;
+      entries.slice(0, 50).forEach((log, index) => {
+        const uid = String(log.robloxUserId || log.details?.robloxUserId || log.robloxId || "");
+        const name = trackedMap.get(uid) || log.playerName || `ID:${uid}`;
+        const time = log.timestamp?.seconds ? new Date(log.timestamp.seconds * 1000) : new Date();
+        const timeStr = time.toLocaleString(currentLang === 'vi' ? 'vi-VN' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
         const card = document.createElement('div');
         card.className = 'log-card cyber-panel';
         card.style.opacity = '0';
-        card.style.animation = `sequentialFadeUp 0.3s steps(4) ${index * 0.05}s forwards`;
+        card.style.animation = `sequentialFadeUp 0.3s steps(4) ${Math.min(index, 20) * 0.05}s forwards`;
         card.innerHTML = `
           <div class="log-top">
             <div style="font-family: monospace; font-size: 0.85rem; min-width: 0; overflow: hidden; text-overflow: ellipsis;">TRGT: <span class="highlight">${name}</span></div>
             <span class="status-badge status-0">🚨 ${translations[currentLang].anomalyBadge}</span>
           </div>
-          <div class="log-info" style="margin-top: 10px;">${detail}</div>
+          <div class="log-info" style="margin-top: 10px;">${detectedLabel}</div>
           <div style="font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-top: 10px; text-align: right;">${timeStr}</div>`;
         container.appendChild(card);
       });
@@ -1432,21 +1442,25 @@
 
       trackedIds.forEach((userId, index) => {
         const userLog = rawLogsData.find(item => String(item.robloxUserId || item.details?.robloxUserId || item.robloxId) === String(userId));
-        const isOnline = userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1 || userLog.userStatus === 2) : false;
+        // NOTE: bot.py's status_map doesn't include "suspicious_game", so an anomaly log's
+        // userStatus defaults to 0 (offline) even though the account is actually online/in-game
+        // (that's the whole reason it got flagged). isAnomalyLog is checked first so the card
+        // doesn't contradictorily show OFFLINE/UNKNOWN on an active anomaly.
+        const isAnomaly = isAnomalyLog(userLog);
+        const isOnline = isAnomaly ? true : (userLog ? (userLog.userStatus === 1 || userLog.details?.userStatus === 1 || userLog.userStatus === 2) : false);
         const playerName = trackedMap.get(userId) || `ID:${userId}`;
         const rawGame = userLog ? (userLog.lastLocation || userLog.gameName || userLog.details?.gameName) : null;
-        let locationText = isOnline ? (rawGame && !rawGame.includes('Website') ? `LOC: <span style="color:var(--accent-primary);">${rawGame}</span>` : `LOC: <span style="color:var(--accent-primary);">ROOT_NODE</span>`) : `LOC: <span style="color:var(--text-muted);">UNKNOWN</span>`;
+        let locationText = isAnomaly ? `LOC: <span style="color:var(--destructive);">${npLabels.anomalyBadge}</span>` : (isOnline ? (rawGame && !rawGame.includes('Website') ? `LOC: <span style="color:var(--accent-primary);">${rawGame}</span>` : `LOC: <span style="color:var(--accent-primary);">ROOT_NODE</span>`) : `LOC: <span style="color:var(--text-muted);">UNKNOWN</span>`);
         const badge = isOnline ? '<span class="status-badge status-1">ON_GRID</span>' : '<span class="status-badge status-0">OFFLINE</span>';
         
         const imgId = `live-avatar-${userId}`;
 
-        // ROBLOX-NOPLAYING: per-account "not playing today" toggle + anomaly check
+        // ROBLOX-NOPLAYING: per-account "not playing today" toggle (local display only)
+        // + real anomaly check sourced from the bot's own Firestore-written detection,
+        // so it reflects the bot's 24/7 monitoring rather than only what happens while
+        // this page is open.
         const notPlayingOn = isNotPlayingEnabled(userId);
-        const isAnomaly = notPlayingOn && isOnline;
-        if (isAnomaly) {
-          anomalyCount++;
-          recordAnomalyEvent(userId, playerName, rawGame && !rawGame.includes('Website') ? rawGame : 'ONLINE');
-        }
+        if (isAnomaly) anomalyCount++;
         const notPlayingRowHtml = `
           <div class="notplaying-row">
             <span class="notplaying-label">${npLabels.notPlayingLabel} <span class="notplaying-state ${notPlayingOn ? 'on' : 'off'}">${notPlayingOn ? npLabels.notPlayingOn : npLabels.notPlayingOff}</span></span>
@@ -1634,7 +1648,7 @@
 
     db.collection("roblox_logs").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
       rawLogsData = [];
-      snapshot.forEach(doc => rawLogsData.push(doc.data()));
+      snapshot.forEach(doc => rawLogsData.push({ ...doc.data(), _id: doc.id }));
       updateUI();
     });
   </script>
